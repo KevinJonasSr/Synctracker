@@ -8,13 +8,37 @@ export const songs = pgTable("songs", {
   title: text("title").notNull(),
   artist: text("artist").notNull(),
   album: text("album"),
+  composer: text("composer"),
+  producer: text("producer"),
+  publisher: text("publisher"),
+  irc: text("irc"), // International Recording Code
+  isrc: text("isrc"), // International Standard Recording Code
+  upcEan: text("upc_ean"), // UPC/EAN barcode
+  pNumbers: text("p_numbers"), // (P) Numbers
+  proCueSheetId: text("pro_cue_sheet_id"),
+  genreSubGenre: text("genre_sub_genre"),
+  moodTheme: text("mood_theme"),
+  bpmKey: text("bpm_key"),
+  vocalInstrumentation: text("vocal_instrumentation"),
+  explicitContent: boolean("explicit_content").default(false),
+  lyrics: text("lyrics"),
+  durationFormatted: text("duration_formatted"), // MM:SS format
+  version: text("version"),
+  coverArtDescription: text("cover_art_description"),
+  fileTypeSampleRate: text("file_type_sample_rate"),
+  contentRepresentationCode: text("content_representation_code"),
+  masterRightsContact: text("master_rights_contact"),
+  publishingRightsContact: text("publishing_rights_contact"),
+  syncRepresentation: text("sync_representation"),
+  contentRepresented: text("content_represented"),
+  smartLinkQrCode: text("smart_link_qr_code"),
+  // Legacy fields for backward compatibility
   genre: text("genre"),
   mood: text("mood"),
   tempo: integer("tempo"),
   duration: integer("duration"), // in seconds
   key: text("key"),
   bpm: integer("bpm"),
-  lyrics: text("lyrics"),
   description: text("description"),
   tags: text("tags").array(),
   filePath: text("file_path"),

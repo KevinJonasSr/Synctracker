@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Header from "@/components/layout/header";
-import AddSongForm from "@/components/forms/add-song-form";
+import ComprehensiveSongForm from "@/components/forms/comprehensive-song-form";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -107,14 +107,34 @@ export default function Songs() {
                             <span className="font-medium">Album:</span> {song.album || "N/A"}
                           </div>
                           <div>
-                            <span className="font-medium">Duration:</span> {formatDuration(song.duration)}
+                            <span className="font-medium">Duration:</span> {song.durationFormatted || formatDuration(song.duration)}
                           </div>
                           <div>
-                            <span className="font-medium">BPM:</span> {song.bpm || "N/A"}
+                            <span className="font-medium">BPM/Key:</span> {song.bpmKey || `${song.bpm || "N/A"} / ${song.key || "N/A"}`}
                           </div>
                           <div>
-                            <span className="font-medium">Key:</span> {song.key || "N/A"}
+                            <span className="font-medium">Genre:</span> {song.genreSubGenre || song.genre || "N/A"}
                           </div>
+                          {song.composer && (
+                            <div>
+                              <span className="font-medium">Composer:</span> {song.composer}
+                            </div>
+                          )}
+                          {song.producer && (
+                            <div>
+                              <span className="font-medium">Producer:</span> {song.producer}
+                            </div>
+                          )}
+                          {song.isrc && (
+                            <div>
+                              <span className="font-medium">ISRC:</span> {song.isrc}
+                            </div>
+                          )}
+                          {song.publisher && (
+                            <div>
+                              <span className="font-medium">Publisher:</span> {song.publisher}
+                            </div>
+                          )}
                         </div>
                         
                         {song.description && (
@@ -139,7 +159,7 @@ export default function Songs() {
         )}
       </div>
 
-      <AddSongForm open={showAddSong} onClose={() => setShowAddSong(false)} />
+      <ComprehensiveSongForm open={showAddSong} onClose={() => setShowAddSong(false)} />
     </div>
   );
 }

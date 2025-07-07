@@ -110,6 +110,12 @@ Changelog:
   * Email Templates - Pre-written templates for different licensing stages
   * File Attachment System - Upload and manage contracts, demos, project files
   * Calendar Integration - Track important dates and deadlines
+- July 07, 2025. Enhanced song metadata system:
+  * Comprehensive metadata fields (25+ industry-standard fields)
+  * Professional identifiers (ISRC, UPC/EAN, IRC, P-Numbers)
+  * Rights and publishing contact information
+  * Technical details (file format, sample rate, BPM/key combinations)
+  * Tabbed form interface for better organization
 ```
 
 ## User Preferences

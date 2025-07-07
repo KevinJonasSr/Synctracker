@@ -1,0 +1,417 @@
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import { queryClient } from "@/lib/queryClient";
+import { apiRequest } from "@/lib/queryClient";
+import { insertSongSchema, type InsertSong } from "@shared/schema";
+
+interface ComprehensiveSongFormProps {
+  open: boolean;
+  onClose: () => void;
+  song?: any; // For editing existing songs
+}
+
+export default function ComprehensiveSongForm({ open, onClose, song }: ComprehensiveSongFormProps) {
+  const { toast } = useToast();
+  const isEditing = !!song;
+  
+  const form = useForm<InsertSong>({
+    resolver: zodResolver(insertSongSchema),
+    defaultValues: {
+      title: song?.title || "",
+      artist: song?.artist || "",
+      album: song?.album || "",
+      composer: song?.composer || "",
+      producer: song?.producer || "",
+      publisher: song?.publisher || "",
+      irc: song?.irc || "",
+      isrc: song?.isrc || "",
+      upcEan: song?.upcEan || "",
+      pNumbers: song?.pNumbers || "",
+      proCueSheetId: song?.proCueSheetId || "",
+      genreSubGenre: song?.genreSubGenre || "",
+      moodTheme: song?.moodTheme || "",
+      bpmKey: song?.bpmKey || "",
+      vocalInstrumentation: song?.vocalInstrumentation || "",
+      explicitContent: song?.explicitContent || false,
+      lyrics: song?.lyrics || "",
+      durationFormatted: song?.durationFormatted || "",
+      version: song?.version || "",
+      coverArtDescription: song?.coverArtDescription || "",
+      fileTypeSampleRate: song?.fileTypeSampleRate || "",
+      contentRepresentationCode: song?.contentRepresentationCode || "",
+      masterRightsContact: song?.masterRightsContact || "",
+      publishingRightsContact: song?.publishingRightsContact || "",
+      syncRepresentation: song?.syncRepresentation || "",
+      contentRepresented: song?.contentRepresented || "",
+      smartLinkQrCode: song?.smartLinkQrCode || "",
+      // Legacy fields
+      genre: song?.genre || "",
+      mood: song?.mood || "",
+      tempo: song?.tempo || undefined,
+      duration: song?.duration || undefined,
+      key: song?.key || "",
+      bpm: song?.bpm || undefined,
+      description: song?.description || "",
+      tags: song?.tags || [],
+      filePath: song?.filePath || "",
+    },
+  });
+
+  const createSongMutation = useMutation({
+    mutationFn: async (data: InsertSong) => {
+      const endpoint = isEditing ? `/api/songs/${song.id}` : "/api/songs";
+      const method = isEditing ? "PUT" : "POST";
+      const response = await apiRequest(method, endpoint, data);
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: isEditing ? "Song updated successfully" : "Song added successfully",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/songs"] });
+      onClose();
+      form.reset();
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to save song",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const onSubmit = (data: InsertSong) => {
+    createSongMutation.mutate(data);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-4xl h-[90vh] overflow-hidden">
+        <DialogHeader>
+          <DialogTitle>{isEditing ? "Edit Song" : "Add New Song"}</DialogTitle>
+        </DialogHeader>
+        
+        <form onSubmit={form.handleSubmit(onSubmit)} className="h-full overflow-hidden">
+          <Tabs defaultValue="basic" className="h-full flex flex-col">
+            <TabsList className="grid w-full grid-cols-5">
+              <TabsTrigger value="basic">Basic Info</TabsTrigger>
+              <TabsTrigger value="metadata">Metadata</TabsTrigger>
+              <TabsTrigger value="rights">Rights</TabsTrigger>
+              <TabsTrigger value="technical">Technical</TabsTrigger>
+              <TabsTrigger value="content">Content</TabsTrigger>
+            </TabsList>
+
+            <div className="flex-1 overflow-y-auto p-1">
+              <TabsContent value="basic" className="space-y-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Basic Information</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="title">Title *</Label>
+                        <Input
+                          id="title"
+                          {...form.register("title")}
+                          placeholder="Song title"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="artist">Artist *</Label>
+                        <Input
+                          id="artist"
+                          {...form.register("artist")}
+                          placeholder="Artist name"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="album">Album</Label>
+                        <Input
+                          id="album"
+                          {...form.register("album")}
+                          placeholder="Album name"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="composer">Composer(s)</Label>
+                        <Input
+                          id="composer"
+                          {...form.register("composer")}
+                          placeholder="Composer name(s)"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="producer">Producer</Label>
+                        <Input
+                          id="producer"
+                          {...form.register("producer")}
+                          placeholder="Producer name"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="publisher">Publisher(s)</Label>
+                        <Input
+                          id="publisher"
+                          {...form.register("publisher")}
+                          placeholder="Publisher name(s)"
+                        />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="metadata" className="space-y-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Metadata & Identifiers</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="irc">IRC</Label>
+                        <Input
+                          id="irc"
+                          {...form.register("irc")}
+                          placeholder="International Recording Code"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="isrc">ISRC</Label>
+                        <Input
+                          id="isrc"
+                          {...form.register("isrc")}
+                          placeholder="International Standard Recording Code"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="upcEan">UPC/EAN</Label>
+                        <Input
+                          id="upcEan"
+                          {...form.register("upcEan")}
+                          placeholder="UPC/EAN barcode"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="pNumbers">(P) Number(s)</Label>
+                        <Input
+                          id="pNumbers"
+                          {...form.register("pNumbers")}
+                          placeholder="P-line information"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="proCueSheetId">PRO Cue Sheet ID</Label>
+                        <Input
+                          id="proCueSheetId"
+                          {...form.register("proCueSheetId")}
+                          placeholder="PRO cue sheet identifier"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="version">Version</Label>
+                        <Input
+                          id="version"
+                          {...form.register("version")}
+                          placeholder="Version (e.g., Radio Edit, Extended)"
+                        />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="rights" className="space-y-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Rights & Representation</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 gap-4">
+                      <div>
+                        <Label htmlFor="masterRightsContact">Master Rights Contact</Label>
+                        <Input
+                          id="masterRightsContact"
+                          {...form.register("masterRightsContact")}
+                          placeholder="Master rights contact information"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="publishingRightsContact">Publishing Rights Contact</Label>
+                        <Input
+                          id="publishingRightsContact"
+                          {...form.register("publishingRightsContact")}
+                          placeholder="Publishing rights contact information"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="syncRepresentation">Sync Representation</Label>
+                        <Input
+                          id="syncRepresentation"
+                          {...form.register("syncRepresentation")}
+                          placeholder="Sync representation details"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="contentRepresented">Content Represented</Label>
+                        <Input
+                          id="contentRepresented"
+                          {...form.register("contentRepresented")}
+                          placeholder="Content representation details"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="contentRepresentationCode">Content Representation Code</Label>
+                        <Input
+                          id="contentRepresentationCode"
+                          {...form.register("contentRepresentationCode")}
+                          placeholder="Content representation code"
+                        />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="technical" className="space-y-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Technical Details</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="genreSubGenre">Genre/Sub-Genre</Label>
+                        <Input
+                          id="genreSubGenre"
+                          {...form.register("genreSubGenre")}
+                          placeholder="Genre and sub-genre"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="moodTheme">Mood/Theme</Label>
+                        <Input
+                          id="moodTheme"
+                          {...form.register("moodTheme")}
+                          placeholder="Mood and theme"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="bpmKey">BPM / Key</Label>
+                        <Input
+                          id="bpmKey"
+                          {...form.register("bpmKey")}
+                          placeholder="BPM and key signature"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="vocalInstrumentation">Vocal/Instrumentation</Label>
+                        <Input
+                          id="vocalInstrumentation"
+                          {...form.register("vocalInstrumentation")}
+                          placeholder="Vocal and instrumentation details"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="durationFormatted">Duration</Label>
+                        <Input
+                          id="durationFormatted"
+                          {...form.register("durationFormatted")}
+                          placeholder="MM:SS format"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="fileTypeSampleRate">File Type/Sample Rate</Label>
+                        <Input
+                          id="fileTypeSampleRate"
+                          {...form.register("fileTypeSampleRate")}
+                          placeholder="File format and sample rate"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        id="explicitContent"
+                        checked={form.watch("explicitContent")}
+                        onCheckedChange={(checked) => form.setValue("explicitContent", checked)}
+                      />
+                      <Label htmlFor="explicitContent">Explicit Content</Label>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="content" className="space-y-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Content & Artwork</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <Label htmlFor="lyrics">Lyrics</Label>
+                      <Textarea
+                        id="lyrics"
+                        {...form.register("lyrics")}
+                        placeholder="Song lyrics"
+                        rows={6}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="coverArtDescription">Cover Art Description</Label>
+                      <Textarea
+                        id="coverArtDescription"
+                        {...form.register("coverArtDescription")}
+                        placeholder="Description of cover art"
+                        rows={3}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="smartLinkQrCode">Smart Link / QR Code</Label>
+                      <Input
+                        id="smartLinkQrCode"
+                        {...form.register("smartLinkQrCode")}
+                        placeholder="Smart link or QR code URL"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="description">Description</Label>
+                      <Textarea
+                        id="description"
+                        {...form.register("description")}
+                        placeholder="General description of the song"
+                        rows={4}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </div>
+
+            <div className="flex justify-end space-x-2 pt-4 border-t">
+              <Button type="button" variant="outline" onClick={onClose}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={createSongMutation.isPending}>
+                {createSongMutation.isPending ? "Saving..." : isEditing ? "Update Song" : "Add Song"}
+              </Button>
+            </div>
+          </Tabs>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
