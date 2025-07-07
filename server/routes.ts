@@ -540,6 +540,89 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Playlists endpoints
+  app.get('/api/playlists', async (req, res) => {
+    try {
+      const playlists = await dbStorage.getPlaylists();
+      res.json(playlists);
+    } catch (error) {
+      console.error('Error fetching playlists:', error);
+      res.status(500).json({ error: 'Failed to fetch playlists' });
+    }
+  });
+
+  app.post('/api/playlists', async (req, res) => {
+    try {
+      const playlist = await dbStorage.createPlaylist(req.body);
+      res.status(201).json(playlist);
+    } catch (error) {
+      console.error('Error creating playlist:', error);
+      res.status(500).json({ error: 'Failed to create playlist' });
+    }
+  });
+
+  app.get('/api/playlist-songs/:playlistId', async (req, res) => {
+    try {
+      const songs = await dbStorage.getPlaylistSongs(parseInt(req.params.playlistId));
+      res.json(songs);
+    } catch (error) {
+      console.error('Error fetching playlist songs:', error);
+      res.status(500).json({ error: 'Failed to fetch playlist songs' });
+    }
+  });
+
+  // Workflow Automation endpoints
+  app.get('/api/workflow-automation', async (req, res) => {
+    try {
+      const automations = await dbStorage.getWorkflowAutomations();
+      res.json(automations);
+    } catch (error) {
+      console.error('Error fetching workflow automations:', error);
+      res.status(500).json({ error: 'Failed to fetch workflow automations' });
+    }
+  });
+
+  app.post('/api/workflow-automation', async (req, res) => {
+    try {
+      const automation = await dbStorage.createWorkflowAutomation(req.body);
+      res.status(201).json(automation);
+    } catch (error) {
+      console.error('Error creating workflow automation:', error);
+      res.status(500).json({ error: 'Failed to create workflow automation' });
+    }
+  });
+
+  app.put('/api/workflow-automation/:id', async (req, res) => {
+    try {
+      const automation = await dbStorage.updateWorkflowAutomation(parseInt(req.params.id), req.body);
+      res.json(automation);
+    } catch (error) {
+      console.error('Error updating workflow automation:', error);
+      res.status(500).json({ error: 'Failed to update workflow automation' });
+    }
+  });
+
+  // Saved Searches endpoints
+  app.get('/api/saved-searches', async (req, res) => {
+    try {
+      const searches = await dbStorage.getSavedSearches();
+      res.json(searches);
+    } catch (error) {
+      console.error('Error fetching saved searches:', error);
+      res.status(500).json({ error: 'Failed to fetch saved searches' });
+    }
+  });
+
+  app.post('/api/saved-searches', async (req, res) => {
+    try {
+      const search = await dbStorage.createSavedSearch(req.body);
+      res.status(201).json(search);
+    } catch (error) {
+      console.error('Error creating saved search:', error);
+      res.status(500).json({ error: 'Failed to create saved search' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

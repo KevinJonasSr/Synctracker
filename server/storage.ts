@@ -1,10 +1,14 @@
 import { 
   songs, contacts, deals, pitches, payments, templates, emailTemplates, attachments, calendarEvents,
+  playlists, playlistSongs, savedSearches, workflowAutomation, clientProfiles, analyticsEvents,
   type Song, type InsertSong, type Contact, type InsertContact,
   type Deal, type InsertDeal, type Pitch, type InsertPitch,
   type Payment, type InsertPayment, type Template, type InsertTemplate,
   type EmailTemplate, type InsertEmailTemplate, type Attachment, type InsertAttachment,
   type CalendarEvent, type InsertCalendarEvent,
+  type Playlist, type InsertPlaylist, type PlaylistSong, type InsertPlaylistSong,
+  type SavedSearch, type InsertSavedSearch, type WorkflowAutomation, type InsertWorkflowAutomation,
+  type ClientProfile, type InsertClientProfile, type AnalyticsEvent, type InsertAnalyticsEvent,
   type DealWithRelations, type DashboardMetrics
 } from "@shared/schema";
 import { db } from "./db";
@@ -75,6 +79,41 @@ export interface IStorage {
 
   // Dashboard
   getDashboardMetrics(): Promise<DashboardMetrics>;
+
+  // Playlists
+  getPlaylists(): Promise<Playlist[]>;
+  getPlaylist(id: number): Promise<Playlist | undefined>;
+  createPlaylist(playlist: InsertPlaylist): Promise<Playlist>;
+  updatePlaylist(id: number, playlist: Partial<InsertPlaylist>): Promise<Playlist>;
+  deletePlaylist(id: number): Promise<void>;
+
+  // Playlist Songs
+  getPlaylistSongs(playlistId: number): Promise<PlaylistSong[]>;
+  addSongToPlaylist(playlistSong: InsertPlaylistSong): Promise<PlaylistSong>;
+  removeSongFromPlaylist(playlistId: number, songId: number): Promise<void>;
+
+  // Saved Searches
+  getSavedSearches(): Promise<SavedSearch[]>;
+  getSavedSearch(id: number): Promise<SavedSearch | undefined>;
+  createSavedSearch(search: InsertSavedSearch): Promise<SavedSearch>;
+  deleteSavedSearch(id: number): Promise<void>;
+
+  // Workflow Automation
+  getWorkflowAutomations(): Promise<WorkflowAutomation[]>;
+  getWorkflowAutomation(id: number): Promise<WorkflowAutomation | undefined>;
+  createWorkflowAutomation(automation: InsertWorkflowAutomation): Promise<WorkflowAutomation>;
+  updateWorkflowAutomation(id: number, automation: Partial<InsertWorkflowAutomation>): Promise<WorkflowAutomation>;
+  deleteWorkflowAutomation(id: number): Promise<void>;
+
+  // Client Profiles
+  getClientProfiles(): Promise<ClientProfile[]>;
+  getClientProfile(id: number): Promise<ClientProfile | undefined>;
+  createClientProfile(profile: InsertClientProfile): Promise<ClientProfile>;
+  updateClientProfile(id: number, profile: Partial<InsertClientProfile>): Promise<ClientProfile>;
+  deleteClientProfile(id: number): Promise<void>;
+
+  // Analytics Events
+  createAnalyticsEvent(event: InsertAnalyticsEvent): Promise<AnalyticsEvent>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -559,6 +598,135 @@ export class DatabaseStorage implements IStorage {
       recentActivity,
       urgentActions
     };
+  }
+
+  // Playlist methods
+  async getPlaylists(): Promise<Playlist[]> {
+    return await db.select().from(playlists).orderBy(desc(playlists.createdAt));
+  }
+
+  async getPlaylist(id: number): Promise<Playlist | undefined> {
+    const [playlist] = await db.select().from(playlists).where(eq(playlists.id, id));
+    return playlist || undefined;
+  }
+
+  async createPlaylist(playlist: InsertPlaylist): Promise<Playlist> {
+    const [newPlaylist] = await db.insert(playlists).values(playlist).returning();
+    return newPlaylist;
+  }
+
+  async updatePlaylist(id: number, playlist: Partial<InsertPlaylist>): Promise<Playlist> {
+    const [updatedPlaylist] = await db
+      .update(playlists)
+      .set(playlist)
+      .where(eq(playlists.id, id))
+      .returning();
+    return updatedPlaylist;
+  }
+
+  async deletePlaylist(id: number): Promise<void> {
+    await db.delete(playlists).where(eq(playlists.id, id));
+  }
+
+  // Playlist Songs methods
+  async getPlaylistSongs(playlistId: number): Promise<PlaylistSong[]> {
+    return await db.select().from(playlistSongs)
+      .where(eq(playlistSongs.playlistId, playlistId))
+      .orderBy(asc(playlistSongs.position));
+  }
+
+  async addSongToPlaylist(playlistSong: InsertPlaylistSong): Promise<PlaylistSong> {
+    const [newPlaylistSong] = await db.insert(playlistSongs).values(playlistSong).returning();
+    return newPlaylistSong;
+  }
+
+  async removeSongFromPlaylist(playlistId: number, songId: number): Promise<void> {
+    await db.delete(playlistSongs)
+      .where(and(
+        eq(playlistSongs.playlistId, playlistId),
+        eq(playlistSongs.songId, songId)
+      ));
+  }
+
+  // Saved Searches methods
+  async getSavedSearches(): Promise<SavedSearch[]> {
+    return await db.select().from(savedSearches).orderBy(desc(savedSearches.createdAt));
+  }
+
+  async getSavedSearch(id: number): Promise<SavedSearch | undefined> {
+    const [search] = await db.select().from(savedSearches).where(eq(savedSearches.id, id));
+    return search || undefined;
+  }
+
+  async createSavedSearch(search: InsertSavedSearch): Promise<SavedSearch> {
+    const [newSearch] = await db.insert(savedSearches).values(search).returning();
+    return newSearch;
+  }
+
+  async deleteSavedSearch(id: number): Promise<void> {
+    await db.delete(savedSearches).where(eq(savedSearches.id, id));
+  }
+
+  // Workflow Automation methods
+  async getWorkflowAutomations(): Promise<WorkflowAutomation[]> {
+    return await db.select().from(workflowAutomation).orderBy(desc(workflowAutomation.createdAt));
+  }
+
+  async getWorkflowAutomation(id: number): Promise<WorkflowAutomation | undefined> {
+    const [automation] = await db.select().from(workflowAutomation).where(eq(workflowAutomation.id, id));
+    return automation || undefined;
+  }
+
+  async createWorkflowAutomation(automation: InsertWorkflowAutomation): Promise<WorkflowAutomation> {
+    const [newAutomation] = await db.insert(workflowAutomation).values(automation).returning();
+    return newAutomation;
+  }
+
+  async updateWorkflowAutomation(id: number, automation: Partial<InsertWorkflowAutomation>): Promise<WorkflowAutomation> {
+    const [updatedAutomation] = await db
+      .update(workflowAutomation)
+      .set(automation)
+      .where(eq(workflowAutomation.id, id))
+      .returning();
+    return updatedAutomation;
+  }
+
+  async deleteWorkflowAutomation(id: number): Promise<void> {
+    await db.delete(workflowAutomation).where(eq(workflowAutomation.id, id));
+  }
+
+  // Client Profiles methods
+  async getClientProfiles(): Promise<ClientProfile[]> {
+    return await db.select().from(clientProfiles).orderBy(desc(clientProfiles.createdAt));
+  }
+
+  async getClientProfile(id: number): Promise<ClientProfile | undefined> {
+    const [profile] = await db.select().from(clientProfiles).where(eq(clientProfiles.id, id));
+    return profile || undefined;
+  }
+
+  async createClientProfile(profile: InsertClientProfile): Promise<ClientProfile> {
+    const [newProfile] = await db.insert(clientProfiles).values(profile).returning();
+    return newProfile;
+  }
+
+  async updateClientProfile(id: number, profile: Partial<InsertClientProfile>): Promise<ClientProfile> {
+    const [updatedProfile] = await db
+      .update(clientProfiles)
+      .set(profile)
+      .where(eq(clientProfiles.id, id))
+      .returning();
+    return updatedProfile;
+  }
+
+  async deleteClientProfile(id: number): Promise<void> {
+    await db.delete(clientProfiles).where(eq(clientProfiles.id, id));
+  }
+
+  // Analytics Events methods
+  async createAnalyticsEvent(event: InsertAnalyticsEvent): Promise<AnalyticsEvent> {
+    const [newEvent] = await db.insert(analyticsEvents).values(event).returning();
+    return newEvent;
   }
 }
 

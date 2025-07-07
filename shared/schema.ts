@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, decimal, timestamp, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, decimal, timestamp, jsonb, real } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -153,13 +153,111 @@ export const calendarEvents = pgTable("calendar_events", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const playlists = pgTable("playlists", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description"),
+  type: text("type").notNull(), // 'client', 'genre', 'mood', 'project', 'custom'
+  clientId: integer("client_id"),
+  isPublic: boolean("is_public").default(false),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const playlistSongs = pgTable("playlist_songs", {
+  id: serial("id").primaryKey(),
+  playlistId: integer("playlist_id").notNull(),
+  songId: integer("song_id").notNull(),
+  position: integer("position").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const savedSearches = pgTable("saved_searches", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  searchCriteria: text("search_criteria").notNull(), // JSON string
+  entityType: text("entity_type").notNull(), // 'songs', 'deals', 'contacts', etc.
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const bulkPitches = pgTable("bulk_pitches", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description"),
+  contactId: integer("contact_id").notNull(),
+  playlistId: integer("playlist_id"),
+  emailTemplateId: integer("email_template_id"),
+  status: text("status").default("draft"), // 'draft', 'sent', 'responded'
+  sentDate: timestamp("sent_date"),
+  responseDate: timestamp("response_date"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const bulkPitchSongs = pgTable("bulk_pitch_songs", {
+  id: serial("id").primaryKey(),
+  bulkPitchId: integer("bulk_pitch_id").notNull(),
+  songId: integer("song_id").notNull(),
+  status: text("status").default("pending"), // 'pending', 'accepted', 'rejected', 'maybe'
+  feedback: text("feedback"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const clientProfiles = pgTable("client_profiles", {
+  id: serial("id").primaryKey(),
+  contactId: integer("contact_id").notNull(),
+  preferredGenres: text("preferred_genres").array(),
+  preferredMoods: text("preferred_moods").array(),
+  budgetRange: text("budget_range"),
+  projectTypes: text("project_types").array(),
+  communicationPreferences: text("communication_preferences"),
+  successRate: real("success_rate").default(0),
+  totalDeals: integer("total_deals").default(0),
+  averageDealValue: real("average_deal_value").default(0),
+  lastContactDate: timestamp("last_contact_date"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const workflowAutomation = pgTable("workflow_automation", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  triggerType: text("trigger_type").notNull(), // 'date', 'status_change', 'time_elapsed'
+  triggerCondition: text("trigger_condition").notNull(), // JSON string
+  actionType: text("action_type").notNull(), // 'email', 'notification', 'status_update'
+  actionData: text("action_data").notNull(), // JSON string
+  isActive: boolean("is_active").default(true),
+  entityType: text("entity_type").notNull(), // 'deal', 'pitch', 'payment'
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const analyticsEvents = pgTable("analytics_events", {
+  id: serial("id").primaryKey(),
+  eventType: text("event_type").notNull(), // 'song_pitched', 'deal_created', 'payment_received'
+  entityType: text("entity_type").notNull(),
+  entityId: integer("entity_id").notNull(),
+  metadata: text("metadata"), // JSON string
+  value: real("value"), // monetary value if applicable
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+});
+
 // Relations
 export const songsRelations = relations(songs, ({ many }) => ({
   deals: many(deals),
+  playlistSongs: many(playlistSongs),
 }));
 
-export const contactsRelations = relations(contacts, ({ many }) => ({
+export const contactsRelations = relations(contacts, ({ many, one }) => ({
   deals: many(deals),
+  clientProfile: one(clientProfiles, {
+    fields: [contacts.id],
+    references: [clientProfiles.contactId],
+  }),
+  bulkPitches: many(bulkPitches),
 }));
 
 export const dealsRelations = relations(deals, ({ one, many }) => ({
@@ -175,6 +273,60 @@ export const pitchesRelations = relations(pitches, ({ one }) => ({
 
 export const paymentsRelations = relations(payments, ({ one }) => ({
   deal: one(deals, { fields: [payments.dealId], references: [deals.id] }),
+}));
+
+export const playlistsRelations = relations(playlists, ({ one, many }) => ({
+  client: one(contacts, {
+    fields: [playlists.clientId],
+    references: [contacts.id],
+  }),
+  songs: many(playlistSongs),
+  bulkPitches: many(bulkPitches),
+}));
+
+export const playlistSongsRelations = relations(playlistSongs, ({ one }) => ({
+  playlist: one(playlists, {
+    fields: [playlistSongs.playlistId],
+    references: [playlists.id],
+  }),
+  song: one(songs, {
+    fields: [playlistSongs.songId],
+    references: [songs.id],
+  }),
+}));
+
+export const bulkPitchesRelations = relations(bulkPitches, ({ one, many }) => ({
+  contact: one(contacts, {
+    fields: [bulkPitches.contactId],
+    references: [contacts.id],
+  }),
+  playlist: one(playlists, {
+    fields: [bulkPitches.playlistId],
+    references: [playlists.id],
+  }),
+  emailTemplate: one(emailTemplates, {
+    fields: [bulkPitches.emailTemplateId],
+    references: [emailTemplates.id],
+  }),
+  songs: many(bulkPitchSongs),
+}));
+
+export const bulkPitchSongsRelations = relations(bulkPitchSongs, ({ one }) => ({
+  bulkPitch: one(bulkPitches, {
+    fields: [bulkPitchSongs.bulkPitchId],
+    references: [bulkPitches.id],
+  }),
+  song: one(songs, {
+    fields: [bulkPitchSongs.songId],
+    references: [songs.id],
+  }),
+}));
+
+export const clientProfilesRelations = relations(clientProfiles, ({ one }) => ({
+  contact: one(contacts, {
+    fields: [clientProfiles.contactId],
+    references: [contacts.id],
+  }),
 }));
 
 // Insert schemas
@@ -231,6 +383,51 @@ export const insertCalendarEventSchema = createInsertSchema(calendarEvents).omit
   updatedAt: true,
 });
 
+export const insertPlaylistSchema = createInsertSchema(playlists).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertPlaylistSongSchema = createInsertSchema(playlistSongs).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertSavedSearchSchema = createInsertSchema(savedSearches).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertBulkPitchSchema = createInsertSchema(bulkPitches).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertBulkPitchSongSchema = createInsertSchema(bulkPitchSongs).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertClientProfileSchema = createInsertSchema(clientProfiles).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertWorkflowAutomationSchema = createInsertSchema(workflowAutomation).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertAnalyticsEventSchema = createInsertSchema(analyticsEvents).omit({
+  id: true,
+  timestamp: true,
+});
+
 // Types
 export type Song = typeof songs.$inferSelect;
 export type InsertSong = z.infer<typeof insertSongSchema>;
@@ -250,6 +447,22 @@ export type Attachment = typeof attachments.$inferSelect;
 export type InsertAttachment = z.infer<typeof insertAttachmentSchema>;
 export type CalendarEvent = typeof calendarEvents.$inferSelect;
 export type InsertCalendarEvent = z.infer<typeof insertCalendarEventSchema>;
+export type Playlist = typeof playlists.$inferSelect;
+export type InsertPlaylist = z.infer<typeof insertPlaylistSchema>;
+export type PlaylistSong = typeof playlistSongs.$inferSelect;
+export type InsertPlaylistSong = z.infer<typeof insertPlaylistSongSchema>;
+export type SavedSearch = typeof savedSearches.$inferSelect;
+export type InsertSavedSearch = z.infer<typeof insertSavedSearchSchema>;
+export type BulkPitch = typeof bulkPitches.$inferSelect;
+export type InsertBulkPitch = z.infer<typeof insertBulkPitchSchema>;
+export type BulkPitchSong = typeof bulkPitchSongs.$inferSelect;
+export type InsertBulkPitchSong = z.infer<typeof insertBulkPitchSongSchema>;
+export type ClientProfile = typeof clientProfiles.$inferSelect;
+export type InsertClientProfile = z.infer<typeof insertClientProfileSchema>;
+export type WorkflowAutomation = typeof workflowAutomation.$inferSelect;
+export type InsertWorkflowAutomation = z.infer<typeof insertWorkflowAutomationSchema>;
+export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;
+export type InsertAnalyticsEvent = z.infer<typeof insertAnalyticsEventSchema>;
 
 // Extended types for API responses
 export type DealWithRelations = Deal & {

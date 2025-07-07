@@ -1,6 +1,6 @@
 import { useLocation } from "wouter";
 import { Link } from "wouter";
-import { Music, BarChart3, Handshake, Send, Users, DollarSign, FileText, ChartBar, Mail, Calendar as CalendarIcon } from "lucide-react";
+import { Music, BarChart3, Handshake, Send, Users, DollarSign, FileText, ChartBar, Mail, Calendar as CalendarIcon, Folder, TrendingUp } from "lucide-react";
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: BarChart3 },
@@ -9,9 +9,11 @@ const navigation = [
   { name: "Sync Pitches", href: "/pitches", icon: Send },
   { name: "Contacts", href: "/contacts", icon: Users },
   { name: "Income Tracking", href: "/income", icon: DollarSign },
+  { name: "Playlists", href: "/playlists", icon: Folder },
   { name: "Templates", href: "/templates", icon: FileText },
   { name: "Email Templates", href: "/email-templates", icon: Mail },
   { name: "Calendar", href: "/calendar", icon: CalendarIcon },
+  { name: "Analytics", href: "/analytics", icon: TrendingUp },
   { name: "Reports", href: "/reports", icon: ChartBar },
 ];
 

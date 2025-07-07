@@ -14,6 +14,8 @@ import Templates from "@/pages/templates";
 import Reports from "@/pages/reports";
 import EmailTemplates from "@/pages/email-templates";
 import Calendar from "@/pages/calendar";
+import Playlists from "@/pages/playlists";
+import Analytics from "@/pages/analytics";
 import Sidebar from "@/components/layout/sidebar";
 
 function Router() {
@@ -29,6 +31,8 @@ function Router() {
       <Route path="/reports" component={Reports} />
       <Route path="/email-templates" component={EmailTemplates} />
       <Route path="/calendar" component={Calendar} />
+      <Route path="/playlists" component={Playlists} />
+      <Route path="/analytics" component={Analytics} />
       <Route component={NotFound} />
     </Switch>
   );
