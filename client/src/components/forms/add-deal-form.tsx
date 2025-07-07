@@ -109,11 +109,16 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
                   <SelectValue placeholder="Select project type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="film">Film</SelectItem>
-                  <SelectItem value="tv">TV Series</SelectItem>
                   <SelectItem value="commercial">Commercial</SelectItem>
+                  <SelectItem value="documentary">Documentary</SelectItem>
+                  <SelectItem value="film">Film</SelectItem>
                   <SelectItem value="game">Video Game</SelectItem>
+                  <SelectItem value="indie_film">Indie Film</SelectItem>
+                  <SelectItem value="non_profit">Non-Profit</SelectItem>
+                  <SelectItem value="podcast">Podcast</SelectItem>
+                  <SelectItem value="sports">Sports</SelectItem>
                   <SelectItem value="streaming">Streaming Platform</SelectItem>
+                  <SelectItem value="tv">TV Series</SelectItem>
                   <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
               </Select>
