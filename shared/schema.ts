@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, decimal, timestamp, jsonb, real } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, decimal, timestamp, jsonb, real, date, bigint } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -245,6 +245,98 @@ export const analyticsEvents = pgTable("analytics_events", {
   timestamp: timestamp("timestamp").defaultNow().notNull(),
 });
 
+// Rights Clearance Tracker
+export const rightsClearances = pgTable("rights_clearances", {
+  id: serial("id").primaryKey(),
+  songId: integer("song_id").references(() => songs.id, { onDelete: 'cascade' }),
+  publishingSplits: jsonb("publishing_splits"), // Array of {publisher, percentage}
+  mechanicalRights: text("mechanical_rights").default("cleared"), // cleared, pending, issues
+  syncClearance: text("sync_clearance").default("cleared"), // cleared, pending, issues
+  masterOwner: text("master_owner"),
+  publishingAdmin: text("publishing_admin"),
+  clearanceNotes: text("clearance_notes"),
+  lastUpdated: timestamp("last_updated").defaultNow().notNull(),
+});
+
+// Version Control System
+export const songVersions = pgTable("song_versions", {
+  id: serial("id").primaryKey(),
+  originalSongId: integer("original_song_id").references(() => songs.id, { onDelete: 'cascade' }),
+  versionType: text("version_type").notNull(), // mix, edit, stem, instrumental, etc.
+  versionName: text("version_name").notNull(),
+  duration: integer("duration"), // in seconds
+  fileUrl: text("file_url"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Smart Pitch Matching with Themes
+export const smartPitchMatches = pgTable("smart_pitch_matches", {
+  id: serial("id").primaryKey(),
+  songId: integer("song_id").references(() => songs.id, { onDelete: 'cascade' }),
+  dealId: integer("deal_id").references(() => deals.id, { onDelete: 'cascade' }),
+  matchScore: decimal("match_score", { precision: 3, scale: 2 }), // 0-10
+  analysis: jsonb("analysis").notNull(), // Full AI analysis
+  themes: jsonb("themes"), // Christmas, Mother's Day, Siblings, etc.
+  seasonality: jsonb("seasonality"), // Holiday, Summer, etc.
+  occasions: jsonb("occasions"), // Wedding, Graduation, etc.
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Invoice Generation
+export const invoices = pgTable("invoices", {
+  id: serial("id").primaryKey(),
+  dealId: integer("deal_id").references(() => deals.id, { onDelete: 'cascade' }),
+  invoiceNumber: text("invoice_number").notNull(),
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  taxAmount: decimal("tax_amount", { precision: 10, scale: 2 }).default("0"),
+  totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).notNull(),
+  status: text("status").default("draft"), // draft, sent, paid, overdue
+  dueDate: date("due_date"),
+  paidDate: date("paid_date"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Expense Tracking
+export const expenses = pgTable("expenses", {
+  id: serial("id").primaryKey(),
+  songId: integer("song_id").references(() => songs.id, { onDelete: 'cascade' }),
+  category: text("category").notNull(), // production, marketing, legal, etc.
+  description: text("description").notNull(),
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  date: date("date").notNull(),
+  receipt: text("receipt_url"),
+  taxDeductible: boolean("tax_deductible").default(false),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Integrated Messaging
+export const messages = pgTable("messages", {
+  id: serial("id").primaryKey(),
+  fromUserId: integer("from_user_id"), // For future user system
+  toContactId: integer("to_contact_id").references(() => contacts.id, { onDelete: 'cascade' }),
+  dealId: integer("deal_id").references(() => deals.id, { onDelete: 'cascade' }),
+  subject: text("subject"),
+  message: text("message").notNull(),
+  messageType: text("message_type").default("email"), // email, sms, chat
+  status: text("status").default("sent"), // sent, delivered, read, replied
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Approval Workflows
+export const approvalWorkflows = pgTable("approval_workflows", {
+  id: serial("id").primaryKey(),
+  dealId: integer("deal_id").references(() => deals.id, { onDelete: 'cascade' }),
+  workflowType: text("workflow_type").notNull(), // contract, deal, payment
+  currentStage: text("current_stage").notNull(),
+  stages: jsonb("stages").notNull(), // Array of approval stages
+  approvers: jsonb("approvers").notNull(), // Array of approver info
+  status: text("status").default("pending"), // pending, approved, rejected
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 // Relations
 export const songsRelations = relations(songs, ({ many }) => ({
   deals: many(deals),
@@ -428,6 +520,41 @@ export const insertAnalyticsEventSchema = createInsertSchema(analyticsEvents).om
   timestamp: true,
 });
 
+export const insertRightsClearanceSchema = createInsertSchema(rightsClearances).omit({
+  id: true,
+  lastUpdated: true,
+});
+
+export const insertSongVersionSchema = createInsertSchema(songVersions).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertSmartPitchMatchSchema = createInsertSchema(smartPitchMatches).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertInvoiceSchema = createInsertSchema(invoices).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertExpenseSchema = createInsertSchema(expenses).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertMessageSchema = createInsertSchema(messages).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertApprovalWorkflowSchema = createInsertSchema(approvalWorkflows).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Types
 export type Song = typeof songs.$inferSelect;
 export type InsertSong = z.infer<typeof insertSongSchema>;
@@ -463,6 +590,21 @@ export type WorkflowAutomation = typeof workflowAutomation.$inferSelect;
 export type InsertWorkflowAutomation = z.infer<typeof insertWorkflowAutomationSchema>;
 export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;
 export type InsertAnalyticsEvent = z.infer<typeof insertAnalyticsEventSchema>;
+
+export type RightsClearance = typeof rightsClearances.$inferSelect;
+export type InsertRightsClearance = z.infer<typeof insertRightsClearanceSchema>;
+export type SongVersion = typeof songVersions.$inferSelect;
+export type InsertSongVersion = z.infer<typeof insertSongVersionSchema>;
+export type SmartPitchMatch = typeof smartPitchMatches.$inferSelect;
+export type InsertSmartPitchMatch = z.infer<typeof insertSmartPitchMatchSchema>;
+export type Invoice = typeof invoices.$inferSelect;
+export type InsertInvoice = z.infer<typeof insertInvoiceSchema>;
+export type Expense = typeof expenses.$inferSelect;
+export type InsertExpense = z.infer<typeof insertExpenseSchema>;
+export type Message = typeof messages.$inferSelect;
+export type InsertMessage = z.infer<typeof insertMessageSchema>;
+export type ApprovalWorkflow = typeof approvalWorkflows.$inferSelect;
+export type InsertApprovalWorkflow = z.infer<typeof insertApprovalWorkflowSchema>;
 
 // Extended types for API responses
 export type DealWithRelations = Deal & {

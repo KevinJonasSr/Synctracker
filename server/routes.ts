@@ -623,6 +623,88 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Smart Pitch Matching endpoints
+  app.post('/api/smart-pitch-analyze', async (req, res) => {
+    try {
+      const { songs, projectBrief } = req.body;
+      const { generatePitchRecommendations } = await import('./openai');
+      
+      const recommendations = await generatePitchRecommendations(songs, projectBrief);
+      res.json(recommendations);
+    } catch (error) {
+      console.error('Error generating pitch recommendations:', error);
+      res.status(500).json({ error: 'Failed to generate recommendations' });
+    }
+  });
+
+  app.post('/api/analyze-lyrics', async (req, res) => {
+    try {
+      const { lyrics } = req.body;
+      const { analyzeLyrics } = await import('./openai');
+      
+      const analysis = await analyzeLyrics(lyrics);
+      res.json(analysis);
+    } catch (error) {
+      console.error('Error analyzing lyrics:', error);
+      res.status(500).json({ error: 'Failed to analyze lyrics' });
+    }
+  });
+
+  app.post('/api/generate-contract', async (req, res) => {
+    try {
+      const { dealData, templateType } = req.body;
+      const { generateContractFromTemplate } = await import('./openai');
+      
+      const contract = await generateContractFromTemplate(dealData, templateType);
+      res.json({ contract });
+    } catch (error) {
+      console.error('Error generating contract:', error);
+      res.status(500).json({ error: 'Failed to generate contract' });
+    }
+  });
+
+  // Invoice Management endpoints
+  app.get('/api/invoices', async (req, res) => {
+    try {
+      // Mock data for invoices since we haven't implemented the storage methods yet
+      res.json([]);
+    } catch (error) {
+      console.error('Error fetching invoices:', error);
+      res.status(500).json({ error: 'Failed to fetch invoices' });
+    }
+  });
+
+  app.post('/api/invoices', async (req, res) => {
+    try {
+      // Mock implementation - would store in database
+      res.status(201).json({ id: Date.now(), ...req.body });
+    } catch (error) {
+      console.error('Error creating invoice:', error);
+      res.status(500).json({ error: 'Failed to create invoice' });
+    }
+  });
+
+  // Expense Tracking endpoints
+  app.get('/api/expenses', async (req, res) => {
+    try {
+      // Mock data for expenses since we haven't implemented the storage methods yet
+      res.json([]);
+    } catch (error) {
+      console.error('Error fetching expenses:', error);
+      res.status(500).json({ error: 'Failed to fetch expenses' });
+    }
+  });
+
+  app.post('/api/expenses', async (req, res) => {
+    try {
+      // Mock implementation - would store in database
+      res.status(201).json({ id: Date.now(), ...req.body });
+    } catch (error) {
+      console.error('Error creating expense:', error);
+      res.status(500).json({ error: 'Failed to create expense' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
