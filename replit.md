@@ -106,6 +106,10 @@ The application uses a relational database with the following main entities:
 ```
 Changelog:
 - July 07, 2025. Initial setup
+- July 07, 2025. Added integration features:
+  * Email Templates - Pre-written templates for different licensing stages
+  * File Attachment System - Upload and manage contracts, demos, project files
+  * Calendar Integration - Track important dates and deadlines
 ```
 
 ## User Preferences

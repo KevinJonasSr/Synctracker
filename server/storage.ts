@@ -1,8 +1,10 @@
 import { 
-  songs, contacts, deals, pitches, payments, templates,
+  songs, contacts, deals, pitches, payments, templates, emailTemplates, attachments, calendarEvents,
   type Song, type InsertSong, type Contact, type InsertContact,
   type Deal, type InsertDeal, type Pitch, type InsertPitch,
   type Payment, type InsertPayment, type Template, type InsertTemplate,
+  type EmailTemplate, type InsertEmailTemplate, type Attachment, type InsertAttachment,
+  type CalendarEvent, type InsertCalendarEvent,
   type DealWithRelations, type DashboardMetrics
 } from "@shared/schema";
 import { db } from "./db";
@@ -50,6 +52,26 @@ export interface IStorage {
   createTemplate(template: InsertTemplate): Promise<Template>;
   updateTemplate(id: number, template: Partial<InsertTemplate>): Promise<Template>;
   deleteTemplate(id: number): Promise<void>;
+
+  // Email Templates
+  getEmailTemplates(stage?: string): Promise<EmailTemplate[]>;
+  getEmailTemplate(id: number): Promise<EmailTemplate | undefined>;
+  createEmailTemplate(template: InsertEmailTemplate): Promise<EmailTemplate>;
+  updateEmailTemplate(id: number, template: Partial<InsertEmailTemplate>): Promise<EmailTemplate>;
+  deleteEmailTemplate(id: number): Promise<void>;
+
+  // Attachments
+  getAttachments(entityType?: string, entityId?: number): Promise<Attachment[]>;
+  getAttachment(id: number): Promise<Attachment | undefined>;
+  createAttachment(attachment: InsertAttachment): Promise<Attachment>;
+  deleteAttachment(id: number): Promise<void>;
+
+  // Calendar Events
+  getCalendarEvents(entityType?: string, entityId?: number, startDate?: Date, endDate?: Date): Promise<CalendarEvent[]>;
+  getCalendarEvent(id: number): Promise<CalendarEvent | undefined>;
+  createCalendarEvent(event: InsertCalendarEvent): Promise<CalendarEvent>;
+  updateCalendarEvent(id: number, event: Partial<InsertCalendarEvent>): Promise<CalendarEvent>;
+  deleteCalendarEvent(id: number): Promise<void>;
 
   // Dashboard
   getDashboardMetrics(): Promise<DashboardMetrics>;
@@ -340,6 +362,119 @@ export class DatabaseStorage implements IStorage {
 
   async deleteTemplate(id: number): Promise<void> {
     await db.delete(templates).where(eq(templates.id, id));
+  }
+
+  // Email Templates
+  async getEmailTemplates(stage?: string): Promise<EmailTemplate[]> {
+    let query = db.select().from(emailTemplates);
+    
+    if (stage) {
+      query = query.where(eq(emailTemplates.stage, stage));
+    }
+    
+    return await query.orderBy(asc(emailTemplates.name));
+  }
+
+  async getEmailTemplate(id: number): Promise<EmailTemplate | undefined> {
+    const [template] = await db.select().from(emailTemplates).where(eq(emailTemplates.id, id));
+    return template || undefined;
+  }
+
+  async createEmailTemplate(template: InsertEmailTemplate): Promise<EmailTemplate> {
+    const [newTemplate] = await db.insert(emailTemplates).values(template).returning();
+    return newTemplate;
+  }
+
+  async updateEmailTemplate(id: number, template: Partial<InsertEmailTemplate>): Promise<EmailTemplate> {
+    const [updatedTemplate] = await db.update(emailTemplates)
+      .set({ ...template, updatedAt: new Date() })
+      .where(eq(emailTemplates.id, id))
+      .returning();
+    return updatedTemplate;
+  }
+
+  async deleteEmailTemplate(id: number): Promise<void> {
+    await db.delete(emailTemplates).where(eq(emailTemplates.id, id));
+  }
+
+  // Attachments
+  async getAttachments(entityType?: string, entityId?: number): Promise<Attachment[]> {
+    let query = db.select().from(attachments);
+    
+    const conditions = [];
+    if (entityType) {
+      conditions.push(eq(attachments.entityType, entityType));
+    }
+    if (entityId) {
+      conditions.push(eq(attachments.entityId, entityId));
+    }
+    
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions));
+    }
+    
+    return await query.orderBy(desc(attachments.createdAt));
+  }
+
+  async getAttachment(id: number): Promise<Attachment | undefined> {
+    const [attachment] = await db.select().from(attachments).where(eq(attachments.id, id));
+    return attachment || undefined;
+  }
+
+  async createAttachment(attachment: InsertAttachment): Promise<Attachment> {
+    const [newAttachment] = await db.insert(attachments).values(attachment).returning();
+    return newAttachment;
+  }
+
+  async deleteAttachment(id: number): Promise<void> {
+    await db.delete(attachments).where(eq(attachments.id, id));
+  }
+
+  // Calendar Events
+  async getCalendarEvents(entityType?: string, entityId?: number, startDate?: Date, endDate?: Date): Promise<CalendarEvent[]> {
+    let query = db.select().from(calendarEvents);
+    
+    const conditions = [];
+    if (entityType) {
+      conditions.push(eq(calendarEvents.entityType, entityType));
+    }
+    if (entityId) {
+      conditions.push(eq(calendarEvents.entityId, entityId));
+    }
+    if (startDate) {
+      conditions.push(gte(calendarEvents.startDate, startDate));
+    }
+    if (endDate) {
+      conditions.push(lte(calendarEvents.startDate, endDate));
+    }
+    
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions));
+    }
+    
+    return await query.orderBy(asc(calendarEvents.startDate));
+  }
+
+  async getCalendarEvent(id: number): Promise<CalendarEvent | undefined> {
+    const [event] = await db.select().from(calendarEvents).where(eq(calendarEvents.id, id));
+    return event || undefined;
+  }
+
+  async createCalendarEvent(event: InsertCalendarEvent): Promise<CalendarEvent> {
+    const [newEvent] = await db.insert(calendarEvents).values(event).returning();
+    return newEvent;
+  }
+
+  async updateCalendarEvent(id: number, event: Partial<InsertCalendarEvent>): Promise<CalendarEvent> {
+    const [updatedEvent] = await db.update(calendarEvents)
+      .set({ ...event, updatedAt: new Date() })
+      .where(eq(calendarEvents.id, id))
+      .returning();
+    return updatedEvent;
+  }
+
+  async deleteCalendarEvent(id: number): Promise<void> {
+    await db.delete(calendarEvents).where(eq(calendarEvents.id, id));
   }
 
   // Dashboard

@@ -90,6 +90,45 @@ export const templates = pgTable("templates", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const emailTemplates = pgTable("email_templates", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  stage: text("stage").notNull(), // 'initial_pitch', 'follow_up', 'negotiation', 'contract_sent', etc.
+  subject: text("subject").notNull(),
+  body: text("body").notNull(),
+  variables: jsonb("variables").default([]), // placeholders like {{clientName}}, {{songTitle}}
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const attachments = pgTable("attachments", {
+  id: serial("id").primaryKey(),
+  filename: text("filename").notNull(),
+  originalName: text("original_name").notNull(),
+  mimeType: text("mime_type").notNull(),
+  size: integer("size").notNull(),
+  path: text("path").notNull(),
+  entityType: text("entity_type").notNull(), // 'deal', 'song', 'contact', 'pitch'
+  entityId: integer("entity_id").notNull(),
+  description: text("description"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const calendarEvents = pgTable("calendar_events", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description"),
+  startDate: timestamp("start_date").notNull(),
+  endDate: timestamp("end_date"),
+  allDay: boolean("all_day").default(false),
+  entityType: text("entity_type").notNull(), // 'deal', 'pitch', 'payment'
+  entityId: integer("entity_id").notNull(),
+  reminderMinutes: integer("reminder_minutes").default(60),
+  status: text("status").default('scheduled'), // 'scheduled', 'completed', 'cancelled'
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 // Relations
 export const songsRelations = relations(songs, ({ many }) => ({
   deals: many(deals),
@@ -151,6 +190,23 @@ export const insertTemplateSchema = createInsertSchema(templates).omit({
   updatedAt: true,
 });
 
+export const insertEmailTemplateSchema = createInsertSchema(emailTemplates).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertAttachmentSchema = createInsertSchema(attachments).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertCalendarEventSchema = createInsertSchema(calendarEvents).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Types
 export type Song = typeof songs.$inferSelect;
 export type InsertSong = z.infer<typeof insertSongSchema>;
@@ -164,6 +220,12 @@ export type Payment = typeof payments.$inferSelect;
 export type InsertPayment = z.infer<typeof insertPaymentSchema>;
 export type Template = typeof templates.$inferSelect;
 export type InsertTemplate = z.infer<typeof insertTemplateSchema>;
+export type EmailTemplate = typeof emailTemplates.$inferSelect;
+export type InsertEmailTemplate = z.infer<typeof insertEmailTemplateSchema>;
+export type Attachment = typeof attachments.$inferSelect;
+export type InsertAttachment = z.infer<typeof insertAttachmentSchema>;
+export type CalendarEvent = typeof calendarEvents.$inferSelect;
+export type InsertCalendarEvent = z.infer<typeof insertCalendarEventSchema>;
 
 // Extended types for API responses
 export type DealWithRelations = Deal & {

@@ -1,18 +1,54 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
+import { storage as dbStorage } from "./storage";
 import { 
   insertSongSchema, insertContactSchema, insertDealSchema,
-  insertPitchSchema, insertPaymentSchema, insertTemplateSchema
+  insertPitchSchema, insertPaymentSchema, insertTemplateSchema,
+  insertEmailTemplateSchema, insertAttachmentSchema, insertCalendarEventSchema
 } from "@shared/schema";
 import { z } from "zod";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
+
+// Configure multer for file uploads
+const multerStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadDir = path.join(process.cwd(), 'uploads');
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ 
+  storage: multerStorage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+  fileFilter: (req, file, cb) => {
+    // Allow most file types for sync licensing
+    const allowedTypes = /jpeg|jpg|png|gif|pdf|doc|docx|txt|mp3|wav|aiff|flac|m4a|zip|rar/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+    
+    if (mimetype && extname) {
+      return cb(null, true);
+    } else {
+      cb(new Error('Invalid file type'));
+    }
+  }
+});
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Songs endpoints
   app.get("/api/songs", async (req, res) => {
     try {
       const { search, genre, limit } = req.query;
-      const songs = await storage.getSongs(
+      const songs = await dbStorage.getSongs(
         search as string,
         genre as string,
         limit ? parseInt(limit as string) : undefined
@@ -26,7 +62,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/songs/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const song = await storage.getSong(id);
+      const song = await dbStorage.getSong(id);
       if (!song) {
         return res.status(404).json({ error: "Song not found" });
       }
@@ -39,7 +75,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/songs", async (req, res) => {
     try {
       const validatedData = insertSongSchema.parse(req.body);
-      const song = await storage.createSong(validatedData);
+      const song = await dbStorage.createSong(validatedData);
       res.json(song);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -53,7 +89,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       const validatedData = insertSongSchema.partial().parse(req.body);
-      const song = await storage.updateSong(id, validatedData);
+      const song = await dbStorage.updateSong(id, validatedData);
       res.json(song);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -66,7 +102,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/songs/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      await storage.deleteSong(id);
+      await dbStorage.deleteSong(id);
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete song" });
@@ -77,7 +113,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/contacts", async (req, res) => {
     try {
       const { search, limit } = req.query;
-      const contacts = await storage.getContacts(
+      const contacts = await dbStorage.getContacts(
         search as string,
         limit ? parseInt(limit as string) : undefined
       );
@@ -90,7 +126,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/contacts/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const contact = await storage.getContact(id);
+      const contact = await dbStorage.getContact(id);
       if (!contact) {
         return res.status(404).json({ error: "Contact not found" });
       }
@@ -103,7 +139,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/contacts", async (req, res) => {
     try {
       const validatedData = insertContactSchema.parse(req.body);
-      const contact = await storage.createContact(validatedData);
+      const contact = await dbStorage.createContact(validatedData);
       res.json(contact);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -117,7 +153,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       const validatedData = insertContactSchema.partial().parse(req.body);
-      const contact = await storage.updateContact(id, validatedData);
+      const contact = await dbStorage.updateContact(id, validatedData);
       res.json(contact);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -130,7 +166,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/contacts/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      await storage.deleteContact(id);
+      await dbStorage.deleteContact(id);
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete contact" });
@@ -141,7 +177,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/deals", async (req, res) => {
     try {
       const { status, limit } = req.query;
-      const deals = await storage.getDeals(
+      const deals = await dbStorage.getDeals(
         status as string,
         limit ? parseInt(limit as string) : undefined
       );
@@ -154,7 +190,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/deals/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const deal = await storage.getDeal(id);
+      const deal = await dbStorage.getDeal(id);
       if (!deal) {
         return res.status(404).json({ error: "Deal not found" });
       }
@@ -167,7 +203,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/deals", async (req, res) => {
     try {
       const validatedData = insertDealSchema.parse(req.body);
-      const deal = await storage.createDeal(validatedData);
+      const deal = await dbStorage.createDeal(validatedData);
       res.json(deal);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -181,7 +217,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       const validatedData = insertDealSchema.partial().parse(req.body);
-      const deal = await storage.updateDeal(id, validatedData);
+      const deal = await dbStorage.updateDeal(id, validatedData);
       res.json(deal);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -194,7 +230,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/deals/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      await storage.deleteDeal(id);
+      await dbStorage.deleteDeal(id);
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete deal" });
@@ -205,7 +241,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/pitches", async (req, res) => {
     try {
       const { dealId, limit } = req.query;
-      const pitches = await storage.getPitches(
+      const pitches = await dbStorage.getPitches(
         dealId ? parseInt(dealId as string) : undefined,
         limit ? parseInt(limit as string) : undefined
       );
@@ -218,7 +254,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/pitches", async (req, res) => {
     try {
       const validatedData = insertPitchSchema.parse(req.body);
-      const pitch = await storage.createPitch(validatedData);
+      const pitch = await dbStorage.createPitch(validatedData);
       res.json(pitch);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -232,7 +268,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/payments", async (req, res) => {
     try {
       const { status, limit } = req.query;
-      const payments = await storage.getPayments(
+      const payments = await dbStorage.getPayments(
         status as string,
         limit ? parseInt(limit as string) : undefined
       );
@@ -245,7 +281,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/payments", async (req, res) => {
     try {
       const validatedData = insertPaymentSchema.parse(req.body);
-      const payment = await storage.createPayment(validatedData);
+      const payment = await dbStorage.createPayment(validatedData);
       res.json(payment);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -259,7 +295,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       const validatedData = insertPaymentSchema.partial().parse(req.body);
-      const payment = await storage.updatePayment(id, validatedData);
+      const payment = await dbStorage.updatePayment(id, validatedData);
       res.json(payment);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -273,7 +309,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/templates", async (req, res) => {
     try {
       const { type } = req.query;
-      const templates = await storage.getTemplates(type as string);
+      const templates = await dbStorage.getTemplates(type as string);
       res.json(templates);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch templates" });
@@ -283,7 +319,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/templates", async (req, res) => {
     try {
       const validatedData = insertTemplateSchema.parse(req.body);
-      const template = await storage.createTemplate(validatedData);
+      const template = await dbStorage.createTemplate(validatedData);
       res.json(template);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -296,10 +332,211 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Dashboard endpoint
   app.get("/api/dashboard", async (req, res) => {
     try {
-      const metrics = await storage.getDashboardMetrics();
+      const metrics = await dbStorage.getDashboardMetrics();
       res.json(metrics);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch dashboard metrics" });
+    }
+  });
+
+  // Email Templates endpoints
+  app.get("/api/email-templates", async (req, res) => {
+    try {
+      const { stage } = req.query;
+      const templates = await dbStorage.getEmailTemplates(stage as string);
+      res.json(templates);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch email templates" });
+    }
+  });
+
+  app.get("/api/email-templates/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const template = await dbStorage.getEmailTemplate(id);
+      if (!template) {
+        return res.status(404).json({ error: "Email template not found" });
+      }
+      res.json(template);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch email template" });
+    }
+  });
+
+  app.post("/api/email-templates", async (req, res) => {
+    try {
+      const data = insertEmailTemplateSchema.parse(req.body);
+      const template = await dbStorage.createEmailTemplate(data);
+      res.status(201).json(template);
+    } catch (error) {
+      res.status(400).json({ error: "Invalid email template data" });
+    }
+  });
+
+  app.put("/api/email-templates/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const data = insertEmailTemplateSchema.partial().parse(req.body);
+      const template = await dbStorage.updateEmailTemplate(id, data);
+      res.json(template);
+    } catch (error) {
+      res.status(400).json({ error: "Invalid email template data" });
+    }
+  });
+
+  app.delete("/api/email-templates/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await dbStorage.deleteEmailTemplate(id);
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete email template" });
+    }
+  });
+
+  // File upload endpoint
+  app.post("/api/upload", upload.single('file'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "No file uploaded" });
+      }
+      
+      const { entityType, entityId, description } = req.body;
+      
+      const attachmentData = {
+        filename: req.file.filename,
+        originalName: req.file.originalname,
+        mimeType: req.file.mimetype,
+        size: req.file.size,
+        path: req.file.path,
+        entityType,
+        entityId: parseInt(entityId),
+        description
+      };
+      
+      const attachment = await dbStorage.createAttachment(attachmentData);
+      res.status(201).json(attachment);
+    } catch (error) {
+      res.status(400).json({ error: "File upload failed" });
+    }
+  });
+
+  // Serve uploaded files
+  app.get("/api/files/:filename", (req, res) => {
+    const filename = req.params.filename;
+    const filePath = path.join(process.cwd(), 'uploads', filename);
+    
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ error: "File not found" });
+    }
+    
+    res.sendFile(filePath);
+  });
+
+  // Attachments endpoints
+  app.get("/api/attachments", async (req, res) => {
+    try {
+      const { entityType, entityId } = req.query;
+      const attachments = await dbStorage.getAttachments(
+        entityType as string,
+        entityId ? parseInt(entityId as string) : undefined
+      );
+      res.json(attachments);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch attachments" });
+    }
+  });
+
+  app.get("/api/attachments/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const attachment = await dbStorage.getAttachment(id);
+      if (!attachment) {
+        return res.status(404).json({ error: "Attachment not found" });
+      }
+      res.json(attachment);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch attachment" });
+    }
+  });
+
+  app.post("/api/attachments", async (req, res) => {
+    try {
+      const data = insertAttachmentSchema.parse(req.body);
+      const attachment = await dbStorage.createAttachment(data);
+      res.status(201).json(attachment);
+    } catch (error) {
+      res.status(400).json({ error: "Invalid attachment data" });
+    }
+  });
+
+  app.delete("/api/attachments/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await dbStorage.deleteAttachment(id);
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete attachment" });
+    }
+  });
+
+  // Calendar Events endpoints
+  app.get("/api/calendar-events", async (req, res) => {
+    try {
+      const { entityType, entityId, startDate, endDate } = req.query;
+      const events = await dbStorage.getCalendarEvents(
+        entityType as string,
+        entityId ? parseInt(entityId as string) : undefined,
+        startDate ? new Date(startDate as string) : undefined,
+        endDate ? new Date(endDate as string) : undefined
+      );
+      res.json(events);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch calendar events" });
+    }
+  });
+
+  app.get("/api/calendar-events/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const event = await dbStorage.getCalendarEvent(id);
+      if (!event) {
+        return res.status(404).json({ error: "Calendar event not found" });
+      }
+      res.json(event);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch calendar event" });
+    }
+  });
+
+  app.post("/api/calendar-events", async (req, res) => {
+    try {
+      const data = insertCalendarEventSchema.parse(req.body);
+      const event = await dbStorage.createCalendarEvent(data);
+      res.status(201).json(event);
+    } catch (error) {
+      res.status(400).json({ error: "Invalid calendar event data" });
+    }
+  });
+
+  app.put("/api/calendar-events/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const data = insertCalendarEventSchema.partial().parse(req.body);
+      const event = await dbStorage.updateCalendarEvent(id, data);
+      res.json(event);
+    } catch (error) {
+      res.status(400).json({ error: "Invalid calendar event data" });
+    }
+  });
+
+  app.delete("/api/calendar-events/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await dbStorage.deleteCalendarEvent(id);
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete calendar event" });
     }
   });
 

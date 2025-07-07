@@ -12,6 +12,8 @@ import Contacts from "@/pages/contacts";
 import Income from "@/pages/income";
 import Templates from "@/pages/templates";
 import Reports from "@/pages/reports";
+import EmailTemplates from "@/pages/email-templates";
+import Calendar from "@/pages/calendar";
 import Sidebar from "@/components/layout/sidebar";
 
 function Router() {
@@ -25,6 +27,8 @@ function Router() {
       <Route path="/income" component={Income} />
       <Route path="/templates" component={Templates} />
       <Route path="/reports" component={Reports} />
+      <Route path="/email-templates" component={EmailTemplates} />
+      <Route path="/calendar" component={Calendar} />
       <Route component={NotFound} />
     </Switch>
   );
