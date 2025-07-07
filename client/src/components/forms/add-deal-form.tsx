@@ -26,8 +26,8 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
       projectName: "",
       projectType: "",
       projectDescription: "",
-      songId: 0,
-      contactId: 0,
+      songId: undefined,
+      contactId: undefined,
       status: "pitched",
       dealValue: undefined,
       usage: "",
@@ -54,6 +54,12 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
         ...data,
         pitchDate: data.pitchDate ? new Date(data.pitchDate).toISOString() : new Date().toISOString(),
         dealValue: data.dealValue ? parseFloat(data.dealValue.toString()) : undefined,
+        songId: data.songId ? parseInt(data.songId.toString()) : undefined,
+        contactId: data.contactId ? parseInt(data.contactId.toString()) : undefined,
+        projectDescription: data.projectDescription || "",
+        usage: data.usage || "",
+        term: data.term || "",
+        notes: data.notes || "",
       };
       const response = await apiRequest("POST", "/api/deals", processedData);
       return response.json();
