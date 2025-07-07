@@ -61,6 +61,7 @@ export default function AddTemplateForm({ open, onClose }: AddTemplateFormProps)
     { value: "quote", label: "Quote" },
     { value: "invoice", label: "Invoice" },
     { value: "license", label: "License Agreement" },
+    { value: "approval_request", label: "Approval Request" },
     { value: "other", label: "Other" },
   ];
 

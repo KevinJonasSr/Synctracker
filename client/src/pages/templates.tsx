@@ -27,6 +27,8 @@ export default function Templates() {
         return "bg-purple-100 text-purple-800";
       case "license":
         return "bg-orange-100 text-orange-800";
+      case "approval_request":
+        return "bg-red-100 text-red-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
@@ -41,7 +43,7 @@ export default function Templates() {
     ? templates 
     : templates.filter(template => template.type === activeTab);
 
-  const templateTypes = ["contract", "quote", "invoice", "license"];
+  const templateTypes = ["contract", "quote", "invoice", "license", "approval_request"];
 
   if (isLoading) {
     return (
