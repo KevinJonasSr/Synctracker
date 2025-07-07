@@ -49,7 +49,13 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
 
   const createDealMutation = useMutation({
     mutationFn: async (data: InsertDeal) => {
-      const response = await apiRequest("POST", "/api/deals", data);
+      // Convert date fields to proper ISO strings
+      const processedData = {
+        ...data,
+        pitchDate: data.pitchDate ? new Date(data.pitchDate).toISOString() : new Date().toISOString(),
+        dealValue: data.dealValue ? parseFloat(data.dealValue.toString()) : undefined,
+      };
+      const response = await apiRequest("POST", "/api/deals", processedData);
       return response.json();
     },
     onSuccess: () => {
@@ -72,10 +78,7 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
   });
 
   const onSubmit = (data: InsertDeal) => {
-    createDealMutation.mutate({
-      ...data,
-      pitchDate: data.pitchDate ? new Date(data.pitchDate) : new Date(),
-    });
+    createDealMutation.mutate(data);
   };
 
   return (
