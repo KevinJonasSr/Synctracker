@@ -49,18 +49,27 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
 
   const createDealMutation = useMutation({
     mutationFn: async (data: InsertDeal) => {
-      // Convert date fields to proper ISO strings
+      // Debug: Log the form data
+      console.log("Form data:", data);
+      
+      // Ensure all required fields are present and properly typed
       const processedData = {
-        ...data,
-        pitchDate: data.pitchDate ? new Date(data.pitchDate).toISOString() : new Date().toISOString(),
-        dealValue: data.dealValue ? parseFloat(data.dealValue.toString()) : undefined,
-        songId: data.songId ? parseInt(data.songId.toString()) : undefined,
-        contactId: data.contactId ? parseInt(data.contactId.toString()) : undefined,
-        projectDescription: data.projectDescription || "",
-        usage: data.usage || "",
-        term: data.term || "",
-        notes: data.notes || "",
+        projectName: data.projectName || "",
+        projectType: data.projectType || "",
+        projectDescription: data.projectDescription || null,
+        songId: data.songId ? parseInt(data.songId.toString()) : null,
+        contactId: data.contactId ? parseInt(data.contactId.toString()) : null,
+        status: data.status || "pitched",
+        dealValue: data.dealValue ? parseFloat(data.dealValue.toString()) : null,
+        usage: data.usage || null,
+        territory: data.territory || "worldwide",
+        term: data.term || null,
+        exclusivity: data.exclusivity || false,
+        notes: data.notes || null,
+        pitchDate: data.pitchDate ? new Date(data.pitchDate).toISOString() : null,
       };
+      
+      console.log("Processed data:", processedData);
       const response = await apiRequest("POST", "/api/deals", processedData);
       return response.json();
     },
@@ -84,6 +93,16 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
   });
 
   const onSubmit = (data: InsertDeal) => {
+    // Validate required fields before submission
+    if (!data.projectName || !data.projectType || !data.songId || !data.contactId) {
+      toast({
+        title: "Missing Required Fields",
+        description: "Please fill in all required fields: Project Name, Project Type, Song, and Contact",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     createDealMutation.mutate(data);
   };
 
