@@ -1,0 +1,187 @@
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import Header from "@/components/layout/header";
+import AddDealForm from "@/components/forms/add-deal-form";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Handshake, Edit, Trash2, DollarSign, Calendar, Building } from "lucide-react";
+import type { DealWithRelations } from "@shared/schema";
+
+export default function Deals() {
+  const [showAddDeal, setShowAddDeal] = useState(false);
+  const [activeTab, setActiveTab] = useState("all");
+
+  const { data: deals = [], isLoading } = useQuery<DealWithRelations[]>({
+    queryKey: ["/api/deals"],
+  });
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "pitched":
+        return "bg-gray-100 text-gray-800";
+      case "under_review":
+        return "bg-yellow-100 text-yellow-800";
+      case "confirmed":
+        return "bg-blue-100 text-blue-800";
+      case "completed":
+        return "bg-green-100 text-green-800";
+      case "paid":
+        return "bg-emerald-100 text-emerald-800";
+      case "rejected":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  const getStatusLabel = (status: string) => {
+    return status.replace("_", " ").replace(/\b\w/g, l => l.toUpperCase());
+  };
+
+  const formatDate = (date: Date | null) => {
+    if (!date) return "N/A";
+    return new Date(date).toLocaleDateString();
+  };
+
+  const filteredDeals = activeTab === "all" ? deals : deals.filter(deal => deal.status === activeTab);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="text-lg text-gray-600">Loading deals...</div>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <Header
+        title="Deal Pipeline"
+        description="Manage your sync licensing deals from pitch to payment"
+        searchPlaceholder="Search deals, projects, contacts..."
+        newItemLabel="New Deal"
+        onNewItem={() => setShowAddDeal(true)}
+      />
+      
+      <div className="p-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
+          <TabsList>
+            <TabsTrigger value="all">All Deals</TabsTrigger>
+            <TabsTrigger value="pitched">Pitched</TabsTrigger>
+            <TabsTrigger value="under_review">Under Review</TabsTrigger>
+            <TabsTrigger value="confirmed">Confirmed</TabsTrigger>
+            <TabsTrigger value="completed">Completed</TabsTrigger>
+            <TabsTrigger value="paid">Paid</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value={activeTab} className="mt-6">
+            {filteredDeals.length === 0 ? (
+              <Card>
+                <CardContent className="flex flex-col items-center justify-center py-16">
+                  <Handshake className="h-12 w-12 text-gray-400 mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No deals found</h3>
+                  <p className="text-gray-600 text-center mb-6">
+                    {activeTab === "all"
+                      ? "Start tracking your sync licensing deals by creating your first deal."
+                      : `No deals with status "${getStatusLabel(activeTab)}" found.`
+                    }
+                  </p>
+                  <Button onClick={() => setShowAddDeal(true)} className="bg-brand-primary hover:bg-blue-700">
+                    Create Your First Deal
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid gap-6">
+                {filteredDeals.map((deal) => (
+                  <Card key={deal.id} className="hover:shadow-md transition-shadow">
+                    <CardContent className="p-6">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start space-x-4">
+                          <div className="w-16 h-16 bg-brand-primary/10 rounded-lg flex items-center justify-center">
+                            <Handshake className="h-8 w-8 text-brand-primary" />
+                          </div>
+                          
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-2 mb-2">
+                              <h3 className="text-lg font-semibold text-gray-900">{deal.projectName}</h3>
+                              <Badge className={getStatusColor(deal.status)}>
+                                {getStatusLabel(deal.status)}
+                              </Badge>
+                            </div>
+                            
+                            <p className="text-gray-600 mb-2">{deal.projectType}</p>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600 mb-4">
+                              <div className="flex items-center space-x-2">
+                                <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                                  <span className="text-xs font-medium">♪</span>
+                                </div>
+                                <div>
+                                  <p className="font-medium">{deal.song.title}</p>
+                                  <p className="text-xs">by {deal.song.artist}</p>
+                                </div>
+                              </div>
+                              
+                              <div className="flex items-center space-x-2">
+                                <Building className="h-4 w-4 text-gray-400" />
+                                <div>
+                                  <p className="font-medium">{deal.contact.name}</p>
+                                  <p className="text-xs">{deal.contact.company}</p>
+                                </div>
+                              </div>
+                              
+                              <div className="flex items-center space-x-2">
+                                <DollarSign className="h-4 w-4 text-gray-400" />
+                                <div>
+                                  <p className="font-medium">
+                                    {deal.dealValue ? `$${Number(deal.dealValue).toLocaleString()}` : "TBD"}
+                                  </p>
+                                  <p className="text-xs">Deal Value</p>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <div className="flex items-center space-x-4 text-sm text-gray-600">
+                              <div className="flex items-center space-x-1">
+                                <Calendar className="h-4 w-4" />
+                                <span>Pitched: {formatDate(deal.pitchDate)}</span>
+                              </div>
+                              {deal.confirmationDate && (
+                                <div className="flex items-center space-x-1">
+                                  <Calendar className="h-4 w-4" />
+                                  <span>Confirmed: {formatDate(deal.confirmationDate)}</span>
+                                </div>
+                              )}
+                            </div>
+                            
+                            {deal.projectDescription && (
+                              <p className="text-sm text-gray-600 mt-3">{deal.projectDescription}</p>
+                            )}
+                          </div>
+                        </div>
+                        
+                        <div className="flex space-x-2">
+                          <Button size="sm" variant="outline">
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button size="sm" variant="outline" className="text-red-600 hover:text-red-700">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
+      </div>
+
+      <AddDealForm open={showAddDeal} onClose={() => setShowAddDeal(false)} />
+    </div>
+  );
+}
