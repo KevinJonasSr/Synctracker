@@ -433,6 +433,9 @@ export default function Calendar() {
             <CardTitle>Air Dates for {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}</CardTitle>
             <CardDescription>
               {currentMonthEvents.length} event{currentMonthEvents.length !== 1 ? 's' : ''} scheduled
+              {currentMonthEvents.length === 0 && currentMonth.getMonth() === 6 && currentMonth.getFullYear() === 2025 && (
+                <span className="text-muted-foreground"> • Fire Country is scheduled for August 1st - use the arrow button to navigate to August</span>
+              )}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -440,6 +443,11 @@ export default function Calendar() {
               <div className="text-center py-8">
                 <CalendarIcon className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
                 <p className="text-muted-foreground">No events scheduled for this month</p>
+                {currentMonth.getMonth() === 6 && currentMonth.getFullYear() === 2025 && (
+                  <p className="text-sm text-muted-foreground mt-2">
+                    💡 Fire Country is scheduled for August 1st - click the right arrow to navigate to August
+                  </p>
+                )}
               </div>
             ) : (
               <div className="space-y-4">
