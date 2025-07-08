@@ -22,7 +22,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Header from "@/components/layout/header";
 import AddCalendarEventForm from "@/components/forms/add-calendar-event-form";
-import { Calendar as CalendarIcon, Clock, Plus, Edit, ChevronLeft, ChevronRight } from "lucide-react";
+import { Calendar as CalendarIcon, Clock, Plus, Edit, ChevronLeft, ChevronRight, Move } from "lucide-react";
 import type { CalendarEvent } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -34,6 +34,8 @@ export default function Calendar() {
   const [editDate, setEditDate] = useState("");
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [activeTab, setActiveTab] = useState("list");
+  const [draggedEvent, setDraggedEvent] = useState<CalendarEvent | null>(null);
+  const [dragOverDay, setDragOverDay] = useState<Date | null>(null);
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -227,6 +229,44 @@ export default function Calendar() {
         newDate: new Date(editDate).toISOString(),
       });
     }
+  };
+
+  // Drag and drop handlers
+  const handleDragStart = (event: React.DragEvent, calendarEvent: CalendarEvent) => {
+    setDraggedEvent(calendarEvent);
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('text/html', '');
+  };
+
+  const handleDragOver = (event: React.DragEvent, day: Date) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+    setDragOverDay(day);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverDay(null);
+  };
+
+  const handleDrop = (event: React.DragEvent, targetDate: Date) => {
+    event.preventDefault();
+    
+    if (draggedEvent) {
+      const newDate = new Date(targetDate);
+      newDate.setHours(0, 0, 0, 0);
+      
+      editAirDateMutation.mutate({
+        eventId: draggedEvent.id,
+        newDate: newDate.toISOString(),
+      });
+      
+      setDraggedEvent(null);
+    }
+  };
+
+  const handleDragEnd = () => {
+    setDraggedEvent(null);
+    setDragOverDay(null);
   };
 
   if (isLoading) {
@@ -579,6 +619,7 @@ export default function Calendar() {
                 const dayEvents = getEventsForDay(day);
                 const isCurrentMonthDay = isCurrentMonth(day);
                 const isTodayDay = isToday(day);
+                const isDragOver = dragOverDay?.toDateString() === day.toDateString();
                 
                 return (
                   <div
@@ -587,8 +628,12 @@ export default function Calendar() {
                       min-h-[100px] p-2 border rounded-lg transition-colors
                       ${isCurrentMonthDay ? 'bg-background' : 'bg-muted/30'}
                       ${isTodayDay ? 'ring-2 ring-primary' : ''}
+                      ${isDragOver ? 'ring-2 ring-blue-400 bg-blue-50 dark:bg-blue-900/20' : ''}
                       hover:bg-muted/50
                     `}
+                    onDragOver={(e) => handleDragOver(e, day)}
+                    onDragLeave={handleDragLeave}
+                    onDrop={(e) => handleDrop(e, day)}
                   >
                     {/* Day number */}
                     <div className={`
@@ -605,14 +650,25 @@ export default function Calendar() {
                         <div
                           key={event.id}
                           className={`
-                            text-xs p-1 rounded truncate cursor-pointer
+                            text-xs p-1 rounded truncate cursor-move relative group
                             ${event.entityType === 'deal' ? 'bg-blue-100 text-blue-800 hover:bg-blue-200' : 'bg-gray-100 text-gray-800 hover:bg-gray-200'}
                             dark:bg-blue-900 dark:text-blue-100 dark:hover:bg-blue-800
+                            ${draggedEvent?.id === event.id ? 'opacity-50' : ''}
                           `}
+                          draggable={event.entityType === 'deal'}
+                          onDragStart={(e) => handleDragStart(e, event)}
+                          onDragEnd={handleDragEnd}
                           onClick={() => event.entityType === 'deal' && handleEditAirDate(event)}
-                          title={event.title}
+                          title={`${event.title} - ${event.entityType === 'deal' ? 'Drag to move or click to edit' : 'Click to view'}`}
                         >
-                          {event.title.replace('Air Date: ', '')}
+                          <div className="flex items-center justify-between">
+                            <span className="truncate flex-1">
+                              {event.title.replace('Air Date: ', '')}
+                            </span>
+                            {event.entityType === 'deal' && (
+                              <Move className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity ml-1 flex-shrink-0" />
+                            )}
+                          </div>
                         </div>
                       ))}
                       {dayEvents.length > 3 && (
