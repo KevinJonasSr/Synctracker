@@ -83,15 +83,34 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
       const response = await apiRequest("POST", "/api/deals", processedData);
       return response.json();
     },
-    onSuccess: () => {
-      toast({
-        title: "Success",
-        description: "Deal added successfully",
-      });
+    onSuccess: async (newDeal) => {
       queryClient.invalidateQueries({ queryKey: ["/api/deals"] });
       queryClient.invalidateQueries({ queryKey: ["/api/dashboard"] });
+      
+      // Auto-create calendar event if airdate is set
+      if (newDeal.airDate) {
+        try {
+          await apiRequest("POST", "/api/calendar-events", {
+            title: `${newDeal.projectName} - Air Date`,
+            description: `Air date for ${newDeal.projectName}`,
+            eventDate: newDeal.airDate,
+            entityType: "deal",
+            entityId: newDeal.id
+          });
+          queryClient.invalidateQueries({ queryKey: ["/api/calendar-events"] });
+        } catch (error) {
+          console.log("Failed to create calendar event:", error);
+        }
+      }
+      
       form.reset();
       onClose();
+      toast({
+        title: "Deal Added",
+        description: newDeal.airDate 
+          ? "Deal has been added to the pipeline and calendar event created for air date"
+          : "Deal has been successfully added to the pipeline"
+      });
     },
     onError: (error) => {
       toast({
@@ -190,7 +209,23 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
       return;
     }
     
-    createDealMutation.mutate(data);
+    // Process data with proper formatting
+    const processedData = {
+      ...data,
+      dealValue: data.dealValue ? data.dealValue : null,
+      usage: data.usage || null,
+      territory: data.territory || "worldwide",
+      term: data.term || null,
+      exclusivity: data.exclusivity || false,
+      notes: data.notes || null,
+      airDate: data.airDate ? new Date(data.airDate).toISOString() : null,
+      pitchDate: null
+    };
+    
+    console.log("Form data:", data);
+    console.log("Processed data:", processedData);
+    
+    createDealMutation.mutate(processedData);
   };
 
   return (
@@ -317,6 +352,16 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
+              <Label htmlFor="airDate">Air Date</Label>
+              <Input
+                id="airDate"
+                type="date"
+                {...form.register("airDate")}
+                placeholder="When will this air?"
+              />
+            </div>
+            
+            <div>
               <Label htmlFor="territory">Territory</Label>
               <Input
                 id="territory"
@@ -324,7 +369,9 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
                 placeholder="e.g., Worldwide, US Only"
               />
             </div>
-            
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="term">Term</Label>
               <Input
@@ -332,6 +379,16 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
                 {...form.register("term")}
                 placeholder="e.g., Perpetual, 5 years"
               />
+            </div>
+            
+            <div className="flex items-center space-x-2 pt-8">
+              <input
+                type="checkbox"
+                id="exclusivity"
+                {...form.register("exclusivity")}
+                className="rounded"
+              />
+              <Label htmlFor="exclusivity">Exclusive Deal</Label>
             </div>
           </div>
 

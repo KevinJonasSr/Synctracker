@@ -72,6 +72,7 @@ export const deals = pgTable("deals", {
   term: text("term"), // perpetual, 1 year, etc.
   exclusivity: boolean("exclusivity").default(false),
   notes: text("notes"),
+  airDate: timestamp("air_date"),
   pitchDate: timestamp("pitch_date"),
   responseDate: timestamp("response_date"),
   confirmationDate: timestamp("confirmation_date"),
