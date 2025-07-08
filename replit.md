@@ -142,6 +142,13 @@ Changelog:
   * Air Date Tracking - Manual air date input with automatic calendar event creation
   * Calendar Integration - Air dates automatically populate calendar for weekly/monthly planning
   * Database Schema Updates - Added air_date column to deals table for tracking broadcast dates
+- July 08, 2025. Complete redesign of Add New Deal form with three-section architecture:
+  * Section 1: Project Information - Episode number, comprehensive contact management for three entity types (Licensee/Production Company, Music Supervisor, Clearance Company), usage/media/term/territory fields, updated status dropdown with 8 options
+  * Section 2: Song Information - Writers/publishing/splits fields, artist/label information, exclusivity with restrictions field, split deal value tracking
+  * Section 3: Additional Information - Pitch dates and notes organization
+  * Enhanced Deal Value System - Split into "100% Song Value" and "Our Fee Based on Splits" for accurate financial tracking
+  * Comprehensive Contact Management - Full address and contact details for all deal participants
+  * Status Management - Updated to include Pitched, Pending Approval, Quoted, Use Confirmed, Being Drafted, Out for Signature, Payment Received, Completed
 ```
 
 ## User Preferences

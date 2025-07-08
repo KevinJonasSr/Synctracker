@@ -40,6 +40,8 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
       contactId: undefined,
       status: "pitched",
       dealValue: undefined,
+      fullSongValue: undefined,
+      ourFee: undefined,
       usage: "",
       territory: "worldwide",
       term: "",
@@ -61,6 +63,8 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
         contactId: deal.contactId,
         status: deal.status,
         dealValue: deal.dealValue || undefined,
+        fullSongValue: deal.fullSongValue || undefined,
+        ourFee: deal.ourFee || undefined,
         usage: deal.usage || "",
         territory: deal.territory || "worldwide",
         term: deal.term || "",
@@ -293,13 +297,27 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
               </Select>
             </div>
             <div>
-              <Label htmlFor="dealValue">Deal Value ($)</Label>
+              <Label htmlFor="fullSongValue">100% Song Value ($)</Label>
               <Input
-                id="dealValue"
+                id="fullSongValue"
                 type="number"
                 step="0.01"
                 min="0"
-                {...form.register("dealValue", { valueAsNumber: true })}
+                {...form.register("fullSongValue", { valueAsNumber: true })}
+                placeholder="0.00"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="ourFee">Our Fee Based on Splits ($)</Label>
+              <Input
+                id="ourFee"
+                type="number"
+                step="0.01"
+                min="0"
+                {...form.register("ourFee", { valueAsNumber: true })}
                 placeholder="0.00"
               />
             </div>
