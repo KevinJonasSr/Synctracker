@@ -34,6 +34,29 @@ interface DealDetailsDialogProps {
 export default function DealDetailsDialog({ deal, open, onClose }: DealDetailsDialogProps) {
   const { toast } = useToast();
   
+  const deleteDealMutation = useMutation({
+    mutationFn: async () => {
+      if (!deal) return;
+      return apiRequest('DELETE', `/api/deals/${deal.id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/deals'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/dashboard'] });
+      toast({
+        title: "Deal deleted",
+        description: "The deal has been successfully deleted.",
+      });
+      onClose();
+    },
+    onError: (error) => {
+      toast({
+        title: "Error deleting deal",
+        description: "Failed to delete the deal. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
+
   if (!deal) return null;
 
   const getStatusColor = (status: string) => {
@@ -69,27 +92,7 @@ export default function DealDetailsDialog({ deal, open, onClose }: DealDetailsDi
     return new Date(date).toLocaleString();
   };
 
-  const deleteDealMutation = useMutation({
-    mutationFn: async () => {
-      return apiRequest('DELETE', `/api/deals/${deal.id}`);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/deals'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/dashboard'] });
-      toast({
-        title: "Deal deleted",
-        description: "The deal has been successfully deleted.",
-      });
-      onClose();
-    },
-    onError: (error) => {
-      toast({
-        title: "Error deleting deal",
-        description: "Failed to delete the deal. Please try again.",
-        variant: "destructive",
-      });
-    }
-  });
+
 
   const handleDelete = () => {
     if (confirm(`Are you sure you want to delete the deal "${deal.projectName}"? This action cannot be undone.`)) {
