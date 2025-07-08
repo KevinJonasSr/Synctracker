@@ -552,10 +552,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/calendar-events", async (req, res) => {
     try {
-      const data = insertCalendarEventSchema.parse(req.body);
+      // Convert string dates to Date objects before validation
+      const processedData = {
+        ...req.body,
+        startDate: req.body.startDate ? new Date(req.body.startDate) : undefined,
+        endDate: req.body.endDate ? new Date(req.body.endDate) : undefined,
+      };
+      
+      const data = insertCalendarEventSchema.parse(processedData);
       const event = await dbStorage.createCalendarEvent(data);
       res.status(201).json(event);
     } catch (error) {
+      console.error('Calendar event validation error:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors });
+      }
       res.status(400).json({ error: "Invalid calendar event data" });
     }
   });
