@@ -202,23 +202,27 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
   const onSubmit = (data: InsertDeal) => {
     console.log("Form submitted with data:", data);
     console.log("Form errors:", form.formState.errors);
+    console.log("Form values:", form.getValues());
+    
+    // Get current form values to check what's actually set
+    const currentValues = form.getValues();
     
     // Check each required field and set specific errors
     const errors: any = {};
     
-    if (!data.projectName || data.projectName.trim() === '') {
+    if (!currentValues.projectName || currentValues.projectName.trim() === '') {
       errors.projectName = { message: "Project name is required" };
     }
     
-    if (!data.projectType) {
+    if (!currentValues.projectType) {
       errors.projectType = { message: "Project type is required" };
     }
     
-    if (!data.songId) {
+    if (!currentValues.songId) {
       errors.songId = { message: "Song selection is required" };
     }
     
-    if (!data.contactId) {
+    if (!currentValues.contactId) {
       errors.contactId = { message: "Contact selection is required" };
     }
     
@@ -309,7 +313,7 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
                 form.setValue("projectType", value);
                 // Clear error when valid selection is made  
                 form.clearErrors("projectType");
-              }}>
+              }} value={form.watch("projectType")}>
                 <SelectTrigger className={form.formState.errors.projectType ? "border-red-500 focus:border-red-500" : ""}>
                   <SelectValue placeholder="Select project type" />
                 </SelectTrigger>
@@ -350,7 +354,7 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
                 form.setValue("songId", parseInt(value));
                 // Clear error when valid selection is made
                 form.clearErrors("songId");
-              }}>
+              }} value={form.watch("songId")?.toString()}>
                 <SelectTrigger className={form.formState.errors.songId ? "border-red-500 focus:border-red-500" : ""}>
                   <SelectValue placeholder="Select a song" />
                 </SelectTrigger>
@@ -377,7 +381,7 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
                   // Clear error when valid selection is made
                   form.clearErrors("contactId");
                 }
-              }}>
+              }} value={form.watch("contactId")?.toString()}>
                 <SelectTrigger className={form.formState.errors.contactId ? "border-red-500 focus:border-red-500" : ""}>
                   <SelectValue placeholder="Select a contact" />
                 </SelectTrigger>
