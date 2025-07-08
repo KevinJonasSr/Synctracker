@@ -240,25 +240,31 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
       return;
     }
     
-    // Process data with proper formatting and type conversion
+    // Use the current form values instead of the submitted data to ensure we get the right types
     const processedData = {
-      projectName: data.projectName,
-      projectType: data.projectType,
-      projectDescription: data.projectDescription || null,
-      songId: typeof data.songId === 'string' ? parseInt(data.songId) : data.songId,
-      contactId: typeof data.contactId === 'string' ? parseInt(data.contactId) : data.contactId,
-      status: data.status || "pitched",
-      dealValue: data.dealValue ? parseFloat(data.dealValue.toString()) : null,
-      usage: data.usage || null,
-      territory: data.territory || "worldwide",
-      term: data.term || null,
-      exclusivity: data.exclusivity || false,
-      notes: data.notes || null,
-      airDate: data.airDate ? new Date(data.airDate).toISOString() : null,
+      projectName: currentValues.projectName,
+      projectType: currentValues.projectType,
+      projectDescription: currentValues.projectDescription || null,
+      songId: currentValues.songId, // These should already be numbers from our setValue calls
+      contactId: currentValues.contactId, // These should already be numbers from our setValue calls
+      status: currentValues.status || "pitched",
+      dealValue: currentValues.dealValue ? parseFloat(currentValues.dealValue.toString()) : null,
+      usage: currentValues.usage || null,
+      territory: currentValues.territory || "worldwide",
+      term: currentValues.term || null,
+      exclusivity: currentValues.exclusivity || false,
+      notes: currentValues.notes || null,
+      airDate: currentValues.airDate ? new Date(currentValues.airDate).toISOString() : null,
       pitchDate: null
     };
     
-    console.log("Processed data:", processedData);
+    console.log("Final processed data to send:", processedData);
+    console.log("Data types:", {
+      songId: typeof processedData.songId,
+      contactId: typeof processedData.contactId,
+      songIdValue: processedData.songId,
+      contactIdValue: processedData.contactId
+    });
     
     createDealMutation.mutate(processedData);
   };
