@@ -128,6 +128,49 @@ export default function Calendar() {
 
   const currentMonthEvents = getEventsForMonth(currentMonth);
 
+  // Calendar grid helpers
+  const getDaysInMonth = (month: Date) => {
+    const year = month.getFullYear();
+    const monthIndex = month.getMonth();
+    const firstDay = new Date(year, monthIndex, 1);
+    const lastDay = new Date(year, monthIndex + 1, 0);
+    const startDate = new Date(firstDay);
+    startDate.setDate(startDate.getDate() - firstDay.getDay()); // Start from Sunday
+    
+    const days = [];
+    const current = new Date(startDate);
+    
+    // Generate 42 days (6 weeks) for the calendar grid
+    for (let i = 0; i < 42; i++) {
+      days.push(new Date(current));
+      current.setDate(current.getDate() + 1);
+    }
+    
+    return days;
+  };
+
+  const getEventsForDay = (day: Date) => {
+    const dayStart = new Date(day.getFullYear(), day.getMonth(), day.getDate());
+    const dayEnd = new Date(day.getFullYear(), day.getMonth(), day.getDate() + 1);
+    
+    return allEvents.filter(event => {
+      const eventDate = new Date(event.startDate);
+      return eventDate >= dayStart && eventDate < dayEnd;
+    });
+  };
+
+  const isToday = (date: Date) => {
+    const today = new Date();
+    return date.toDateString() === today.toDateString();
+  };
+
+  const isCurrentMonth = (date: Date) => {
+    return date.getMonth() === currentMonth.getMonth() && date.getFullYear() === currentMonth.getFullYear();
+  };
+
+  const calendarDays = getDaysInMonth(currentMonth);
+  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
   const navigateMonth = (direction: 'prev' | 'next') => {
     setCurrentMonth(prev => {
       const newMonth = new Date(prev);
@@ -224,9 +267,10 @@ export default function Calendar() {
       />
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="list">List View</TabsTrigger>
-          <TabsTrigger value="monthly">Monthly View</TabsTrigger>
+          <TabsTrigger value="monthly">Monthly List</TabsTrigger>
+          <TabsTrigger value="calendar">Calendar Grid</TabsTrigger>
         </TabsList>
 
         <TabsContent value="list" className="space-y-6">
@@ -487,6 +531,100 @@ export default function Calendar() {
                 ))}
               </div>
             )}
+          </CardContent>
+        </Card>
+      </TabsContent>
+
+      <TabsContent value="calendar" className="space-y-6">
+        {/* Calendar Grid Header */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigateMonth('prev')}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <CardTitle className="text-xl">
+                {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
+              </CardTitle>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigateMonth('next')}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </CardHeader>
+        </Card>
+
+        {/* Calendar Grid */}
+        <Card>
+          <CardContent className="p-6">
+            {/* Day names header */}
+            <div className="grid grid-cols-7 gap-1 mb-4">
+              {dayNames.map((day) => (
+                <div key={day} className="p-2 text-center text-sm font-medium text-muted-foreground">
+                  {day}
+                </div>
+              ))}
+            </div>
+
+            {/* Calendar days */}
+            <div className="grid grid-cols-7 gap-1">
+              {calendarDays.map((day, index) => {
+                const dayEvents = getEventsForDay(day);
+                const isCurrentMonthDay = isCurrentMonth(day);
+                const isTodayDay = isToday(day);
+                
+                return (
+                  <div
+                    key={index}
+                    className={`
+                      min-h-[100px] p-2 border rounded-lg transition-colors
+                      ${isCurrentMonthDay ? 'bg-background' : 'bg-muted/30'}
+                      ${isTodayDay ? 'ring-2 ring-primary' : ''}
+                      hover:bg-muted/50
+                    `}
+                  >
+                    {/* Day number */}
+                    <div className={`
+                      text-sm font-medium mb-1
+                      ${isCurrentMonthDay ? 'text-foreground' : 'text-muted-foreground'}
+                      ${isTodayDay ? 'text-primary font-bold' : ''}
+                    `}>
+                      {day.getDate()}
+                    </div>
+
+                    {/* Events for this day */}
+                    <div className="space-y-1">
+                      {dayEvents.slice(0, 3).map((event) => (
+                        <div
+                          key={event.id}
+                          className={`
+                            text-xs p-1 rounded truncate cursor-pointer
+                            ${event.entityType === 'deal' ? 'bg-blue-100 text-blue-800 hover:bg-blue-200' : 'bg-gray-100 text-gray-800 hover:bg-gray-200'}
+                            dark:bg-blue-900 dark:text-blue-100 dark:hover:bg-blue-800
+                          `}
+                          onClick={() => event.entityType === 'deal' && handleEditAirDate(event)}
+                          title={event.title}
+                        >
+                          {event.title.replace('Air Date: ', '')}
+                        </div>
+                      ))}
+                      {dayEvents.length > 3 && (
+                        <div className="text-xs text-muted-foreground">
+                          +{dayEvents.length - 3} more
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </CardContent>
         </Card>
       </TabsContent>
