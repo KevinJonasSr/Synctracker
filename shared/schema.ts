@@ -435,10 +435,27 @@ export const insertContactSchema = createInsertSchema(contacts).omit({
   updatedAt: true,
 });
 
-export const insertDealSchema = createInsertSchema(deals).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
+// Create a custom schema for deal insertion that handles date strings
+export const insertDealSchema = z.object({
+  projectName: z.string().min(1, "Project name is required"),
+  projectType: z.string().min(1, "Project type is required"),
+  projectDescription: z.string().optional().nullable(),
+  songId: z.number().min(1, "Song is required"),
+  contactId: z.number().min(1, "Contact is required"),
+  status: z.string().default("pitched"),
+  dealValue: z.number().optional().nullable(),
+  usage: z.string().optional().nullable(),
+  territory: z.string().default("worldwide"),
+  term: z.string().optional().nullable(),
+  exclusivity: z.boolean().default(false),
+  notes: z.string().optional().nullable(),
+  airDate: z.string().optional().nullable(),
+  pitchDate: z.string().optional().nullable(),
+  responseDate: z.string().optional().nullable(),
+  confirmationDate: z.string().optional().nullable(),
+  completionDate: z.string().optional().nullable(),
+  paymentDate: z.string().optional().nullable(),
+  paymentDueDate: z.string().optional().nullable()
 });
 
 export const insertPitchSchema = createInsertSchema(pitches).omit({

@@ -32,7 +32,7 @@ export interface IStorage {
   // Deals
   getDeals(status?: string, limit?: number): Promise<DealWithRelations[]>;
   getDeal(id: number): Promise<DealWithRelations | undefined>;
-  createDeal(deal: InsertDeal): Promise<Deal>;
+  createDeal(deal: any): Promise<Deal>;
   updateDeal(id: number, deal: Partial<InsertDeal>): Promise<Deal>;
   deleteDeal(id: number): Promise<void>;
 
@@ -283,9 +283,14 @@ export class DatabaseStorage implements IStorage {
     };
   }
 
-  async createDeal(deal: InsertDeal): Promise<Deal> {
-    const [created] = await db.insert(deals).values(deal).returning();
-    return created;
+  async createDeal(deal: any): Promise<Deal> {
+    try {
+      const [created] = await db.insert(deals).values(deal).returning();
+      return created;
+    } catch (error) {
+      console.error("Database error in createDeal:", error);
+      throw error;
+    }
   }
 
   async updateDeal(id: number, deal: Partial<InsertDeal>): Promise<Deal> {

@@ -203,13 +203,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/deals", async (req, res) => {
     try {
       const validatedData = insertDealSchema.parse(req.body);
-      const deal = await dbStorage.createDeal(validatedData);
+      
+      // Convert date strings to Date objects for database insertion
+      const processedData = {
+        ...validatedData,
+        airDate: validatedData.airDate && validatedData.airDate !== '' ? new Date(validatedData.airDate) : null,
+        pitchDate: validatedData.pitchDate && validatedData.pitchDate !== '' ? new Date(validatedData.pitchDate) : null,
+        responseDate: validatedData.responseDate && validatedData.responseDate !== '' ? new Date(validatedData.responseDate) : null,
+        confirmationDate: validatedData.confirmationDate && validatedData.confirmationDate !== '' ? new Date(validatedData.confirmationDate) : null,
+        completionDate: validatedData.completionDate && validatedData.completionDate !== '' ? new Date(validatedData.completionDate) : null,
+        paymentDate: validatedData.paymentDate && validatedData.paymentDate !== '' ? new Date(validatedData.paymentDate) : null,
+        paymentDueDate: validatedData.paymentDueDate && validatedData.paymentDueDate !== '' ? new Date(validatedData.paymentDueDate) : null
+      };
+      
+      console.log("Processed data for DB:", processedData);
+      
+      const deal = await dbStorage.createDeal(processedData);
       res.json(deal);
     } catch (error) {
+      console.error("Error creating deal:", error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: error.errors });
       }
-      res.status(500).json({ error: "Failed to create deal" });
+      res.status(500).json({ error: "Failed to create deal", details: error.message });
     }
   });
 
