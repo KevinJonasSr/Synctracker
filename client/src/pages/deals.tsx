@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Header from "@/components/layout/header";
-import AddDealForm from "@/components/forms/add-deal-form";
+import ComprehensiveAddDealForm from "@/components/forms/comprehensive-add-deal-form";
 import DealDetailsDialog from "@/components/deal-details-dialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -193,7 +193,7 @@ export default function Deals() {
         </Tabs>
       </div>
 
-      <AddDealForm open={showAddDeal} onClose={() => setShowAddDeal(false)} />
+      <ComprehensiveAddDealForm open={showAddDeal} onClose={() => setShowAddDeal(false)} />
       
       <DealDetailsDialog 
         deal={selectedDeal}

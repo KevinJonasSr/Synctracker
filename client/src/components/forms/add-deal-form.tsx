@@ -8,11 +8,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
+import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 import { apiRequest } from "@/lib/queryClient";
 import { insertDealSchema, insertContactSchema, type InsertDeal, type InsertContact, type Song, type Contact } from "@shared/schema";
-import { Plus } from "lucide-react";
+import { Plus, Building, User, FileText } from "lucide-react";
 
 interface AddDealFormProps {
   open: boolean;
@@ -34,16 +37,48 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
     resolver: zodResolver(insertDealSchema),
     defaultValues: {
       projectName: "",
+      episodeNumber: "",
       projectType: "",
       projectDescription: "",
       songId: undefined,
       contactId: undefined,
+      
+      // Contact Information
+      licenseeCompanyName: "",
+      licenseeAddress: "",
+      licenseeContactName: "",
+      licenseeContactEmail: "",
+      licenseeContactPhone: "",
+      
+      musicSupervisorName: "",
+      musicSupervisorAddress: "",
+      musicSupervisorContactName: "",
+      musicSupervisorContactEmail: "",
+      musicSupervisorContactPhone: "",
+      
+      clearanceCompanyName: "",
+      clearanceCompanyAddress: "",
+      clearanceCompanyContactName: "",
+      clearanceCompanyContactEmail: "",
+      clearanceCompanyContactPhone: "",
+      
       status: "pitched",
       dealValue: undefined,
       usage: "",
+      media: "",
       territory: "worldwide",
       term: "",
       exclusivity: false,
+      exclusivityRestrictions: "",
+      
+      // Song Information
+      writers: "",
+      publishingInfo: "",
+      splits: "",
+      artist: "",
+      label: "",
+      artistLabelSplits: "",
+      
       notes: "",
       airDate: "",
       pitchDate: undefined,

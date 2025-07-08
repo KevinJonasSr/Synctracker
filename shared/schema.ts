@@ -61,16 +61,48 @@ export const contacts = pgTable("contacts", {
 export const deals = pgTable("deals", {
   id: serial("id").primaryKey(),
   projectName: text("project_name").notNull(),
+  episodeNumber: text("episode_number"),
   projectType: text("project_type").notNull(), // film, tv, commercial, game, etc.
   projectDescription: text("project_description"),
   songId: integer("song_id").references(() => songs.id).notNull(),
   contactId: integer("contact_id").references(() => contacts.id).notNull(),
-  status: text("status").notNull().default("pitched"), // pitched, under_review, confirmed, completed, paid, rejected
+  
+  // Contact Information
+  licenseeCompanyName: text("licensee_company_name"),
+  licenseeAddress: text("licensee_address"),
+  licenseeContactName: text("licensee_contact_name"),
+  licenseeContactEmail: text("licensee_contact_email"),
+  licenseeContactPhone: text("licensee_contact_phone"),
+  
+  musicSupervisorName: text("music_supervisor_name"),
+  musicSupervisorAddress: text("music_supervisor_address"),
+  musicSupervisorContactName: text("music_supervisor_contact_name"),
+  musicSupervisorContactEmail: text("music_supervisor_contact_email"),
+  musicSupervisorContactPhone: text("music_supervisor_contact_phone"),
+  
+  clearanceCompanyName: text("clearance_company_name"),
+  clearanceCompanyAddress: text("clearance_company_address"),
+  clearanceCompanyContactName: text("clearance_company_contact_name"),
+  clearanceCompanyContactEmail: text("clearance_company_contact_email"),
+  clearanceCompanyContactPhone: text("clearance_company_contact_phone"),
+  
+  status: text("status").notNull().default("pitched"), // Pitched, Pending Approval, Quoted, Use Confirmed, Being Drafted, Out for Signature, Payment Received, Completed
   dealValue: decimal("deal_value", { precision: 10, scale: 2 }),
   usage: text("usage"), // background, featured, opening, etc.
+  media: text("media"), // TV, Film, Commercial, etc.
   territory: text("territory").default("worldwide"),
   term: text("term"), // perpetual, 1 year, etc.
   exclusivity: boolean("exclusivity").default(false),
+  exclusivityRestrictions: text("exclusivity_restrictions"),
+  
+  // Song Information
+  writers: text("writers"),
+  publishingInfo: text("publishing_info"),
+  splits: text("splits"),
+  artist: text("artist"),
+  label: text("label"),
+  artistLabelSplits: text("artist_label_splits"),
+  
   notes: text("notes"),
   airDate: timestamp("air_date"),
   pitchDate: timestamp("pitch_date"),
