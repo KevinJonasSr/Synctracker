@@ -188,15 +188,15 @@ export default function Calendar() {
   // Edit air date mutation
   const editAirDateMutation = useMutation({
     mutationFn: async ({ eventId, newDate }: { eventId: number; newDate: string }) => {
-      const response = await apiRequest(`/api/calendar-events/${eventId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      const response = await apiRequest(
+        'PUT',
+        `/api/calendar-events/${eventId}`,
+        {
           startDate: newDate,
           endDate: newDate,
-        })
-      });
-      return response;
+        }
+      );
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/calendar-events'] });
@@ -209,6 +209,7 @@ export default function Calendar() {
       setEditDate("");
     },
     onError: (error) => {
+      console.error('Air date update error:', error);
       toast({
         title: "Error updating air date",
         description: "Failed to update the air date. Please try again.",
@@ -255,12 +256,22 @@ export default function Calendar() {
       const newDate = new Date(targetDate);
       newDate.setHours(0, 0, 0, 0);
       
-      editAirDateMutation.mutate({
-        eventId: draggedEvent.id,
-        newDate: newDate.toISOString(),
-      });
+      try {
+        editAirDateMutation.mutate({
+          eventId: draggedEvent.id,
+          newDate: newDate.toISOString(),
+        });
+      } catch (error) {
+        console.error('Error during drag and drop:', error);
+        toast({
+          title: "Error moving event",
+          description: "Failed to move the event. Please try again.",
+          variant: "destructive",
+        });
+      }
       
       setDraggedEvent(null);
+      setDragOverDay(null);
     }
   };
 
