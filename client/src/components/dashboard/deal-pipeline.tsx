@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import DealDetailsDialog from "@/components/deal-details-dialog";
 import type { DealWithRelations } from "@shared/schema";
 
 interface DealPipelineProps {
@@ -9,6 +11,13 @@ interface DealPipelineProps {
 }
 
 export default function DealPipeline({ deals, dealsByStatus }: DealPipelineProps) {
+  const [selectedDeal, setSelectedDeal] = useState<DealWithRelations | null>(null);
+  const [showDealDetails, setShowDealDetails] = useState(false);
+
+  const handleDealClick = (deal: DealWithRelations) => {
+    setSelectedDeal(deal);
+    setShowDealDetails(true);
+  };
   const getStatusColor = (status: string) => {
     switch (status) {
       case "pitched":
@@ -100,7 +109,11 @@ export default function DealPipeline({ deals, dealsByStatus }: DealPipelineProps
                 </tr>
               ) : (
                 deals.map((deal) => (
-                  <tr key={deal.id} className="hover:bg-gray-50">
+                  <tr 
+                    key={deal.id} 
+                    className="hover:bg-gray-50 cursor-pointer"
+                    onClick={() => handleDealClick(deal)}
+                  >
                     <td className="py-3 px-4">
                       <div>
                         <p className="font-medium text-gray-900">{deal.projectName}</p>
@@ -131,6 +144,12 @@ export default function DealPipeline({ deals, dealsByStatus }: DealPipelineProps
           </table>
         </div>
       </CardContent>
+      
+      <DealDetailsDialog 
+        deal={selectedDeal}
+        open={showDealDetails}
+        onClose={() => setShowDealDetails(false)}
+      />
     </Card>
   );
 }

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Header from "@/components/layout/header";
 import AddDealForm from "@/components/forms/add-deal-form";
+import DealDetailsDialog from "@/components/deal-details-dialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,13 @@ import type { DealWithRelations } from "@shared/schema";
 export default function Deals() {
   const [showAddDeal, setShowAddDeal] = useState(false);
   const [activeTab, setActiveTab] = useState("all");
+  const [selectedDeal, setSelectedDeal] = useState<DealWithRelations | null>(null);
+  const [showDealDetails, setShowDealDetails] = useState(false);
+
+  const handleDealClick = (deal: DealWithRelations) => {
+    setSelectedDeal(deal);
+    setShowDealDetails(true);
+  };
 
   const { data: deals = [], isLoading } = useQuery<DealWithRelations[]>({
     queryKey: ["/api/deals"],
@@ -96,7 +104,11 @@ export default function Deals() {
             ) : (
               <div className="grid gap-6">
                 {filteredDeals.map((deal) => (
-                  <Card key={deal.id} className="hover:shadow-md transition-shadow">
+                  <Card 
+                    key={deal.id} 
+                    className="hover:shadow-md transition-shadow cursor-pointer"
+                    onClick={() => handleDealClick(deal)}
+                  >
                     <CardContent className="p-6">
                       <div className="flex items-start justify-between">
                         <div className="flex items-start space-x-4">
@@ -182,6 +194,12 @@ export default function Deals() {
       </div>
 
       <AddDealForm open={showAddDeal} onClose={() => setShowAddDeal(false)} />
+      
+      <DealDetailsDialog 
+        deal={selectedDeal}
+        open={showDealDetails}
+        onClose={() => setShowDealDetails(false)}
+      />
     </div>
   );
 }
