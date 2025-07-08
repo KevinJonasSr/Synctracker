@@ -127,6 +127,28 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
     }
   });
 
+  const formatPhoneNumber = (value: string) => {
+    // Remove all non-numeric characters
+    const phoneNumber = value.replace(/[^\d]/g, '');
+    
+    // Format based on length
+    if (phoneNumber.length <= 3) {
+      return phoneNumber;
+    } else if (phoneNumber.length <= 6) {
+      return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3)}`;
+    } else if (phoneNumber.length <= 10) {
+      return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6)}`;
+    } else {
+      // Handle international numbers or longer formats
+      return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6, 10)}`;
+    }
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatPhoneNumber(e.target.value);
+    setNewContactPhone(formatted);
+  };
+
   const resetContactForm = () => {
     setNewContactName("");
     setNewContactEmail("");
@@ -374,8 +396,9 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
                   id="newContactPhone"
                   type="tel"
                   value={newContactPhone}
-                  onChange={(e) => setNewContactPhone(e.target.value)}
+                  onChange={handlePhoneChange}
                   placeholder="(555) 123-4567"
+                  maxLength={14}
                 />
               </div>
               <div>
