@@ -24,8 +24,11 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
   const [showAddContact, setShowAddContact] = useState(false);
   const [newContactName, setNewContactName] = useState("");
   const [newContactEmail, setNewContactEmail] = useState("");
+  const [newContactPhone, setNewContactPhone] = useState("");
   const [newContactCompany, setNewContactCompany] = useState("");
   const [newContactRole, setNewContactRole] = useState("");
+  const [newContactNotes, setNewContactNotes] = useState("");
+  const [newContactProjects, setNewContactProjects] = useState("");
   
   const form = useForm<InsertDeal>({
     resolver: zodResolver(insertDealSchema),
@@ -127,8 +130,11 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
   const resetContactForm = () => {
     setNewContactName("");
     setNewContactEmail("");
+    setNewContactPhone("");
     setNewContactCompany("");
     setNewContactRole("");
+    setNewContactNotes("");
+    setNewContactProjects("");
   };
 
   const handleCreateContact = () => {
@@ -144,8 +150,10 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
     createContactMutation.mutate({
       name: newContactName,
       email: newContactEmail,
+      phone: newContactPhone,
       company: newContactCompany,
-      role: newContactRole
+      role: newContactRole,
+      notes: `${newContactNotes}${newContactProjects ? '\n\nCurrent Projects:\n' + newContactProjects : ''}`
     });
   };
 
@@ -332,7 +340,7 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
       
       {/* Add Contact Dialog */}
       <Dialog open={showAddContact} onOpenChange={setShowAddContact}>
-        <DialogContent>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Add New Contact</DialogTitle>
           </DialogHeader>
@@ -361,6 +369,16 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
             
             <div className="grid grid-cols-2 gap-4">
               <div>
+                <Label htmlFor="newContactPhone">Phone</Label>
+                <Input
+                  id="newContactPhone"
+                  type="tel"
+                  value={newContactPhone}
+                  onChange={(e) => setNewContactPhone(e.target.value)}
+                  placeholder="(555) 123-4567"
+                />
+              </div>
+              <div>
                 <Label htmlFor="newContactCompany">Company</Label>
                 <Input
                   id="newContactCompany"
@@ -369,15 +387,38 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
                   placeholder="Company name"
                 />
               </div>
-              <div>
-                <Label htmlFor="newContactRole">Role</Label>
-                <Input
-                  id="newContactRole"
-                  value={newContactRole}
-                  onChange={(e) => setNewContactRole(e.target.value)}
-                  placeholder="Job title"
-                />
-              </div>
+            </div>
+            
+            <div>
+              <Label htmlFor="newContactRole">Role</Label>
+              <Input
+                id="newContactRole"
+                value={newContactRole}
+                onChange={(e) => setNewContactRole(e.target.value)}
+                placeholder="Music Supervisor, Creative Director, etc."
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="newContactProjects">Current Projects</Label>
+              <Textarea
+                id="newContactProjects"
+                value={newContactProjects}
+                onChange={(e) => setNewContactProjects(e.target.value)}
+                placeholder="List current shows, films, or projects this contact is working on..."
+                rows={3}
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="newContactNotes">Notes</Label>
+              <Textarea
+                id="newContactNotes"
+                value={newContactNotes}
+                onChange={(e) => setNewContactNotes(e.target.value)}
+                placeholder="Additional notes, preferences, or important information..."
+                rows={3}
+              />
             </div>
             
             <div className="flex space-x-4 pt-4">
