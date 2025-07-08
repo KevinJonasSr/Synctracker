@@ -203,17 +203,34 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
     console.log("Form submitted with data:", data);
     console.log("Form errors:", form.formState.errors);
     
-    // Validate required fields before submission
-    if (!data.projectName || !data.projectType || !data.songId || !data.contactId) {
-      console.log("Validation failed:", { 
-        projectName: data.projectName, 
-        projectType: data.projectType, 
-        songId: data.songId, 
-        contactId: data.contactId 
+    // Check each required field and set specific errors
+    const errors: any = {};
+    
+    if (!data.projectName || data.projectName.trim() === '') {
+      errors.projectName = { message: "Project name is required" };
+    }
+    
+    if (!data.projectType) {
+      errors.projectType = { message: "Project type is required" };
+    }
+    
+    if (!data.songId) {
+      errors.songId = { message: "Song selection is required" };
+    }
+    
+    if (!data.contactId) {
+      errors.contactId = { message: "Contact selection is required" };
+    }
+    
+    // If there are validation errors, set them and return
+    if (Object.keys(errors).length > 0) {
+      Object.keys(errors).forEach(field => {
+        form.setError(field as any, errors[field]);
       });
+      
       toast({
         title: "Missing Required Fields",
-        description: "Please fill in all required fields: Project Name, Project Type, Song, and Contact",
+        description: "Please fill in all required fields highlighted in red",
         variant: "destructive"
       });
       return;
@@ -249,6 +266,21 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
           <DialogTitle>Add New Deal</DialogTitle>
         </DialogHeader>
         
+        {/* Display validation errors summary */}
+        {Object.keys(form.formState.errors).length > 0 && (
+          <div className="bg-red-50 border border-red-200 rounded-md p-3 mb-4">
+            <h4 className="text-sm font-medium text-red-800 mb-2">Please fix the following errors:</h4>
+            <ul className="text-sm text-red-700 space-y-1">
+              {Object.entries(form.formState.errors).map(([field, error]) => (
+                <li key={field} className="flex items-center gap-2">
+                  <span className="w-2 h-2 bg-red-400 rounded-full"></span>
+                  {error?.message || `${field} is required`}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        
         <form onSubmit={form.handleSubmit(onSubmit, (errors) => {
           console.log("Form validation errors:", errors);
           toast({
@@ -262,18 +294,23 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
               <Label htmlFor="projectName">Project Name *</Label>
               <Input
                 id="projectName"
-                {...form.register("projectName")}
+                {...form.register("projectName", { required: "Project name is required" })}
                 placeholder="Enter project name"
+                className={form.formState.errors.projectName ? "border-red-500 focus:border-red-500" : ""}
               />
               {form.formState.errors.projectName && (
-                <p className="text-sm text-red-600">{form.formState.errors.projectName.message}</p>
+                <p className="text-sm text-red-600 mt-1">{form.formState.errors.projectName.message}</p>
               )}
             </div>
             
             <div>
               <Label htmlFor="projectType">Project Type *</Label>
-              <Select onValueChange={(value) => form.setValue("projectType", value)}>
-                <SelectTrigger>
+              <Select onValueChange={(value) => {
+                form.setValue("projectType", value);
+                // Clear error when valid selection is made  
+                form.clearErrors("projectType");
+              }}>
+                <SelectTrigger className={form.formState.errors.projectType ? "border-red-500 focus:border-red-500" : ""}>
                   <SelectValue placeholder="Select project type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -290,6 +327,9 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
                   <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
               </Select>
+              {form.formState.errors.projectType && (
+                <p className="text-sm text-red-600 mt-1">{form.formState.errors.projectType.message}</p>
+              )}
             </div>
           </div>
 
@@ -306,8 +346,12 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="songId">Song *</Label>
-              <Select onValueChange={(value) => form.setValue("songId", parseInt(value))}>
-                <SelectTrigger>
+              <Select onValueChange={(value) => {
+                form.setValue("songId", parseInt(value));
+                // Clear error when valid selection is made
+                form.clearErrors("songId");
+              }}>
+                <SelectTrigger className={form.formState.errors.songId ? "border-red-500 focus:border-red-500" : ""}>
                   <SelectValue placeholder="Select a song" />
                 </SelectTrigger>
                 <SelectContent>
@@ -318,6 +362,9 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
                   ))}
                 </SelectContent>
               </Select>
+              {form.formState.errors.songId && (
+                <p className="text-sm text-red-600 mt-1">{form.formState.errors.songId.message}</p>
+              )}
             </div>
             
             <div>
@@ -327,9 +374,11 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
                   setShowAddContact(true);
                 } else {
                   form.setValue("contactId", parseInt(value));
+                  // Clear error when valid selection is made
+                  form.clearErrors("contactId");
                 }
               }}>
-                <SelectTrigger>
+                <SelectTrigger className={form.formState.errors.contactId ? "border-red-500 focus:border-red-500" : ""}>
                   <SelectValue placeholder="Select a contact" />
                 </SelectTrigger>
                 <SelectContent>
@@ -346,6 +395,9 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
                   </SelectItem>
                 </SelectContent>
               </Select>
+              {form.formState.errors.contactId && (
+                <p className="text-sm text-red-600 mt-1">{form.formState.errors.contactId.message}</p>
+              )}
             </div>
           </div>
 
