@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -10,7 +11,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 import { apiRequest } from "@/lib/queryClient";
-import { insertDealSchema, type InsertDeal, type Song, type Contact } from "@shared/schema";
+import { insertDealSchema, insertContactSchema, type InsertDeal, type InsertContact, type Song, type Contact } from "@shared/schema";
+import { Plus } from "lucide-react";
 
 interface AddDealFormProps {
   open: boolean;
@@ -19,6 +21,11 @@ interface AddDealFormProps {
 
 export default function AddDealForm({ open, onClose }: AddDealFormProps) {
   const { toast } = useToast();
+  const [showAddContact, setShowAddContact] = useState(false);
+  const [newContactName, setNewContactName] = useState("");
+  const [newContactEmail, setNewContactEmail] = useState("");
+  const [newContactCompany, setNewContactCompany] = useState("");
+  const [newContactRole, setNewContactRole] = useState("");
   
   const form = useForm<InsertDeal>({
     resolver: zodResolver(insertDealSchema),
@@ -91,6 +98,56 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
       });
     },
   });
+
+  const createContactMutation = useMutation({
+    mutationFn: async (contactData: InsertContact) => {
+      const response = await apiRequest("POST", "/api/contacts", contactData);
+      return response.json();
+    },
+    onSuccess: (newContact) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/contacts"] });
+      // Auto-select the newly created contact
+      form.setValue("contactId", newContact.id);
+      setShowAddContact(false);
+      resetContactForm();
+      toast({
+        title: "Contact Created",
+        description: "New contact has been added and selected"
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to create contact",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const resetContactForm = () => {
+    setNewContactName("");
+    setNewContactEmail("");
+    setNewContactCompany("");
+    setNewContactRole("");
+  };
+
+  const handleCreateContact = () => {
+    if (!newContactName || !newContactEmail) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in contact name and email",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    createContactMutation.mutate({
+      name: newContactName,
+      email: newContactEmail,
+      company: newContactCompany,
+      role: newContactRole
+    });
+  };
 
   const onSubmit = (data: InsertDeal) => {
     // Validate required fields before submission
@@ -179,7 +236,13 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
             
             <div>
               <Label htmlFor="contactId">Contact *</Label>
-              <Select onValueChange={(value) => form.setValue("contactId", parseInt(value))}>
+              <Select onValueChange={(value) => {
+                if (value === "add_new") {
+                  setShowAddContact(true);
+                } else {
+                  form.setValue("contactId", parseInt(value));
+                }
+              }}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select a contact" />
                 </SelectTrigger>
@@ -189,6 +252,12 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
                       {contact.name} - {contact.company}
                     </SelectItem>
                   ))}
+                  <SelectItem value="add_new" className="border-t border-gray-200 mt-1 pt-1">
+                    <div className="flex items-center gap-2 text-blue-600">
+                      <Plus className="h-4 w-4" />
+                      Add New Contact
+                    </div>
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -260,6 +329,80 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
           </div>
         </form>
       </DialogContent>
+      
+      {/* Add Contact Dialog */}
+      <Dialog open={showAddContact} onOpenChange={setShowAddContact}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add New Contact</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="newContactName">Name *</Label>
+                <Input
+                  id="newContactName"
+                  value={newContactName}
+                  onChange={(e) => setNewContactName(e.target.value)}
+                  placeholder="Contact name"
+                />
+              </div>
+              <div>
+                <Label htmlFor="newContactEmail">Email *</Label>
+                <Input
+                  id="newContactEmail"
+                  type="email"
+                  value={newContactEmail}
+                  onChange={(e) => setNewContactEmail(e.target.value)}
+                  placeholder="email@company.com"
+                />
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="newContactCompany">Company</Label>
+                <Input
+                  id="newContactCompany"
+                  value={newContactCompany}
+                  onChange={(e) => setNewContactCompany(e.target.value)}
+                  placeholder="Company name"
+                />
+              </div>
+              <div>
+                <Label htmlFor="newContactRole">Role</Label>
+                <Input
+                  id="newContactRole"
+                  value={newContactRole}
+                  onChange={(e) => setNewContactRole(e.target.value)}
+                  placeholder="Job title"
+                />
+              </div>
+            </div>
+            
+            <div className="flex space-x-4 pt-4">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => {
+                  setShowAddContact(false);
+                  resetContactForm();
+                }} 
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleCreateContact}
+                className="flex-1"
+                disabled={createContactMutation.isPending}
+              >
+                {createContactMutation.isPending ? "Creating..." : "Create Contact"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 }
