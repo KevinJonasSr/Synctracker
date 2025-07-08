@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import EditDealForm from "@/components/forms/edit-deal-form";
 import { 
   Calendar, 
   DollarSign, 
@@ -33,6 +34,7 @@ interface DealDetailsDialogProps {
 
 export default function DealDetailsDialog({ deal, open, onClose }: DealDetailsDialogProps) {
   const { toast } = useToast();
+  const [showEditForm, setShowEditForm] = useState(false);
   
   const deleteDealMutation = useMutation({
     mutationFn: async () => {
@@ -112,7 +114,7 @@ export default function DealDetailsDialog({ deal, open, onClose }: DealDetailsDi
               </Badge>
             </div>
             <div className="flex items-center space-x-2">
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" onClick={() => setShowEditForm(true)}>
                 <Edit className="h-4 w-4 mr-2" />
                 Edit
               </Button>
@@ -428,6 +430,12 @@ export default function DealDetailsDialog({ deal, open, onClose }: DealDetailsDi
           </TabsContent>
         </Tabs>
       </DialogContent>
+      
+      <EditDealForm 
+        deal={deal}
+        open={showEditForm}
+        onClose={() => setShowEditForm(false)}
+      />
     </Dialog>
   );
 }
