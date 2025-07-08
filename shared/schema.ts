@@ -435,7 +435,7 @@ export const insertContactSchema = createInsertSchema(contacts).omit({
   updatedAt: true,
 });
 
-// Create a custom schema for deal insertion that handles date strings
+// Create a custom schema for deal insertion that handles type conversions  
 export const insertDealSchema = z.object({
   projectName: z.string().min(1, "Project name is required"),
   projectType: z.string().min(1, "Project type is required"),

@@ -236,13 +236,13 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
       return;
     }
     
-    // Process data with proper formatting
+    // Process data with proper formatting and type conversion
     const processedData = {
       projectName: data.projectName,
       projectType: data.projectType,
       projectDescription: data.projectDescription || null,
-      songId: data.songId,
-      contactId: data.contactId,
+      songId: typeof data.songId === 'string' ? parseInt(data.songId) : data.songId,
+      contactId: typeof data.contactId === 'string' ? parseInt(data.contactId) : data.contactId,
       status: data.status || "pitched",
       dealValue: data.dealValue ? parseFloat(data.dealValue.toString()) : null,
       usage: data.usage || null,

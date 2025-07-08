@@ -202,7 +202,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/deals", async (req, res) => {
     try {
-      const validatedData = insertDealSchema.parse(req.body);
+      // Pre-process the data to handle type conversion before validation
+      const preprocessedData = {
+        ...req.body,
+        songId: req.body.songId ? parseInt(req.body.songId.toString()) : undefined,
+        contactId: req.body.contactId ? parseInt(req.body.contactId.toString()) : undefined,
+        dealValue: req.body.dealValue ? parseFloat(req.body.dealValue.toString()) : undefined
+      };
+      
+      const validatedData = insertDealSchema.parse(preprocessedData);
       
       // Convert date strings to Date objects for database insertion
       const processedData = {
@@ -215,8 +223,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         paymentDate: validatedData.paymentDate && validatedData.paymentDate !== '' ? new Date(validatedData.paymentDate) : null,
         paymentDueDate: validatedData.paymentDueDate && validatedData.paymentDueDate !== '' ? new Date(validatedData.paymentDueDate) : null
       };
-      
-      console.log("Processed data for DB:", processedData);
       
       const deal = await dbStorage.createDeal(processedData);
       res.json(deal);
