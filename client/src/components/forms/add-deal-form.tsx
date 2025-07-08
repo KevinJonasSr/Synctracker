@@ -45,6 +45,7 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
       term: "",
       exclusivity: false,
       notes: "",
+      airDate: "",
       pitchDate: undefined,
     },
   });
@@ -199,8 +200,17 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
   };
 
   const onSubmit = (data: InsertDeal) => {
+    console.log("Form submitted with data:", data);
+    console.log("Form errors:", form.formState.errors);
+    
     // Validate required fields before submission
     if (!data.projectName || !data.projectType || !data.songId || !data.contactId) {
+      console.log("Validation failed:", { 
+        projectName: data.projectName, 
+        projectType: data.projectType, 
+        songId: data.songId, 
+        contactId: data.contactId 
+      });
       toast({
         title: "Missing Required Fields",
         description: "Please fill in all required fields: Project Name, Project Type, Song, and Contact",
@@ -211,8 +221,13 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
     
     // Process data with proper formatting
     const processedData = {
-      ...data,
-      dealValue: data.dealValue ? data.dealValue : null,
+      projectName: data.projectName,
+      projectType: data.projectType,
+      projectDescription: data.projectDescription || null,
+      songId: data.songId,
+      contactId: data.contactId,
+      status: data.status || "pitched",
+      dealValue: data.dealValue ? parseFloat(data.dealValue.toString()) : null,
       usage: data.usage || null,
       territory: data.territory || "worldwide",
       term: data.term || null,
@@ -222,7 +237,6 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
       pitchDate: null
     };
     
-    console.log("Form data:", data);
     console.log("Processed data:", processedData);
     
     createDealMutation.mutate(processedData);
@@ -235,7 +249,14 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
           <DialogTitle>Add New Deal</DialogTitle>
         </DialogHeader>
         
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={form.handleSubmit(onSubmit, (errors) => {
+          console.log("Form validation errors:", errors);
+          toast({
+            title: "Form Validation Error",
+            description: "Please check the required fields and try again",
+            variant: "destructive"
+          });
+        })} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="projectName">Project Name *</Label>
