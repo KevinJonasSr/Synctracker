@@ -136,6 +136,12 @@ Changelog:
   * Approval Workflows - Multi-step approval processes for contracts and major deals
   * Contract Generation - AI-powered contract creation based on deal templates
   * Streaming & Publishing Integration - Connect with platforms for performance data and royalty tracking
+- July 08, 2025. Enhanced contact creation and air date tracking:
+  * Inline Contact Creation - Add new contacts directly from deal form without navigation
+  * Comprehensive Contact Fields - Phone number formatting, current projects tracking, and full contact details
+  * Air Date Tracking - Manual air date input with automatic calendar event creation
+  * Calendar Integration - Air dates automatically populate calendar for weekly/monthly planning
+  * Database Schema Updates - Added air_date column to deals table for tracking broadcast dates
 ```
 
 ## User Preferences
