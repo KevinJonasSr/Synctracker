@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,14 +11,32 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Header from "@/components/layout/header";
 import AddCalendarEventForm from "@/components/forms/add-calendar-event-form";
-import { Calendar as CalendarIcon, Clock, Plus } from "lucide-react";
+import { Calendar as CalendarIcon, Clock, Plus, Edit, ChevronLeft, ChevronRight } from "lucide-react";
 import type { CalendarEvent } from "@shared/schema";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Calendar() {
   const [isAddFormOpen, setIsAddFormOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
+  const [editDate, setEditDate] = useState("");
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [activeTab, setActiveTab] = useState("list");
+  
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const { data: events = [], isLoading } = useQuery<CalendarEvent[]>({
     queryKey: ["/api/calendar-events"],
@@ -94,6 +112,80 @@ export default function Calendar() {
     new Date(event.startDate) < new Date() && event.status === 'scheduled'
   );
 
+  // Monthly view helpers
+  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                     'July', 'August', 'September', 'October', 'November', 'December'];
+  
+  const getEventsForMonth = (month: Date) => {
+    const start = new Date(month.getFullYear(), month.getMonth(), 1);
+    const end = new Date(month.getFullYear(), month.getMonth() + 1, 0);
+    
+    return allEvents.filter(event => {
+      const eventDate = new Date(event.startDate);
+      return eventDate >= start && eventDate <= end;
+    }).sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
+  };
+
+  const currentMonthEvents = getEventsForMonth(currentMonth);
+
+  const navigateMonth = (direction: 'prev' | 'next') => {
+    setCurrentMonth(prev => {
+      const newMonth = new Date(prev);
+      if (direction === 'prev') {
+        newMonth.setMonth(prev.getMonth() - 1);
+      } else {
+        newMonth.setMonth(prev.getMonth() + 1);
+      }
+      return newMonth;
+    });
+  };
+
+  // Edit air date mutation
+  const editAirDateMutation = useMutation({
+    mutationFn: async ({ eventId, newDate }: { eventId: number; newDate: string }) => {
+      const response = await apiRequest(`/api/calendar-events/${eventId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          startDate: newDate,
+          endDate: newDate,
+        })
+      });
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/calendar-events'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/deals'] });
+      toast({
+        title: "Air date updated successfully",
+        description: "The air date has been updated in the calendar.",
+      });
+      setEditingEvent(null);
+      setEditDate("");
+    },
+    onError: (error) => {
+      toast({
+        title: "Error updating air date",
+        description: "Failed to update the air date. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const handleEditAirDate = (event: CalendarEvent) => {
+    setEditingEvent(event);
+    setEditDate(new Date(event.startDate).toISOString().split('T')[0]);
+  };
+
+  const handleSaveEdit = () => {
+    if (editingEvent && editDate) {
+      editAirDateMutation.mutate({
+        eventId: editingEvent.id,
+        newDate: new Date(editDate).toISOString(),
+      });
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -127,9 +219,17 @@ export default function Calendar() {
         onSearch={setSearchQuery}
         onNewItem={() => setIsAddFormOpen(true)}
         newItemLabel="New Event"
-        showSearch={true}
+        showSearch={activeTab === "list"}
         showNewButton={true}
       />
+
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="list">List View</TabsTrigger>
+          <TabsTrigger value="monthly">Monthly View</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="list" className="space-y-6">
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <Card>
@@ -277,9 +377,20 @@ export default function Calendar() {
                       )}
                     </TableCell>
                     <TableCell>
-                      <Button variant="ghost" size="sm">
-                        Edit
-                      </Button>
+                      {event.entityType === 'deal' ? (
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => handleEditAirDate(event)}
+                        >
+                          <Edit className="h-4 w-4 mr-1" />
+                          Edit Date
+                        </Button>
+                      ) : (
+                        <Button variant="ghost" size="sm">
+                          Edit
+                        </Button>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))
@@ -288,6 +399,121 @@ export default function Calendar() {
           </Table>
         </CardContent>
       </Card>
+      </TabsContent>
+
+      <TabsContent value="monthly" className="space-y-6">
+        {/* Monthly View Header */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigateMonth('prev')}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <CardTitle className="text-xl">
+                {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
+              </CardTitle>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigateMonth('next')}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </CardHeader>
+        </Card>
+
+        {/* Monthly Events List */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Air Dates for {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}</CardTitle>
+            <CardDescription>
+              {currentMonthEvents.length} event{currentMonthEvents.length !== 1 ? 's' : ''} scheduled
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {currentMonthEvents.length === 0 ? (
+              <div className="text-center py-8">
+                <CalendarIcon className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                <p className="text-muted-foreground">No events scheduled for this month</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {currentMonthEvents.map((event) => (
+                  <div key={event.id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div className="space-y-1">
+                      <div className="flex items-center space-x-2">
+                        <p className="font-medium">{event.title}</p>
+                        <Badge className={getEntityTypeColor(event.entityType)}>
+                          {formatEntityType(event.entityType)}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                        <Clock className="h-4 w-4" />
+                        <span>{formatDate(event.startDate)}</span>
+                      </div>
+                      {event.description && (
+                        <p className="text-sm text-muted-foreground">{event.description}</p>
+                      )}
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Badge className={getStatusColor(event.status)}>
+                        {event.status}
+                      </Badge>
+                      {event.entityType === 'deal' && (
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleEditAirDate(event)}
+                        >
+                          <Edit className="h-4 w-4 mr-1" />
+                          Edit Date
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </TabsContent>
+      </Tabs>
+
+      {/* Edit Air Date Dialog */}
+      <Dialog open={!!editingEvent} onOpenChange={() => setEditingEvent(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Air Date</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-date">Air Date</Label>
+              <Input
+                id="edit-date"
+                type="date"
+                value={editDate}
+                onChange={(e) => setEditDate(e.target.value)}
+              />
+            </div>
+            <div className="flex justify-end space-x-2">
+              <Button variant="outline" onClick={() => setEditingEvent(null)}>
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleSaveEdit}
+                disabled={!editDate || editAirDateMutation.isPending}
+              >
+                {editAirDateMutation.isPending ? "Saving..." : "Save"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <AddCalendarEventForm
         open={isAddFormOpen}

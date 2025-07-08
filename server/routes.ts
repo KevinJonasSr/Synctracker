@@ -574,10 +574,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/calendar-events/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const data = insertCalendarEventSchema.partial().parse(req.body);
+      
+      // Convert string dates to Date objects before validation
+      const processedData = {
+        ...req.body,
+        startDate: req.body.startDate ? new Date(req.body.startDate) : undefined,
+        endDate: req.body.endDate ? new Date(req.body.endDate) : undefined,
+      };
+      
+      const data = insertCalendarEventSchema.partial().parse(processedData);
       const event = await dbStorage.updateCalendarEvent(id, data);
+      
+      // If this is an air date event for a deal, update the deal's air date too
+      if (event.entityType === 'deal' && event.entityId && event.title.includes('Air Date:')) {
+        try {
+          await dbStorage.updateDeal(event.entityId, { 
+            airDate: event.startDate 
+          });
+        } catch (dealError) {
+          console.error('Error updating deal air date:', dealError);
+          // Don't fail the calendar update if deal update fails
+        }
+      }
+      
       res.json(event);
     } catch (error) {
+      console.error('Error updating calendar event:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors });
+      }
       res.status(400).json({ error: "Invalid calendar event data" });
     }
   });
