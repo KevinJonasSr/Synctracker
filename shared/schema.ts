@@ -435,22 +435,14 @@ export const insertContactSchema = createInsertSchema(contacts).omit({
   updatedAt: true,
 });
 
-// Create a custom schema for deal insertion that handles type conversions  
-export const insertDealSchema = z.object({
-  projectName: z.string().min(1, "Project name is required"),
-  projectType: z.string().min(1, "Project type is required"),
-  projectDescription: z.string().optional().nullable(),
-  songId: z.number().min(1, "Song is required"),
-  contactId: z.number().min(1, "Contact is required"),
-  status: z.string().default("pitched"),
-  dealValue: z.number().optional().nullable(),
-  usage: z.string().optional().nullable(),
-  territory: z.string().default("worldwide"),
-  term: z.string().optional().nullable(),
-  exclusivity: z.boolean().default(false),
-  notes: z.string().optional().nullable(),
+export const insertDealSchema = createInsertSchema(deals).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+}).extend({
+  // Allow string dates from forms that get converted server-side
   airDate: z.string().optional().nullable(),
-  pitchDate: z.string().optional().nullable(),
+  pitchDate: z.string().optional().nullable(), 
   responseDate: z.string().optional().nullable(),
   confirmationDate: z.string().optional().nullable(),
   completionDate: z.string().optional().nullable(),

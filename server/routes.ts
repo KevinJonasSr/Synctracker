@@ -202,15 +202,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/deals", async (req, res) => {
     try {
-      // Pre-process the data to handle type conversion before validation
-      const preprocessedData = {
-        ...req.body,
-        songId: req.body.songId ? parseInt(req.body.songId.toString()) : undefined,
-        contactId: req.body.contactId ? parseInt(req.body.contactId.toString()) : undefined,
-        dealValue: req.body.dealValue ? parseFloat(req.body.dealValue.toString()) : undefined
-      };
-      
-      const validatedData = insertDealSchema.parse(preprocessedData);
+      const validatedData = insertDealSchema.parse(req.body);
       
       // Convert date strings to Date objects for database insertion
       const processedData = {
