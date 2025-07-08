@@ -24,11 +24,9 @@ export default function Calendar() {
     queryKey: ["/api/calendar-events"],
   });
 
-  const filteredEvents = events.filter(event =>
-    event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    event.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    event.entityType.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const { data: deals = [] } = useQuery({
+    queryKey: ["/api/deals"],
+  });
 
   const getStatusColor = (status: string) => {
     const colors = {
@@ -64,11 +62,35 @@ export default function Calendar() {
     return type.charAt(0).toUpperCase() + type.slice(1);
   };
 
-  const upcomingEvents = events.filter(event => 
+  // Combine calendar events with air dates from deals
+  const airDateEvents = deals
+    .filter((deal: any) => deal.airDate)
+    .map((deal: any) => ({
+      id: `deal-${deal.id}`,
+      title: `Air Date: ${deal.projectName}`,
+      description: `Project "${deal.projectName}" (${deal.projectType}) is scheduled to air.`,
+      startDate: deal.airDate,
+      endDate: deal.airDate,
+      allDay: true,
+      entityType: 'deal',
+      entityId: deal.id,
+      status: 'scheduled',
+      reminderMinutes: 1440
+    }));
+
+  const allEvents = [...events, ...airDateEvents];
+
+  const filteredEvents = allEvents.filter(event =>
+    event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    event.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    event.entityType.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const upcomingEvents = allEvents.filter(event => 
     new Date(event.startDate) > new Date() && event.status === 'scheduled'
   ).slice(0, 5);
 
-  const overdueEvents = events.filter(event => 
+  const overdueEvents = allEvents.filter(event => 
     new Date(event.startDate) < new Date() && event.status === 'scheduled'
   );
 
@@ -115,7 +137,7 @@ export default function Calendar() {
             <CardTitle className="text-sm font-medium">Total Events</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{events.length}</div>
+            <div className="text-2xl font-bold">{allEvents.length}</div>
           </CardContent>
         </Card>
 
@@ -143,7 +165,7 @@ export default function Calendar() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {events.filter(event => {
+              {allEvents.filter(event => {
                 const eventDate = new Date(event.startDate);
                 const now = new Date();
                 const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
@@ -209,8 +231,8 @@ export default function Calendar() {
                   <TableCell colSpan={6} className="text-center py-8">
                     <CalendarIcon className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
                     <p className="text-muted-foreground">
-                      {events.length === 0 
-                        ? "No calendar events yet. Create your first event!"
+                      {allEvents.length === 0 
+                        ? "No calendar events yet. Create your first event or add a deal with an air date!"
                         : "No events match your search."
                       }
                     </p>
