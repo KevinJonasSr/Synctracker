@@ -461,12 +461,47 @@ export default function ComprehensiveAddDealForm({ open, onClose }: Comprehensiv
                 </h4>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="musicSupervisorName">Supervisor Name</Label>
-                    <Input
-                      id="musicSupervisorName"
-                      {...form.register("musicSupervisorName")}
-                      placeholder="Music supervisor name"
-                    />
+                    <Label htmlFor="contactId">Supervisor Name *</Label>
+                    <div className="flex space-x-2">
+                      <Select
+                        value={form.watch("contactId")?.toString() || ""}
+                        onValueChange={(value) => {
+                          const contactId = parseInt(value);
+                          form.setValue("contactId", contactId);
+                          
+                          // Auto-populate music supervisor name with selected contact
+                          const selectedContact = contacts.find(c => c.id === contactId);
+                          if (selectedContact) {
+                            form.setValue("musicSupervisorName", selectedContact.name);
+                            if (selectedContact.company) {
+                              form.setValue("musicSupervisorContactName", selectedContact.company);
+                            }
+                          }
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select supervisor" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {contacts.map((contact) => (
+                            <SelectItem key={contact.id} value={contact.id.toString()}>
+                              {contact.name} {contact.company && `(${contact.company})`}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => setShowAddContact(true)}
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    {form.formState.errors.contactId && (
+                      <p className="text-sm text-red-600 mt-1">{form.formState.errors.contactId.message}</p>
+                    )}
                   </div>
                   <div>
                     <Label htmlFor="musicSupervisorContactName">Company Name</Label>
@@ -627,7 +662,7 @@ export default function ComprehensiveAddDealForm({ open, onClose }: Comprehensiv
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4 bg-blue-50">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 <div>
                   <Label htmlFor="songId">Song Title *</Label>
                   <Select
@@ -647,49 +682,6 @@ export default function ComprehensiveAddDealForm({ open, onClose }: Comprehensiv
                   </Select>
                   {form.formState.errors.songId && (
                     <p className="text-sm text-red-600 mt-1">{form.formState.errors.songId.message}</p>
-                  )}
-                </div>
-                <div>
-                  <Label htmlFor="contactId">Contact *</Label>
-                  <div className="flex space-x-2">
-                    <Select
-                      value={form.watch("contactId")?.toString() || ""}
-                      onValueChange={(value) => {
-                        const contactId = parseInt(value);
-                        form.setValue("contactId", contactId);
-                        
-                        // Auto-populate music supervisor name with selected contact
-                        const selectedContact = contacts.find(c => c.id === contactId);
-                        if (selectedContact) {
-                          form.setValue("musicSupervisorName", selectedContact.name);
-                          if (selectedContact.company) {
-                            form.setValue("musicSupervisorContactName", selectedContact.company);
-                          }
-                        }
-                      }}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select contact" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {contacts.map((contact) => (
-                          <SelectItem key={contact.id} value={contact.id.toString()}>
-                            {contact.name} {contact.company && `(${contact.company})`}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => setShowAddContact(true)}
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  {form.formState.errors.contactId && (
-                    <p className="text-sm text-red-600 mt-1">{form.formState.errors.contactId.message}</p>
                   )}
                 </div>
               </div>
