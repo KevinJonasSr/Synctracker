@@ -397,7 +397,41 @@ export default function ComprehensiveAddDealForm({ open, onClose }: Comprehensiv
                   <Label htmlFor="status">Status</Label>
                   <Select
                     value={form.watch("status")}
-                    onValueChange={(value) => form.setValue("status", value)}
+                    onValueChange={(value) => {
+                      form.setValue("status", value);
+                      
+                      // Auto-populate corresponding status date
+                      const now = new Date().toISOString().slice(0, 16); // Format for datetime-local
+                      
+                      // Clear all status dates first
+                      form.setValue("pitchedDate", null);
+                      form.setValue("pendingApprovalDate", null);
+                      form.setValue("quotedDate", null);
+                      form.setValue("useConfirmedDate", null);
+                      form.setValue("beingDraftedDate", null);
+                      form.setValue("outForSignatureDate", null);
+                      form.setValue("paymentReceivedDate", null);
+                      form.setValue("completedDate", null);
+                      
+                      // Set the appropriate status date
+                      if (value === 'pitched') {
+                        form.setValue("pitchedDate", now);
+                      } else if (value === 'pending_approval') {
+                        form.setValue("pendingApprovalDate", now);
+                      } else if (value === 'quoted') {
+                        form.setValue("quotedDate", now);
+                      } else if (value === 'use_confirmed') {
+                        form.setValue("useConfirmedDate", now);
+                      } else if (value === 'being_drafted') {
+                        form.setValue("beingDraftedDate", now);
+                      } else if (value === 'out_for_signature') {
+                        form.setValue("outForSignatureDate", now);
+                      } else if (value === 'payment_received') {
+                        form.setValue("paymentReceivedDate", now);
+                      } else if (value === 'completed') {
+                        form.setValue("completedDate", now);
+                      }
+                    }}
                   >
                     <SelectTrigger>
                       <SelectValue />

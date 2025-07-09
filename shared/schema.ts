@@ -503,12 +503,35 @@ export const insertDealSchema = createInsertSchema(deals).omit({
   outForSignatureDate: z.string().optional().nullable(),
   paymentReceivedDate: z.string().optional().nullable(),
   completedDate: z.string().optional().nullable(),
+  // Allow string or number for numeric fields (coerced from form inputs)
+  songId: z.union([z.string(), z.number()]).transform((val) => typeof val === 'string' ? parseInt(val) : val),
+  contactId: z.union([z.string(), z.number()]).transform((val) => typeof val === 'string' ? parseInt(val) : val),
+  dealValue: z.union([z.string(), z.number()]).transform((val) => {
+    if (val === null || val === undefined || val === '') return null;
+    return typeof val === 'string' ? parseFloat(val) : val;
+  }).nullable().optional(),
+  fullSongValue: z.union([z.string(), z.number()]).transform((val) => {
+    if (val === null || val === undefined || val === '') return null;
+    return typeof val === 'string' ? parseFloat(val) : val;
+  }).nullable().optional(),
+  ourFee: z.union([z.string(), z.number()]).transform((val) => {
+    if (val === null || val === undefined || val === '') return null;
+    return typeof val === 'string' ? parseFloat(val) : val;
+  }).nullable().optional(),
+  fullRecordingFee: z.union([z.string(), z.number()]).transform((val) => {
+    if (val === null || val === undefined || val === '') return null;
+    return typeof val === 'string' ? parseFloat(val) : val;
+  }).nullable().optional(),
+  ourRecordingFee: z.union([z.string(), z.number()]).transform((val) => {
+    if (val === null || val === undefined || val === '') return null;
+    return typeof val === 'string' ? parseFloat(val) : val;
+  }).nullable().optional(),
 }).partial().extend({
   // Explicitly require these fields
   projectName: z.string().min(1, "Project name is required"),
   projectType: z.string().min(1, "Project type is required"),
-  songId: z.number().min(1, "Song selection is required"),
-  contactId: z.number().min(1, "Contact selection is required"),
+  songId: z.union([z.string(), z.number()]).transform((val) => typeof val === 'string' ? parseInt(val) : val).refine((val) => val > 0, "Song selection is required"),
+  contactId: z.union([z.string(), z.number()]).transform((val) => typeof val === 'string' ? parseInt(val) : val).refine((val) => val > 0, "Contact selection is required"),
 });
 
 export const insertPitchSchema = createInsertSchema(pitches).omit({
