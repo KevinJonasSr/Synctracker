@@ -260,7 +260,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("PUT /api/deals/:id - Updating deal:", id);
       console.log("Request body:", req.body);
       
-      const validatedData = insertDealSchema.partial().parse(req.body);
+      // Convert ISO date strings back to Date objects for validation
+      const processedBody = {
+        ...req.body,
+        pitchedDate: req.body.pitchedDate ? new Date(req.body.pitchedDate) : req.body.pitchedDate,
+        pendingApprovalDate: req.body.pendingApprovalDate ? new Date(req.body.pendingApprovalDate) : req.body.pendingApprovalDate,
+        quotedDate: req.body.quotedDate ? new Date(req.body.quotedDate) : req.body.quotedDate,
+        useConfirmedDate: req.body.useConfirmedDate ? new Date(req.body.useConfirmedDate) : req.body.useConfirmedDate,
+        beingDraftedDate: req.body.beingDraftedDate ? new Date(req.body.beingDraftedDate) : req.body.beingDraftedDate,
+        outForSignatureDate: req.body.outForSignatureDate ? new Date(req.body.outForSignatureDate) : req.body.outForSignatureDate,
+        paymentReceivedDate: req.body.paymentReceivedDate ? new Date(req.body.paymentReceivedDate) : req.body.paymentReceivedDate,
+        completedDate: req.body.completedDate ? new Date(req.body.completedDate) : req.body.completedDate,
+        airDate: req.body.airDate ? new Date(req.body.airDate) : req.body.airDate,
+        pitchDate: req.body.pitchDate ? new Date(req.body.pitchDate) : req.body.pitchDate,
+      };
+      
+      const validatedData = insertDealSchema.partial().parse(processedBody);
       console.log("Validated data:", validatedData);
       
       const deal = await dbStorage.updateDeal(id, validatedData);
