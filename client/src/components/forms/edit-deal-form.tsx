@@ -170,11 +170,17 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
 
   const updateDealMutation = useMutation({
     mutationFn: async (dealData: InsertDeal) => {
-      if (!deal) return;
+      if (!deal) {
+        console.error("No deal found for update");
+        return;
+      }
+      console.log("Making API request to update deal:", deal.id);
       const response = await apiRequest('PUT', `/api/deals/${deal.id}`, dealData);
+      console.log("API response received:", response.status);
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (result) => {
+      console.log("Update successful, result:", result);
       queryClient.invalidateQueries({ queryKey: ['/api/deals'] });
       queryClient.invalidateQueries({ queryKey: ['/api/dashboard'] });
       queryClient.invalidateQueries({ queryKey: ['/api/calendar-events'] });
@@ -185,6 +191,7 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
       onClose();
     },
     onError: (error) => {
+      console.error("Update mutation error:", error);
       toast({
         title: "Error updating deal",
         description: "Failed to update the deal. Please try again.",
@@ -582,6 +589,7 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
               type="submit" 
               className="flex-1 bg-brand-primary hover:bg-blue-700"
               disabled={updateDealMutation.isPending}
+              onClick={() => console.log("Update Deal button clicked!")}
             >
               {updateDealMutation.isPending ? "Updating..." : "Update Deal"}
             </Button>
