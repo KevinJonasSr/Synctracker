@@ -294,9 +294,27 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateDeal(id: number, deal: Partial<InsertDeal>): Promise<Deal> {
+    // Convert ISO string dates to Date objects for database storage
+    const processedDeal = {
+      ...deal,
+      // Status dates - convert from ISO strings to Date objects
+      pitchedDate: deal.pitchedDate ? new Date(deal.pitchedDate) : deal.pitchedDate,
+      pendingApprovalDate: deal.pendingApprovalDate ? new Date(deal.pendingApprovalDate) : deal.pendingApprovalDate,
+      quotedDate: deal.quotedDate ? new Date(deal.quotedDate) : deal.quotedDate,
+      useConfirmedDate: deal.useConfirmedDate ? new Date(deal.useConfirmedDate) : deal.useConfirmedDate,
+      beingDraftedDate: deal.beingDraftedDate ? new Date(deal.beingDraftedDate) : deal.beingDraftedDate,
+      outForSignatureDate: deal.outForSignatureDate ? new Date(deal.outForSignatureDate) : deal.outForSignatureDate,
+      paymentReceivedDate: deal.paymentReceivedDate ? new Date(deal.paymentReceivedDate) : deal.paymentReceivedDate,
+      completedDate: deal.completedDate ? new Date(deal.completedDate) : deal.completedDate,
+      // Other dates
+      airDate: deal.airDate ? new Date(deal.airDate) : deal.airDate,
+      pitchDate: deal.pitchDate ? new Date(deal.pitchDate) : deal.pitchDate,
+      updatedAt: new Date()
+    };
+
     const [updated] = await db
       .update(deals)
-      .set({ ...deal, updatedAt: new Date() })
+      .set(processedDeal)
       .where(eq(deals.id, id))
       .returning();
     return updated;
