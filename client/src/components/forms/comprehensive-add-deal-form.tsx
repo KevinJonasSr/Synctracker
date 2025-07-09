@@ -218,14 +218,14 @@ export default function ComprehensiveAddDealForm({ open, onClose }: Comprehensiv
         
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           {/* Section 1: Project Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
+          <Card className="bg-yellow-50 border-yellow-200">
+            <CardHeader className="bg-yellow-100 border-b border-yellow-200">
+              <CardTitle className="flex items-center space-x-2 text-yellow-800">
                 <FileText className="h-5 w-5" />
                 <span>Project Information</span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 bg-yellow-50">
               <div className="grid grid-cols-3 gap-4">
                 <div>
                   <Label htmlFor="projectName">Project Name *</Label>
@@ -536,14 +536,14 @@ export default function ComprehensiveAddDealForm({ open, onClose }: Comprehensiv
           </Card>
 
           {/* Section 2: Song Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
+          <Card className="bg-blue-50 border-blue-200">
+            <CardHeader className="bg-blue-100 border-b border-blue-200">
+              <CardTitle className="flex items-center space-x-2 text-blue-800">
                 <span>🎵</span>
                 <span>Song Information</span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 bg-blue-50">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="songId">Song Title *</Label>
@@ -698,11 +698,14 @@ export default function ComprehensiveAddDealForm({ open, onClose }: Comprehensiv
           </Card>
 
           {/* Section 3: Additional Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Additional Information</CardTitle>
+          <Card className="bg-green-50 border-green-200">
+            <CardHeader className="bg-green-100 border-b border-green-200">
+              <CardTitle className="flex items-center space-x-2 text-green-800">
+                <span>📝</span>
+                <span>Additional Information</span>
+              </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 bg-green-50">
               <div>
                 <Label htmlFor="pitchDate">Pitch Date</Label>
                 <Input
