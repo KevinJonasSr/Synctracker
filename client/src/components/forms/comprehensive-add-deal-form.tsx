@@ -17,6 +17,24 @@ import { apiRequest } from "@/lib/queryClient";
 import { insertDealSchema, insertContactSchema, type InsertDeal, type InsertContact, type Song, type Contact } from "@shared/schema";
 import { Plus, Building, User, FileText } from "lucide-react";
 
+// Phone number formatting function
+const formatPhoneNumber = (value: string) => {
+  // Remove all non-numeric characters
+  const phoneNumber = value.replace(/[^\d]/g, '');
+  
+  // Format based on length
+  if (phoneNumber.length <= 3) {
+    return phoneNumber;
+  } else if (phoneNumber.length <= 6) {
+    return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3)}`;
+  } else if (phoneNumber.length <= 10) {
+    return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6)}`;
+  } else {
+    // Handle international numbers or longer formats
+    return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6, 10)}`;
+  }
+};
+
 interface ComprehensiveAddDealFormProps {
   open: boolean;
   onClose: () => void;
@@ -404,7 +422,11 @@ export default function ComprehensiveAddDealForm({ open, onClose }: Comprehensiv
                     <Label htmlFor="licenseeContactPhone">Phone</Label>
                     <Input
                       id="licenseeContactPhone"
-                      {...form.register("licenseeContactPhone")}
+                      value={form.watch("licenseeContactPhone") || ""}
+                      onChange={(e) => {
+                        const formatted = formatPhoneNumber(e.target.value);
+                        form.setValue("licenseeContactPhone", formatted);
+                      }}
                       placeholder="(555) 123-4567"
                     />
                   </div>
@@ -457,7 +479,11 @@ export default function ComprehensiveAddDealForm({ open, onClose }: Comprehensiv
                     <Label htmlFor="musicSupervisorContactPhone">Phone</Label>
                     <Input
                       id="musicSupervisorContactPhone"
-                      {...form.register("musicSupervisorContactPhone")}
+                      value={form.watch("musicSupervisorContactPhone") || ""}
+                      onChange={(e) => {
+                        const formatted = formatPhoneNumber(e.target.value);
+                        form.setValue("musicSupervisorContactPhone", formatted);
+                      }}
                       placeholder="(555) 123-4567"
                     />
                   </div>
@@ -510,7 +536,11 @@ export default function ComprehensiveAddDealForm({ open, onClose }: Comprehensiv
                     <Label htmlFor="clearanceCompanyContactPhone">Phone</Label>
                     <Input
                       id="clearanceCompanyContactPhone"
-                      {...form.register("clearanceCompanyContactPhone")}
+                      value={form.watch("clearanceCompanyContactPhone") || ""}
+                      onChange={(e) => {
+                        const formatted = formatPhoneNumber(e.target.value);
+                        form.setValue("clearanceCompanyContactPhone", formatted);
+                      }}
                       placeholder="(555) 123-4567"
                     />
                   </div>
@@ -935,7 +965,7 @@ export default function ComprehensiveAddDealForm({ open, onClose }: Comprehensiv
                   id="newContactPhone"
                   type="tel"
                   value={newContactPhone}
-                  onChange={(e) => setNewContactPhone(e.target.value)}
+                  onChange={(e) => setNewContactPhone(formatPhoneNumber(e.target.value))}
                   placeholder="(555) 123-4567"
                 />
               </div>
