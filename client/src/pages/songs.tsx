@@ -10,6 +10,7 @@ import type { Song } from "@shared/schema";
 
 export default function Songs() {
   const [showAddSong, setShowAddSong] = useState(false);
+  const [editingSong, setEditingSong] = useState<Song | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
   const { data: songs = [], isLoading } = useQuery<Song[]>({
@@ -144,7 +145,11 @@ export default function Songs() {
                     </div>
                     
                     <div className="flex space-x-2">
-                      <Button size="sm" variant="outline">
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => setEditingSong(song)}
+                      >
                         <Edit className="h-4 w-4" />
                       </Button>
                       <Button size="sm" variant="outline" className="text-red-600 hover:text-red-700">
@@ -159,7 +164,18 @@ export default function Songs() {
         )}
       </div>
 
-      <ComprehensiveSongForm open={showAddSong} onClose={() => setShowAddSong(false)} />
+      {/* Add Song Form */}
+      <ComprehensiveSongForm 
+        open={showAddSong} 
+        onClose={() => setShowAddSong(false)} 
+      />
+      
+      {/* Edit Song Form */}
+      <ComprehensiveSongForm 
+        open={!!editingSong} 
+        onClose={() => setEditingSong(null)} 
+        song={editingSong}
+      />
     </div>
   );
 }
