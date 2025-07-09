@@ -9,6 +9,8 @@ import type { Contact } from "@shared/schema";
 
 export default function Contacts() {
   const [showAddContact, setShowAddContact] = useState(false);
+  const [showEditContact, setShowEditContact] = useState(false);
+  const [editingContact, setEditingContact] = useState<Contact | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
   const { data: contacts = [], isLoading } = useQuery<Contact[]>({
@@ -119,7 +121,14 @@ export default function Contacts() {
                     </div>
                     
                     <div className="flex space-x-2">
-                      <Button size="sm" variant="outline">
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => {
+                          setEditingContact(contact);
+                          setShowEditContact(true);
+                        }}
+                      >
                         <Edit className="h-4 w-4" />
                       </Button>
                       <Button size="sm" variant="outline" className="text-red-600 hover:text-red-700">
@@ -135,6 +144,15 @@ export default function Contacts() {
       </div>
 
       <AddContactForm open={showAddContact} onClose={() => setShowAddContact(false)} />
+      
+      <AddContactForm 
+        open={showEditContact} 
+        onClose={() => {
+          setShowEditContact(false);
+          setEditingContact(null);
+        }}
+        contact={editingContact}
+      />
     </div>
   );
 }

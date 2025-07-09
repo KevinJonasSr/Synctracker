@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -9,27 +10,41 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 import { apiRequest } from "@/lib/queryClient";
-import { insertContactSchema, type InsertContact } from "@shared/schema";
+import { insertContactSchema, type InsertContact, type Contact } from "@shared/schema";
 
 interface AddContactFormProps {
   open: boolean;
   onClose: () => void;
+  contact?: Contact; // For editing existing contacts
 }
 
-export default function AddContactForm({ open, onClose }: AddContactFormProps) {
+export default function AddContactForm({ open, onClose, contact }: AddContactFormProps) {
   const { toast } = useToast();
+  const isEditing = !!contact;
   
   const form = useForm<InsertContact>({
     resolver: zodResolver(insertContactSchema),
     defaultValues: {
-      name: "",
-      email: "",
-      phone: "",
-      company: "",
-      role: "",
-      notes: "",
+      name: contact?.name || "",
+      email: contact?.email || "",
+      phone: contact?.phone || "",
+      company: contact?.company || "",
+      role: contact?.role || "",
+      notes: contact?.notes || "",
     },
   });
+
+  // Reset form when contact prop changes
+  useEffect(() => {
+    form.reset({
+      name: contact?.name || "",
+      email: contact?.email || "",
+      phone: contact?.phone || "",
+      company: contact?.company || "",
+      role: contact?.role || "",
+      notes: contact?.notes || "",
+    });
+  }, [contact, form]);
 
   const createContactMutation = useMutation({
     mutationFn: async (data: InsertContact) => {
@@ -54,15 +69,42 @@ export default function AddContactForm({ open, onClose }: AddContactFormProps) {
     },
   });
 
+  const updateContactMutation = useMutation({
+    mutationFn: async (data: InsertContact) => {
+      const response = await apiRequest("PUT", `/api/contacts/${contact?.id}`, data);
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Contact updated successfully",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/contacts"] });
+      form.reset();
+      onClose();
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to update contact",
+        variant: "destructive",
+      });
+    },
+  });
+
   const onSubmit = (data: InsertContact) => {
-    createContactMutation.mutate(data);
+    if (isEditing) {
+      updateContactMutation.mutate(data);
+    } else {
+      createContactMutation.mutate(data);
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>Add New Contact</DialogTitle>
+          <DialogTitle>{isEditing ? "Edit Contact" : "Add New Contact"}</DialogTitle>
         </DialogHeader>
         
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -137,9 +179,11 @@ export default function AddContactForm({ open, onClose }: AddContactFormProps) {
             <Button 
               type="submit" 
               className="flex-1 bg-brand-primary hover:bg-blue-700"
-              disabled={createContactMutation.isPending}
+              disabled={createContactMutation.isPending || updateContactMutation.isPending}
             >
-              {createContactMutation.isPending ? "Adding..." : "Add Contact"}
+              {(createContactMutation.isPending || updateContactMutation.isPending) 
+                ? (isEditing ? "Updating..." : "Adding...") 
+                : (isEditing ? "Update Contact" : "Add Contact")}
             </Button>
           </div>
         </form>
