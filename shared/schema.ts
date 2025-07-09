@@ -503,6 +503,12 @@ export const insertDealSchema = createInsertSchema(deals).omit({
   outForSignatureDate: z.string().optional().nullable(),
   paymentReceivedDate: z.string().optional().nullable(),
   completedDate: z.string().optional().nullable(),
+}).partial().extend({
+  // Explicitly require these fields
+  projectName: z.string().min(1, "Project name is required"),
+  projectType: z.string().min(1, "Project type is required"),
+  songId: z.number().min(1, "Song selection is required"),
+  contactId: z.number().min(1, "Contact selection is required"),
 });
 
 export const insertPitchSchema = createInsertSchema(pitches).omit({
