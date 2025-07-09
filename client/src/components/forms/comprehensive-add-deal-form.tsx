@@ -271,6 +271,16 @@ export default function ComprehensiveAddDealForm({ open, onClose }: Comprehensiv
   };
 
   const onSubmit = (data: InsertDeal) => {
+    // Validate required fields
+    if (!data.projectName || !data.projectType || !data.songId || !data.contactId) {
+      toast({
+        title: "Missing required fields",
+        description: "Please fill in all required fields (Project Name, Project Type, Song Title, and Contact).",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     createDealMutation.mutate(data);
   };
 
@@ -457,11 +467,11 @@ export default function ComprehensiveAddDealForm({ open, onClose }: Comprehensiv
                     />
                   </div>
                   <div>
-                    <Label htmlFor="musicSupervisorContactName">Contact Name</Label>
+                    <Label htmlFor="musicSupervisorContactName">Company Name</Label>
                     <Input
                       id="musicSupervisorContactName"
                       {...form.register("musicSupervisorContactName")}
-                      placeholder="Contact person name"
+                      placeholder="Company name"
                     />
                   </div>
                 </div>
@@ -569,23 +579,11 @@ export default function ComprehensiveAddDealForm({ open, onClose }: Comprehensiv
                 </div>
                 <div>
                   <Label htmlFor="media">Media</Label>
-                  <Select
-                    value={form.watch("media")}
-                    onValueChange={(value) => form.setValue("media", value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select media" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="tv">TV</SelectItem>
-                      <SelectItem value="film">Film</SelectItem>
-                      <SelectItem value="streaming">Streaming</SelectItem>
-                      <SelectItem value="digital">Digital</SelectItem>
-                      <SelectItem value="theatrical">Theatrical</SelectItem>
-                      <SelectItem value="commercial">Commercial</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Input
+                    id="media"
+                    {...form.register("media")}
+                    placeholder="e.g., TV, Film, Streaming"
+                  />
                 </div>
                 <div>
                   <Label htmlFor="term">Term</Label>
@@ -651,7 +649,19 @@ export default function ComprehensiveAddDealForm({ open, onClose }: Comprehensiv
                   <div className="flex space-x-2">
                     <Select
                       value={form.watch("contactId")?.toString()}
-                      onValueChange={(value) => form.setValue("contactId", parseInt(value))}
+                      onValueChange={(value) => {
+                        const contactId = parseInt(value);
+                        form.setValue("contactId", contactId);
+                        
+                        // Auto-populate music supervisor name with selected contact
+                        const selectedContact = contacts.find(c => c.id === contactId);
+                        if (selectedContact) {
+                          form.setValue("musicSupervisorName", selectedContact.name);
+                          if (selectedContact.company) {
+                            form.setValue("musicSupervisorContactName", selectedContact.company);
+                          }
+                        }
+                      }}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select contact" />
@@ -763,6 +773,7 @@ export default function ComprehensiveAddDealForm({ open, onClose }: Comprehensiv
                     min="0"
                     {...form.register("fullSongValue", { valueAsNumber: true })}
                     placeholder="0.00"
+                    autoFocus={false}
                   />
                 </div>
                 <div>
