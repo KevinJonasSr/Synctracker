@@ -75,10 +75,10 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
         contactId: deal.contactId,
         status: deal.status,
         dealValue: deal.dealValue || undefined,
-        fullSongValue: deal.fullSongValue || undefined,
-        ourFee: deal.ourFee || undefined,
-        fullRecordingFee: deal.fullRecordingFee || undefined,
-        ourRecordingFee: deal.ourRecordingFee || undefined,
+        fullSongValue: deal.fullSongValue ?? undefined,
+        ourFee: deal.ourFee ?? undefined,
+        fullRecordingFee: deal.fullRecordingFee ?? undefined,
+        ourRecordingFee: deal.ourRecordingFee ?? undefined,
         
         // Status dates
         pitchedDate: deal.pitchedDate ? new Date(deal.pitchedDate).toISOString().slice(0, 16) : undefined,
@@ -226,21 +226,28 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
     console.log("Edit form submission data:", data);
     console.log("Form errors:", form.formState.errors);
     
-    // Format dates properly
+    // Clean and format the data properly
     const formattedData = {
       ...data,
+      // Convert null values to undefined for proper schema validation
+      fullSongValue: data.fullSongValue === null ? undefined : data.fullSongValue,
+      ourFee: data.ourFee === null ? undefined : data.ourFee,
+      fullRecordingFee: data.fullRecordingFee === null ? undefined : data.fullRecordingFee,
+      ourRecordingFee: data.ourRecordingFee === null ? undefined : data.ourRecordingFee,
+      
+      // Format dates properly
       airDate: data.airDate ? new Date(data.airDate).toISOString() : null,
       pitchDate: data.pitchDate ? new Date(data.pitchDate).toISOString() : null,
       
-      // Status dates
-      pitchedDate: data.pitchedDate ? new Date(data.pitchedDate).toISOString() : null,
-      pendingApprovalDate: data.pendingApprovalDate ? new Date(data.pendingApprovalDate).toISOString() : null,
-      quotedDate: data.quotedDate ? new Date(data.quotedDate).toISOString() : null,
-      useConfirmedDate: data.useConfirmedDate ? new Date(data.useConfirmedDate).toISOString() : null,
-      beingDraftedDate: data.beingDraftedDate ? new Date(data.beingDraftedDate).toISOString() : null,
-      outForSignatureDate: data.outForSignatureDate ? new Date(data.outForSignatureDate).toISOString() : null,
-      paymentReceivedDate: data.paymentReceivedDate ? new Date(data.paymentReceivedDate).toISOString() : null,
-      completedDate: data.completedDate ? new Date(data.completedDate).toISOString() : null,
+      // Status dates - only convert if not empty string
+      pitchedDate: data.pitchedDate && data.pitchedDate !== "" ? new Date(data.pitchedDate).toISOString() : null,
+      pendingApprovalDate: data.pendingApprovalDate && data.pendingApprovalDate !== "" ? new Date(data.pendingApprovalDate).toISOString() : null,
+      quotedDate: data.quotedDate && data.quotedDate !== "" ? new Date(data.quotedDate).toISOString() : null,
+      useConfirmedDate: data.useConfirmedDate && data.useConfirmedDate !== "" ? new Date(data.useConfirmedDate).toISOString() : null,
+      beingDraftedDate: data.beingDraftedDate && data.beingDraftedDate !== "" ? new Date(data.beingDraftedDate).toISOString() : null,
+      outForSignatureDate: data.outForSignatureDate && data.outForSignatureDate !== "" ? new Date(data.outForSignatureDate).toISOString() : null,
+      paymentReceivedDate: data.paymentReceivedDate && data.paymentReceivedDate !== "" ? new Date(data.paymentReceivedDate).toISOString() : null,
+      completedDate: data.completedDate && data.completedDate !== "" ? new Date(data.completedDate).toISOString() : null,
     };
 
     console.log("Formatted data being sent:", formattedData);
