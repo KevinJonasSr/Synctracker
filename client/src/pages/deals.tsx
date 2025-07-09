@@ -159,12 +159,12 @@ export default function Deals() {
                             <div className="flex items-center space-x-4 text-sm text-gray-600">
                               <div className="flex items-center space-x-1">
                                 <Calendar className="h-4 w-4" />
-                                <span>Pitched: {formatDate(deal.pitchDate)}</span>
+                                <span>Pitched: {formatDate(deal.pitchedDate)}</span>
                               </div>
-                              {deal.confirmationDate && (
+                              {deal.useConfirmedDate && (
                                 <div className="flex items-center space-x-1">
                                   <Calendar className="h-4 w-4" />
-                                  <span>Confirmed: {formatDate(deal.confirmationDate)}</span>
+                                  <span>Confirmed: {formatDate(deal.useConfirmedDate)}</span>
                                 </div>
                               )}
                             </div>
