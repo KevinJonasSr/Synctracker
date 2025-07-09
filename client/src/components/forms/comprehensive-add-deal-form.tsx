@@ -272,6 +272,47 @@ export default function ComprehensiveAddDealForm({ open, onClose }: Comprehensiv
     createContactMutation.mutate(contactData);
   };
 
+  // Function to parse splits percentage from text
+  const parseOurSplitPercentage = (splitsText: string): number => {
+    if (!splitsText) return 50; // Default to 50% if no splits info
+    
+    // Common patterns to look for our percentage
+    const patterns = [
+      /our\s*(?:share|split|percentage|%):?\s*(\d+)%?/i,
+      /we\s*(?:get|receive|own):?\s*(\d+)%?/i,
+      /(\d+)%?\s*(?:our|ours|us)/i,
+      /(\d+)%?\s*writer/i, // Assuming we're the writer
+      /(\d+)%?\s*publisher/i, // Assuming we're the publisher
+    ];
+    
+    for (const pattern of patterns) {
+      const match = splitsText.match(pattern);
+      if (match && match[1]) {
+        const percentage = parseInt(match[1]);
+        if (percentage >= 0 && percentage <= 100) {
+          return percentage;
+        }
+      }
+    }
+    
+    // If no specific pattern found, look for any percentage
+    const percentageMatch = splitsText.match(/(\d+)%/);
+    if (percentageMatch) {
+      const percentage = parseInt(percentageMatch[1]);
+      if (percentage >= 0 && percentage <= 100) {
+        return percentage;
+      }
+    }
+    
+    return 50; // Default to 50% if can't parse
+  };
+
+  // Function to calculate our fee based on splits
+  const calculateOurFee = (fullFee: number, splitsText: string): number => {
+    const ourPercentage = parseOurSplitPercentage(splitsText);
+    return (fullFee * ourPercentage) / 100;
+  };
+
   const onSubmit = (data: InsertDeal) => {
     // Validate required fields manually
     if (!data.projectName || !data.projectType || !data.songId || !data.contactId) {
@@ -746,7 +787,24 @@ export default function ComprehensiveAddDealForm({ open, onClose }: Comprehensiv
                   <Label htmlFor="splits">Splits</Label>
                   <Textarea
                     id="splits"
-                    {...form.register("splits")}
+                    {...form.register("splits", {
+                      onChange: (e) => {
+                        // Recalculate fees when splits change
+                        const splitsText = e.target.value;
+                        const fullPublishingFee = form.watch("fullSongValue") || 0;
+                        const fullRecordingFee = form.watch("fullRecordingFee") || 0;
+                        
+                        if (fullPublishingFee > 0) {
+                          const ourPublishingFee = calculateOurFee(fullPublishingFee, splitsText);
+                          form.setValue("ourFee", Math.round(ourPublishingFee * 100) / 100);
+                        }
+                        
+                        if (fullRecordingFee > 0) {
+                          const ourRecordingFee = calculateOurFee(fullRecordingFee, splitsText);
+                          form.setValue("ourRecordingFee", Math.round(ourRecordingFee * 100) / 100);
+                        }
+                      }
+                    })}
                     placeholder="Publishing splits breakdown"
                     rows={2}
                   />
@@ -808,9 +866,16 @@ export default function ComprehensiveAddDealForm({ open, onClose }: Comprehensiv
                     type="number"
                     step="0.01"
                     min="0"
-                    {...form.register("fullSongValue", { valueAsNumber: true })}
+                    {...form.register("fullSongValue", { 
+                      valueAsNumber: true,
+                      onChange: (e) => {
+                        const fullFee = parseFloat(e.target.value) || 0;
+                        const splitsText = form.watch("splits") || "";
+                        const ourFee = calculateOurFee(fullFee, splitsText);
+                        form.setValue("ourFee", Math.round(ourFee * 100) / 100); // Round to 2 decimal places
+                      }
+                    })}
                     placeholder="0.00"
-
                   />
                 </div>
                 <div>
@@ -834,7 +899,15 @@ export default function ComprehensiveAddDealForm({ open, onClose }: Comprehensiv
                     type="number"
                     step="0.01"
                     min="0"
-                    {...form.register("fullRecordingFee", { valueAsNumber: true })}
+                    {...form.register("fullRecordingFee", { 
+                      valueAsNumber: true,
+                      onChange: (e) => {
+                        const fullFee = parseFloat(e.target.value) || 0;
+                        const splitsText = form.watch("splits") || "";
+                        const ourFee = calculateOurFee(fullFee, splitsText);
+                        form.setValue("ourRecordingFee", Math.round(ourFee * 100) / 100);
+                      }
+                    })}
                     placeholder="0.00"
                   />
                 </div>
