@@ -146,9 +146,16 @@ Changelog:
   * Section 1: Project Information - Episode number, comprehensive contact management for three entity types (Licensee/Production Company, Music Supervisor, Clearance Company), usage/media/term/territory fields, updated status dropdown with 8 options
   * Section 2: Song Information - Writers/publishing/splits fields, artist/label information, exclusivity with restrictions field, split deal value tracking
   * Section 3: Additional Information - Pitch dates and notes organization
-  * Enhanced Deal Value System - Split into "100% Song Value" and "Our Fee Based on Splits" for accurate financial tracking
+  * Enhanced Deal Value System - Split into "100% Publishing Fee" and "100% Recording Fee" with corresponding split-based fees
   * Comprehensive Contact Management - Full address and contact details for all deal participants
   * Status Management - Updated to include Pitched, Pending Approval, Quoted, Use Confirmed, Being Drafted, Out for Signature, Payment Received, Completed
+- July 09, 2025. Completed comprehensive status change date tracking system:
+  * Automatic Date Population - Status changes automatically populate corresponding date fields (pitchedDate, pendingApprovalDate, quotedDate, useConfirmedDate, beingDraftedDate, outForSignatureDate, paymentReceivedDate, completedDate)
+  * Color-Coded Status Display - Visual status indicators with distinctive colors for easy identification
+  * Edit Deal Form Functionality - Fully functional deal editing with proper form validation and date handling
+  * Database Schema Optimization - Enhanced insertDealSchema to handle string date inputs with proper conversion to Date objects
+  * Storage Layer Date Conversion - Automatic conversion of ISO date strings to Date objects for database compatibility
+  * Form Validation Resolution - Fixed complex validation issues preventing form submissions
 ```
 
 ## User Preferences
