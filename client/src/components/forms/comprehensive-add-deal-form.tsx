@@ -218,14 +218,14 @@ export default function ComprehensiveAddDealForm({ open, onClose }: Comprehensiv
         
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           {/* Section 1: Project Information */}
-          <Card className="bg-yellow-50 border-yellow-200">
-            <CardHeader className="bg-yellow-100 border-b border-yellow-200">
-              <CardTitle className="flex items-center space-x-2 text-yellow-800">
+          <Card className="bg-purple-50 border-purple-200">
+            <CardHeader className="bg-purple-100 border-b border-purple-200">
+              <CardTitle className="flex items-center space-x-2 text-purple-800">
                 <FileText className="h-5 w-5" />
                 <span>Project Information</span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4 bg-yellow-50">
+            <CardContent className="space-y-4 bg-purple-50">
               <div className="grid grid-cols-3 gap-4">
                 <div>
                   <Label htmlFor="projectName">Project Name *</Label>
