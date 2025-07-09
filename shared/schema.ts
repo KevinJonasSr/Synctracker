@@ -493,7 +493,16 @@ export const insertDealSchema = createInsertSchema(deals).omit({
   confirmationDate: z.string().optional().nullable(),
   completionDate: z.string().optional().nullable(),
   paymentDate: z.string().optional().nullable(),
-  paymentDueDate: z.string().optional().nullable()
+  paymentDueDate: z.string().optional().nullable(),
+  // Status date fields
+  pitchedDate: z.string().optional().nullable(),
+  pendingApprovalDate: z.string().optional().nullable(),
+  quotedDate: z.string().optional().nullable(),
+  useConfirmedDate: z.string().optional().nullable(),
+  beingDraftedDate: z.string().optional().nullable(),
+  outForSignatureDate: z.string().optional().nullable(),
+  paymentReceivedDate: z.string().optional().nullable(),
+  completedDate: z.string().optional().nullable(),
 });
 
 export const insertPitchSchema = createInsertSchema(pitches).omit({
