@@ -42,6 +42,18 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
       dealValue: undefined,
       fullSongValue: undefined,
       ourFee: undefined,
+      fullRecordingFee: undefined,
+      ourRecordingFee: undefined,
+      
+      // Status dates
+      pitchedDate: undefined,
+      pendingApprovalDate: undefined,
+      quotedDate: undefined,
+      useConfirmedDate: undefined,
+      beingDraftedDate: undefined,
+      outForSignatureDate: undefined,
+      paymentReceivedDate: undefined,
+      completedDate: undefined,
       usage: "",
       territory: "worldwide",
       term: "",
@@ -65,6 +77,18 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
         dealValue: deal.dealValue || undefined,
         fullSongValue: deal.fullSongValue || undefined,
         ourFee: deal.ourFee || undefined,
+        fullRecordingFee: deal.fullRecordingFee || undefined,
+        ourRecordingFee: deal.ourRecordingFee || undefined,
+        
+        // Status dates
+        pitchedDate: deal.pitchedDate ? new Date(deal.pitchedDate).toISOString().slice(0, 16) : undefined,
+        pendingApprovalDate: deal.pendingApprovalDate ? new Date(deal.pendingApprovalDate).toISOString().slice(0, 16) : undefined,
+        quotedDate: deal.quotedDate ? new Date(deal.quotedDate).toISOString().slice(0, 16) : undefined,
+        useConfirmedDate: deal.useConfirmedDate ? new Date(deal.useConfirmedDate).toISOString().slice(0, 16) : undefined,
+        beingDraftedDate: deal.beingDraftedDate ? new Date(deal.beingDraftedDate).toISOString().slice(0, 16) : undefined,
+        outForSignatureDate: deal.outForSignatureDate ? new Date(deal.outForSignatureDate).toISOString().slice(0, 16) : undefined,
+        paymentReceivedDate: deal.paymentReceivedDate ? new Date(deal.paymentReceivedDate).toISOString().slice(0, 16) : undefined,
+        completedDate: deal.completedDate ? new Date(deal.completedDate).toISOString().slice(0, 16) : undefined,
         usage: deal.usage || "",
         territory: deal.territory || "worldwide",
         term: deal.term || "",
@@ -75,6 +99,29 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
       });
     }
   }, [deal, form]);
+
+  // Watch for status changes to auto-update dates
+  const watchedStatus = form.watch("status");
+  useEffect(() => {
+    if (watchedStatus && watchedStatus !== "pitched") {
+      const now = new Date().toISOString().slice(0, 16); // Format for datetime-local
+      const fieldMap = {
+        "pitched": "pitchedDate",
+        "pending approval": "pendingApprovalDate",
+        "quoted": "quotedDate",
+        "use confirmed": "useConfirmedDate",
+        "being drafted": "beingDraftedDate",
+        "out for signature": "outForSignatureDate",
+        "payment received": "paymentReceivedDate",
+        "completed": "completedDate"
+      };
+      
+      const dateField = fieldMap[watchedStatus.toLowerCase()];
+      if (dateField && !form.getValues(dateField)) {
+        form.setValue(dateField, now);
+      }
+    }
+  }, [watchedStatus, form]);
 
   const { data: songs = [] } = useQuery<Song[]>({
     queryKey: ["/api/songs"],
@@ -168,6 +215,16 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
       ...data,
       airDate: data.airDate ? new Date(data.airDate).toISOString() : null,
       pitchDate: data.pitchDate ? new Date(data.pitchDate).toISOString() : null,
+      
+      // Status dates
+      pitchedDate: data.pitchedDate ? new Date(data.pitchedDate).toISOString() : null,
+      pendingApprovalDate: data.pendingApprovalDate ? new Date(data.pendingApprovalDate).toISOString() : null,
+      quotedDate: data.quotedDate ? new Date(data.quotedDate).toISOString() : null,
+      useConfirmedDate: data.useConfirmedDate ? new Date(data.useConfirmedDate).toISOString() : null,
+      beingDraftedDate: data.beingDraftedDate ? new Date(data.beingDraftedDate).toISOString() : null,
+      outForSignatureDate: data.outForSignatureDate ? new Date(data.outForSignatureDate).toISOString() : null,
+      paymentReceivedDate: data.paymentReceivedDate ? new Date(data.paymentReceivedDate).toISOString() : null,
+      completedDate: data.completedDate ? new Date(data.completedDate).toISOString() : null,
     };
 
     updateDealMutation.mutate(formattedData);
@@ -288,16 +345,18 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="pitched">Pitched</SelectItem>
-                  <SelectItem value="under_review">Under Review</SelectItem>
-                  <SelectItem value="confirmed">Confirmed</SelectItem>
+                  <SelectItem value="pending approval">Pending Approval</SelectItem>
+                  <SelectItem value="quoted">Quoted</SelectItem>
+                  <SelectItem value="use confirmed">Use Confirmed</SelectItem>
+                  <SelectItem value="being drafted">Being Drafted</SelectItem>
+                  <SelectItem value="out for signature">Out for Signature</SelectItem>
+                  <SelectItem value="payment received">Payment Received</SelectItem>
                   <SelectItem value="completed">Completed</SelectItem>
-                  <SelectItem value="paid">Paid</SelectItem>
-                  <SelectItem value="rejected">Rejected</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div>
-              <Label htmlFor="fullSongValue">100% Song Value ($)</Label>
+              <Label htmlFor="fullSongValue">100% Publishing Fee ($)</Label>
               <Input
                 id="fullSongValue"
                 type="number"
@@ -318,6 +377,31 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
                 step="0.01"
                 min="0"
                 {...form.register("ourFee", { valueAsNumber: true })}
+                placeholder="0.00"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="fullRecordingFee">100% Recording Fee ($)</Label>
+              <Input
+                id="fullRecordingFee"
+                type="number"
+                step="0.01"
+                min="0"
+                {...form.register("fullRecordingFee", { valueAsNumber: true })}
+                placeholder="0.00"
+              />
+            </div>
+            <div>
+              <Label htmlFor="ourRecordingFee">Our Fee Based on Splits ($)</Label>
+              <Input
+                id="ourRecordingFee"
+                type="number"
+                step="0.01"
+                min="0"
+                {...form.register("ourRecordingFee", { valueAsNumber: true })}
                 placeholder="0.00"
               />
             </div>
@@ -388,6 +472,85 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
                 type="date"
                 {...form.register("pitchDate")}
               />
+            </div>
+          </div>
+
+          {/* Status Change Dates */}
+          <div>
+            <Label className="text-sm font-medium">Status Timeline</Label>
+            <div className="grid grid-cols-2 gap-4 mt-2">
+              <div>
+                <Label htmlFor="pitchedDate" className="text-xs">Pitched Date</Label>
+                <Input
+                  id="pitchedDate"
+                  type="datetime-local"
+                  {...form.register("pitchedDate")}
+                  className="text-xs"
+                />
+              </div>
+              <div>
+                <Label htmlFor="pendingApprovalDate" className="text-xs">Pending Approval Date</Label>
+                <Input
+                  id="pendingApprovalDate"
+                  type="datetime-local"
+                  {...form.register("pendingApprovalDate")}
+                  className="text-xs"
+                />
+              </div>
+              <div>
+                <Label htmlFor="quotedDate" className="text-xs">Quoted Date</Label>
+                <Input
+                  id="quotedDate"
+                  type="datetime-local"
+                  {...form.register("quotedDate")}
+                  className="text-xs"
+                />
+              </div>
+              <div>
+                <Label htmlFor="useConfirmedDate" className="text-xs">Use Confirmed Date</Label>
+                <Input
+                  id="useConfirmedDate"
+                  type="datetime-local"
+                  {...form.register("useConfirmedDate")}
+                  className="text-xs"
+                />
+              </div>
+              <div>
+                <Label htmlFor="beingDraftedDate" className="text-xs">Being Drafted Date</Label>
+                <Input
+                  id="beingDraftedDate"
+                  type="datetime-local"
+                  {...form.register("beingDraftedDate")}
+                  className="text-xs"
+                />
+              </div>
+              <div>
+                <Label htmlFor="outForSignatureDate" className="text-xs">Out for Signature Date</Label>
+                <Input
+                  id="outForSignatureDate"
+                  type="datetime-local"
+                  {...form.register("outForSignatureDate")}
+                  className="text-xs"
+                />
+              </div>
+              <div>
+                <Label htmlFor="paymentReceivedDate" className="text-xs">Payment Received Date</Label>
+                <Input
+                  id="paymentReceivedDate"
+                  type="datetime-local"
+                  {...form.register("paymentReceivedDate")}
+                  className="text-xs"
+                />
+              </div>
+              <div>
+                <Label htmlFor="completedDate" className="text-xs">Completed Date</Label>
+                <Input
+                  id="completedDate"
+                  type="datetime-local"
+                  {...form.register("completedDate")}
+                  className="text-xs"
+                />
+              </div>
             </div>
           </div>
 
