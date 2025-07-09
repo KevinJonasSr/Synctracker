@@ -12,6 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { insertDealSchema, type InsertDeal, type Song, type Contact, type DealWithRelations } from "@shared/schema";
+import { z } from "zod";
 
 interface EditDealFormProps {
   deal: DealWithRelations | null;
@@ -30,8 +31,33 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
   const [newContactNotes, setNewContactNotes] = useState("");
   const [newContactProjects, setNewContactProjects] = useState("");
 
+  // Create a custom schema for the edit form that accepts string dates
+  const editDealSchema = insertDealSchema.omit({
+    pitchedDate: true,
+    pendingApprovalDate: true,
+    quotedDate: true,
+    useConfirmedDate: true,
+    beingDraftedDate: true,
+    outForSignatureDate: true,
+    paymentReceivedDate: true,
+    completedDate: true,
+    airDate: true,
+    pitchDate: true,
+  }).extend({
+    pitchedDate: z.string().optional(),
+    pendingApprovalDate: z.string().optional(),
+    quotedDate: z.string().optional(),
+    useConfirmedDate: z.string().optional(),
+    beingDraftedDate: z.string().optional(),
+    outForSignatureDate: z.string().optional(),
+    paymentReceivedDate: z.string().optional(),
+    completedDate: z.string().optional(),
+    airDate: z.string().optional(),
+    pitchDate: z.string().optional(),
+  });
+
   const form = useForm<InsertDeal>({
-    resolver: zodResolver(insertDealSchema.partial()),
+    resolver: zodResolver(editDealSchema),
     defaultValues: {
       projectName: "",
       projectType: "",
