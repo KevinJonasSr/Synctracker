@@ -103,7 +103,7 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
   // Watch for status changes to auto-update dates
   const watchedStatus = form.watch("status");
   useEffect(() => {
-    if (watchedStatus && watchedStatus !== "pitched") {
+    if (watchedStatus) {
       const now = new Date().toISOString().slice(0, 16); // Format for datetime-local
       const fieldMap = {
         "pitched": "pitchedDate",
@@ -118,6 +118,7 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
       
       const dateField = fieldMap[watchedStatus.toLowerCase()];
       if (dateField && !form.getValues(dateField)) {
+        console.log("Auto-filling date field:", dateField, "with:", now);
         form.setValue(dateField, now);
       }
     }
@@ -211,6 +212,7 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
 
   const onSubmit = (data: InsertDeal) => {
     console.log("Edit form submission data:", data);
+    console.log("Form errors:", form.formState.errors);
     
     // Format dates properly
     const formattedData = {
