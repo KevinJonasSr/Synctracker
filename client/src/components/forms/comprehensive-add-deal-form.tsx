@@ -271,8 +271,17 @@ export default function ComprehensiveAddDealForm({ open, onClose }: Comprehensiv
   };
 
   const onSubmit = (data: InsertDeal) => {
+    console.log("Form submitted with data:", data);
+    console.log("Form state:", form.formState);
+    
     // Validate required fields
     if (!data.projectName || !data.projectType || !data.songId || !data.contactId) {
+      console.log("Validation failed - missing required fields:", {
+        projectName: data.projectName,
+        projectType: data.projectType,
+        songId: data.songId,
+        contactId: data.contactId
+      });
       toast({
         title: "Missing required fields",
         description: "Please fill in all required fields (Project Name, Project Type, Song Title, and Contact).",
@@ -281,6 +290,7 @@ export default function ComprehensiveAddDealForm({ open, onClose }: Comprehensiv
       return;
     }
     
+    console.log("Validation passed, submitting deal");
     createDealMutation.mutate(data);
   };
 
@@ -291,7 +301,14 @@ export default function ComprehensiveAddDealForm({ open, onClose }: Comprehensiv
           <DialogTitle>Add New Deal</DialogTitle>
         </DialogHeader>
         
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={form.handleSubmit(onSubmit, (errors) => {
+          console.log("Form validation errors:", errors);
+          toast({
+            title: "Form validation failed",
+            description: "Please check the form for errors and try again.",
+            variant: "destructive",
+          });
+        })} className="space-y-6">
           {/* Section 1: Project Information */}
           <Card className="bg-purple-50 border-purple-200">
             <CardHeader className="bg-purple-100 border-b border-purple-200">
@@ -773,7 +790,9 @@ export default function ComprehensiveAddDealForm({ open, onClose }: Comprehensiv
                     min="0"
                     {...form.register("fullSongValue", { valueAsNumber: true })}
                     placeholder="0.00"
-                    autoFocus={false}
+                    onFocus={(e) => {
+                      console.log("Publishing fee field focused - this shouldn't happen automatically");
+                    }}
                   />
                 </div>
                 <div>
@@ -933,6 +952,12 @@ export default function ComprehensiveAddDealForm({ open, onClose }: Comprehensiv
               type="submit" 
               className="flex-1 bg-brand-primary hover:bg-blue-700"
               disabled={createDealMutation.isPending}
+              onClick={(e) => {
+                console.log("Submit button clicked");
+                console.log("Form is valid:", form.formState.isValid);
+                console.log("Form errors:", form.formState.errors);
+                console.log("Form values:", form.getValues());
+              }}
             >
               {createDealMutation.isPending ? "Creating..." : "Create Deal"}
             </Button>
