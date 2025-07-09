@@ -15,10 +15,18 @@ export default function Deals() {
   const [activeTab, setActiveTab] = useState("all");
   const [selectedDeal, setSelectedDeal] = useState<DealWithRelations | null>(null);
   const [showDealDetails, setShowDealDetails] = useState(false);
+  const [editingDeal, setEditingDeal] = useState<DealWithRelations | null>(null);
+  const [showEditDeal, setShowEditDeal] = useState(false);
 
   const handleDealClick = (deal: DealWithRelations) => {
     setSelectedDeal(deal);
     setShowDealDetails(true);
+  };
+
+  const handleEditDeal = (e: React.MouseEvent, deal: DealWithRelations) => {
+    e.stopPropagation(); // Prevent the card click from firing
+    setEditingDeal(deal);
+    setShowEditDeal(true);
   };
 
   const { data: deals = [], isLoading } = useQuery<DealWithRelations[]>({
@@ -176,7 +184,11 @@ export default function Deals() {
                         </div>
                         
                         <div className="flex space-x-2">
-                          <Button size="sm" variant="outline">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={(e) => handleEditDeal(e, deal)}
+                          >
                             <Edit className="h-4 w-4" />
                           </Button>
                           <Button size="sm" variant="outline" className="text-red-600 hover:text-red-700">
@@ -194,6 +206,15 @@ export default function Deals() {
       </div>
 
       <ComprehensiveAddDealForm open={showAddDeal} onClose={() => setShowAddDeal(false)} />
+      
+      <ComprehensiveAddDealForm 
+        open={showEditDeal} 
+        onClose={() => {
+          setShowEditDeal(false);
+          setEditingDeal(null);
+        }}
+        deal={editingDeal}
+      />
       
       <DealDetailsDialog 
         deal={selectedDeal}

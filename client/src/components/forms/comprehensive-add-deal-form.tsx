@@ -38,10 +38,12 @@ const formatPhoneNumber = (value: string) => {
 interface ComprehensiveAddDealFormProps {
   open: boolean;
   onClose: () => void;
+  deal?: any; // For editing existing deals
 }
 
-export default function ComprehensiveAddDealForm({ open, onClose }: ComprehensiveAddDealFormProps) {
+export default function ComprehensiveAddDealForm({ open, onClose, deal }: ComprehensiveAddDealFormProps) {
   const { toast } = useToast();
+  const isEditing = !!deal;
   const [showAddContact, setShowAddContact] = useState(false);
   const [newContactName, setNewContactName] = useState("");
   const [newContactEmail, setNewContactEmail] = useState("");
@@ -56,66 +58,66 @@ export default function ComprehensiveAddDealForm({ open, onClose }: Comprehensiv
     // resolver: zodResolver(insertDealSchema),
     shouldFocusError: false, // Prevent auto-focus on validation errors
     defaultValues: {
-      projectName: "",
-      episodeNumber: "",
-      projectType: "",
-      projectDescription: "",
-      songId: undefined,
-      contactId: undefined,
+      projectName: deal?.projectName || "",
+      episodeNumber: deal?.episodeNumber || "",
+      projectType: deal?.projectType || "",
+      projectDescription: deal?.projectDescription || "",
+      songId: deal?.songId || undefined,
+      contactId: deal?.contactId || undefined,
       
       // Contact Information
-      licenseeCompanyName: "",
-      licenseeAddress: "",
-      licenseeContactName: "",
-      licenseeContactEmail: "",
-      licenseeContactPhone: "",
+      licenseeCompanyName: deal?.licenseeCompanyName || "",
+      licenseeAddress: deal?.licenseeAddress || "",
+      licenseeContactName: deal?.licenseeContactName || "",
+      licenseeContactEmail: deal?.licenseeContactEmail || "",
+      licenseeContactPhone: deal?.licenseeContactPhone || "",
       
-      musicSupervisorName: "",
-      musicSupervisorAddress: "",
-      musicSupervisorContactName: "",
-      musicSupervisorContactEmail: "",
-      musicSupervisorContactPhone: "",
+      musicSupervisorName: deal?.musicSupervisorName || "",
+      musicSupervisorAddress: deal?.musicSupervisorAddress || "",
+      musicSupervisorContactName: deal?.musicSupervisorContactName || "",
+      musicSupervisorContactEmail: deal?.musicSupervisorContactEmail || "",
+      musicSupervisorContactPhone: deal?.musicSupervisorContactPhone || "",
       
-      clearanceCompanyName: "",
-      clearanceCompanyAddress: "",
-      clearanceCompanyContactName: "",
-      clearanceCompanyContactEmail: "",
-      clearanceCompanyContactPhone: "",
+      clearanceCompanyName: deal?.clearanceCompanyName || "",
+      clearanceCompanyAddress: deal?.clearanceCompanyAddress || "",
+      clearanceCompanyContactName: deal?.clearanceCompanyContactName || "",
+      clearanceCompanyContactEmail: deal?.clearanceCompanyContactEmail || "",
+      clearanceCompanyContactPhone: deal?.clearanceCompanyContactPhone || "",
       
-      status: "pitched",
-      dealValue: undefined,
-      fullSongValue: undefined,
-      ourFee: undefined,
-      fullRecordingFee: undefined,
-      ourRecordingFee: undefined,
+      status: deal?.status || "pitched",
+      dealValue: deal?.dealValue || undefined,
+      fullSongValue: deal?.fullSongValue || undefined,
+      ourFee: deal?.ourFee || undefined,
+      fullRecordingFee: deal?.fullRecordingFee || undefined,
+      ourRecordingFee: deal?.ourRecordingFee || undefined,
       
       // Status dates
-      pitchedDate: undefined,
-      pendingApprovalDate: undefined,
-      quotedDate: undefined,
-      useConfirmedDate: undefined,
-      beingDraftedDate: undefined,
-      outForSignatureDate: undefined,
-      paymentReceivedDate: undefined,
-      completedDate: undefined,
-      usage: "",
-      media: "",
-      territory: "worldwide",
-      term: "",
-      exclusivity: false,
-      exclusivityRestrictions: "",
+      pitchedDate: deal?.pitchedDate ? new Date(deal.pitchedDate).toISOString().slice(0, 16) : undefined,
+      pendingApprovalDate: deal?.pendingApprovalDate ? new Date(deal.pendingApprovalDate).toISOString().slice(0, 16) : undefined,
+      quotedDate: deal?.quotedDate ? new Date(deal.quotedDate).toISOString().slice(0, 16) : undefined,
+      useConfirmedDate: deal?.useConfirmedDate ? new Date(deal.useConfirmedDate).toISOString().slice(0, 16) : undefined,
+      beingDraftedDate: deal?.beingDraftedDate ? new Date(deal.beingDraftedDate).toISOString().slice(0, 16) : undefined,
+      outForSignatureDate: deal?.outForSignatureDate ? new Date(deal.outForSignatureDate).toISOString().slice(0, 16) : undefined,
+      paymentReceivedDate: deal?.paymentReceivedDate ? new Date(deal.paymentReceivedDate).toISOString().slice(0, 16) : undefined,
+      completedDate: deal?.completedDate ? new Date(deal.completedDate).toISOString().slice(0, 16) : undefined,
+      usage: deal?.usage || "",
+      media: deal?.media || "",
+      territory: deal?.territory || "worldwide",
+      term: deal?.term || "",
+      exclusivity: deal?.exclusivity || false,
+      exclusivityRestrictions: deal?.exclusivityRestrictions || "",
       
       // Song Information
-      writers: "",
-      publishingInfo: "",
-      splits: "",
-      artist: "",
-      label: "",
-      artistLabelSplits: "",
+      writers: deal?.writers || "",
+      publishingInfo: deal?.publishingInfo || "",
+      splits: deal?.splits || "",
+      artist: deal?.artist || "",
+      label: deal?.label || "",
+      artistLabelSplits: deal?.artistLabelSplits || "",
       
-      notes: "",
-      airDate: "",
-      pitchDate: undefined,
+      notes: deal?.notes || "",
+      airDate: deal?.airDate ? new Date(deal.airDate).toISOString().split('T')[0] : "",
+      pitchDate: deal?.pitchDate ? new Date(deal.pitchDate).toISOString().split('T')[0] : undefined,
     },
   });
 
@@ -208,7 +210,9 @@ export default function ComprehensiveAddDealForm({ open, onClose }: Comprehensiv
       };
       
       console.log("Processed data:", processedData);
-      const response = await apiRequest("POST", "/api/deals", processedData);
+      const endpoint = isEditing ? `/api/deals/${deal.id}` : "/api/deals";
+      const method = isEditing ? "PUT" : "POST";
+      const response = await apiRequest(method, endpoint, processedData);
       return response.json();
     },
     onSuccess: async (newDeal) => {
@@ -234,17 +238,21 @@ export default function ComprehensiveAddDealForm({ open, onClose }: Comprehensiv
       form.reset();
       onClose();
       toast({
-        title: "Deal Added",
-        description: newDeal.airDate 
-          ? "Deal has been added to the pipeline and calendar event created for air date"
-          : "Deal has been successfully added to the pipeline"
+        title: isEditing ? "Deal Updated" : "Deal Added",
+        description: isEditing 
+          ? "Deal has been successfully updated"
+          : (newDeal.airDate 
+              ? "Deal has been added to the pipeline and calendar event created for air date"
+              : "Deal has been successfully added to the pipeline")
       });
     },
     onError: (error) => {
       console.error("Error creating deal:", error);
       toast({
-        title: "Error Creating Deal",
-        description: "There was an error creating the deal. Please try again.",
+        title: isEditing ? "Error Updating Deal" : "Error Creating Deal",
+        description: isEditing 
+          ? "There was an error updating the deal. Please try again."
+          : "There was an error creating the deal. Please try again.",
         variant: "destructive",
       });
     }
@@ -331,7 +339,7 @@ export default function ComprehensiveAddDealForm({ open, onClose }: Comprehensiv
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Add New Deal</DialogTitle>
+          <DialogTitle>{isEditing ? "Edit Deal" : "Add New Deal"}</DialogTitle>
         </DialogHeader>
         
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -1079,7 +1087,9 @@ export default function ComprehensiveAddDealForm({ open, onClose }: Comprehensiv
               disabled={createDealMutation.isPending}
 
             >
-              {createDealMutation.isPending ? "Creating..." : "Create Deal"}
+              {createDealMutation.isPending 
+                ? (isEditing ? "Updating..." : "Creating...") 
+                : (isEditing ? "Update Deal" : "Create Deal")}
             </Button>
           </div>
         </form>
