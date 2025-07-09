@@ -210,6 +210,8 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
   };
 
   const onSubmit = (data: InsertDeal) => {
+    console.log("Edit form submission data:", data);
+    
     // Format dates properly
     const formattedData = {
       ...data,
@@ -227,6 +229,7 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
       completedDate: data.completedDate ? new Date(data.completedDate).toISOString() : null,
     };
 
+    console.log("Formatted data being sent:", formattedData);
     updateDealMutation.mutate(formattedData);
   };
 

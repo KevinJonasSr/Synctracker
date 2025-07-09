@@ -65,23 +65,46 @@ export default function DealDetailsDialog({ deal, open, onClose }: DealDetailsDi
     switch (status) {
       case "pitched":
         return "bg-gray-100 text-gray-800";
-      case "under_review":
+      case "pending approval":
         return "bg-yellow-100 text-yellow-800";
-      case "confirmed":
+      case "quoted":
         return "bg-blue-100 text-blue-800";
+      case "use confirmed":
+        return "bg-green-100 text-green-800";
+      case "being drafted":
+        return "bg-purple-100 text-purple-800";
+      case "out for signature":
+        return "bg-orange-100 text-orange-800";
+      case "payment received":
+        return "bg-emerald-100 text-emerald-800";
       case "completed":
         return "bg-green-100 text-green-800";
-      case "paid":
-        return "bg-emerald-100 text-emerald-800";
-      case "rejected":
-        return "bg-red-100 text-red-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
   };
 
   const getStatusLabel = (status: string) => {
-    return status.replace("_", " ").replace(/\b\w/g, l => l.toUpperCase());
+    switch (status) {
+      case "pitched":
+        return "Pitched";
+      case "pending approval":
+        return "Pending Approval";
+      case "quoted":
+        return "Quoted";
+      case "use confirmed":
+        return "Use Confirmed";
+      case "being drafted":
+        return "Being Drafted";
+      case "out for signature":
+        return "Out for Signature";
+      case "payment received":
+        return "Payment Received";
+      case "completed":
+        return "Completed";
+      default:
+        return status.charAt(0).toUpperCase() + status.slice(1);
+    }
   };
 
   const formatDate = (date: Date | null | string) => {
@@ -313,56 +336,83 @@ export default function DealDetailsDialog({ deal, open, onClose }: DealDetailsDi
                   <div className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
                     <Calendar className="h-5 w-5 text-gray-500" />
                     <div>
-                      <p className="font-medium">Pitch Date</p>
-                      <p className="text-sm text-gray-600">{formatDate(deal.pitchDate)}</p>
+                      <p className="font-medium">Air Date</p>
+                      <p className="text-sm text-gray-600">{formatDate(deal.airDate)}</p>
                     </div>
                   </div>
                   
                   <div className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
                     <Calendar className="h-5 w-5 text-gray-500" />
                     <div>
-                      <p className="font-medium">Air Date</p>
-                      <p className="text-sm text-gray-600">{formatDate(deal.airDate)}</p>
+                      <p className="font-medium">Pitch Date</p>
+                      <p className="text-sm text-gray-600">{formatDate(deal.pitchDate)}</p>
                     </div>
                   </div>
 
-                  <div className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
-                    <Calendar className="h-5 w-5 text-gray-500" />
-                    <div>
-                      <p className="font-medium">Response Date</p>
-                      <p className="text-sm text-gray-600">{formatDate(deal.responseDate)}</p>
+                  {/* Status Timeline */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="flex items-center space-x-4 p-3 bg-blue-50 rounded-lg">
+                      <Calendar className="h-4 w-4 text-blue-500" />
+                      <div>
+                        <p className="text-xs font-medium text-blue-700">Pitched</p>
+                        <p className="text-xs text-blue-600">{formatDateTime(deal.pitchedDate)}</p>
+                      </div>
                     </div>
-                  </div>
-
-                  <div className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
-                    <CheckCircle className="h-5 w-5 text-gray-500" />
-                    <div>
-                      <p className="font-medium">Confirmation Date</p>
-                      <p className="text-sm text-gray-600">{formatDate(deal.confirmationDate)}</p>
+                    
+                    <div className="flex items-center space-x-4 p-3 bg-yellow-50 rounded-lg">
+                      <Calendar className="h-4 w-4 text-yellow-500" />
+                      <div>
+                        <p className="text-xs font-medium text-yellow-700">Pending Approval</p>
+                        <p className="text-xs text-yellow-600">{formatDateTime(deal.pendingApprovalDate)}</p>
+                      </div>
                     </div>
-                  </div>
-
-                  <div className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
-                    <CheckCircle className="h-5 w-5 text-gray-500" />
-                    <div>
-                      <p className="font-medium">Completion Date</p>
-                      <p className="text-sm text-gray-600">{formatDate(deal.completionDate)}</p>
+                    
+                    <div className="flex items-center space-x-4 p-3 bg-purple-50 rounded-lg">
+                      <Calendar className="h-4 w-4 text-purple-500" />
+                      <div>
+                        <p className="text-xs font-medium text-purple-700">Quoted</p>
+                        <p className="text-xs text-purple-600">{formatDateTime(deal.quotedDate)}</p>
+                      </div>
                     </div>
-                  </div>
-
-                  <div className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
-                    <DollarSign className="h-5 w-5 text-gray-500" />
-                    <div>
-                      <p className="font-medium">Payment Date</p>
-                      <p className="text-sm text-gray-600">{formatDate(deal.paymentDate)}</p>
+                    
+                    <div className="flex items-center space-x-4 p-3 bg-green-50 rounded-lg">
+                      <CheckCircle className="h-4 w-4 text-green-500" />
+                      <div>
+                        <p className="text-xs font-medium text-green-700">Use Confirmed</p>
+                        <p className="text-xs text-green-600">{formatDateTime(deal.useConfirmedDate)}</p>
+                      </div>
                     </div>
-                  </div>
-
-                  <div className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
-                    <DollarSign className="h-5 w-5 text-gray-500" />
-                    <div>
-                      <p className="font-medium">Payment Due Date</p>
-                      <p className="text-sm text-gray-600">{formatDate(deal.paymentDueDate)}</p>
+                    
+                    <div className="flex items-center space-x-4 p-3 bg-indigo-50 rounded-lg">
+                      <FileText className="h-4 w-4 text-indigo-500" />
+                      <div>
+                        <p className="text-xs font-medium text-indigo-700">Being Drafted</p>
+                        <p className="text-xs text-indigo-600">{formatDateTime(deal.beingDraftedDate)}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center space-x-4 p-3 bg-orange-50 rounded-lg">
+                      <FileText className="h-4 w-4 text-orange-500" />
+                      <div>
+                        <p className="text-xs font-medium text-orange-700">Out for Signature</p>
+                        <p className="text-xs text-orange-600">{formatDateTime(deal.outForSignatureDate)}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center space-x-4 p-3 bg-emerald-50 rounded-lg">
+                      <DollarSign className="h-4 w-4 text-emerald-500" />
+                      <div>
+                        <p className="text-xs font-medium text-emerald-700">Payment Received</p>
+                        <p className="text-xs text-emerald-600">{formatDateTime(deal.paymentReceivedDate)}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center space-x-4 p-3 bg-green-50 rounded-lg">
+                      <CheckCircle className="h-4 w-4 text-green-500" />
+                      <div>
+                        <p className="text-xs font-medium text-green-700">Completed</p>
+                        <p className="text-xs text-green-600">{formatDateTime(deal.completedDate)}</p>
+                      </div>
                     </div>
                   </div>
                 </div>

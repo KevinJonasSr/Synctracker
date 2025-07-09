@@ -22,10 +22,18 @@ export default function DealPipeline({ deals, dealsByStatus }: DealPipelineProps
     switch (status) {
       case "pitched":
         return "bg-gray-300/10 text-gray-600";
-      case "under_review":
-        return "bg-status-pending/10 text-status-pending";
-      case "confirmed":
-        return "bg-brand-primary/10 text-brand-primary";
+      case "pending approval":
+        return "bg-yellow-100 text-yellow-800";
+      case "quoted":
+        return "bg-blue-100 text-blue-800";
+      case "use confirmed":
+        return "bg-green-100 text-green-800";
+      case "being drafted":
+        return "bg-purple-100 text-purple-800";
+      case "out for signature":
+        return "bg-orange-100 text-orange-800";
+      case "payment received":
+        return "bg-emerald-100 text-emerald-800";
       case "completed":
         return "bg-status-completed/10 text-status-completed";
       default:
@@ -37,14 +45,22 @@ export default function DealPipeline({ deals, dealsByStatus }: DealPipelineProps
     switch (status) {
       case "pitched":
         return "Pitched";
-      case "under_review":
-        return "Under Review";
-      case "confirmed":
-        return "Confirmed";
+      case "pending approval":
+        return "Pending Approval";
+      case "quoted":
+        return "Quoted";
+      case "use confirmed":
+        return "Use Confirmed";
+      case "being drafted":
+        return "Being Drafted";
+      case "out for signature":
+        return "Out for Signature";
+      case "payment received":
+        return "Payment Received";
       case "completed":
         return "Completed";
       default:
-        return status;
+        return status.charAt(0).toUpperCase() + status.slice(1);
     }
   };
 

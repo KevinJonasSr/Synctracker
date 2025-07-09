@@ -257,14 +257,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/deals/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
+      console.log("PUT /api/deals/:id - Updating deal:", id);
+      console.log("Request body:", req.body);
+      
       const validatedData = insertDealSchema.partial().parse(req.body);
+      console.log("Validated data:", validatedData);
+      
       const deal = await dbStorage.updateDeal(id, validatedData);
+      console.log("Updated deal:", deal);
+      
       res.json(deal);
     } catch (error) {
+      console.error("Error updating deal:", error);
       if (error instanceof z.ZodError) {
+        console.error("Validation errors:", error.errors);
         return res.status(400).json({ error: error.errors });
       }
-      res.status(500).json({ error: "Failed to update deal" });
+      res.status(500).json({ error: "Failed to update deal", details: error.message });
     }
   });
 
