@@ -554,11 +554,43 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="licenseeCompanyName">Company Name</Label>
-                    <Input
-                      id="licenseeCompanyName"
-                      {...form.register("licenseeCompanyName")}
-                      placeholder="Production company name"
-                    />
+                    <div className="flex space-x-2">
+                      <Select
+                        value=""
+                        onValueChange={(value) => {
+                          const contactId = parseInt(value);
+                          const selectedContact = contacts.find(c => c.id === contactId);
+                          if (selectedContact) {
+                            form.setValue("licenseeCompanyName", selectedContact.company || selectedContact.name);
+                            form.setValue("licenseeContactName", selectedContact.name);
+                            form.setValue("licenseeContactEmail", selectedContact.email || "");
+                            form.setValue("licenseeContactPhone", selectedContact.phone || "");
+                            // Use notes as address if available
+                            const addressMatch = selectedContact.notes?.match(/Address:\s*(.+?)(?:\n|$)/i);
+                            if (addressMatch) {
+                              form.setValue("licenseeAddress", addressMatch[1]);
+                            }
+                          }
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select from contacts" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {contacts.map((contact) => (
+                            <SelectItem key={contact.id} value={contact.id.toString()}>
+                              {contact.name} {contact.company && `(${contact.company})`}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Input
+                        id="licenseeCompanyName"
+                        {...form.register("licenseeCompanyName")}
+                        placeholder="Production company name"
+                        className="flex-1"
+                      />
+                    </div>
                   </div>
                   <div>
                     <Label htmlFor="licenseeContactName">Contact Name</Label>
@@ -618,12 +650,17 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                           const contactId = parseInt(value);
                           form.setValue("contactId", contactId);
                           
-                          // Auto-populate music supervisor name with selected contact
+                          // Auto-populate music supervisor fields with selected contact
                           const selectedContact = contacts.find(c => c.id === contactId);
                           if (selectedContact) {
                             form.setValue("musicSupervisorName", selectedContact.name);
-                            if (selectedContact.company) {
-                              form.setValue("musicSupervisorContactName", selectedContact.company);
+                            form.setValue("musicSupervisorContactName", selectedContact.company || "");
+                            form.setValue("musicSupervisorContactEmail", selectedContact.email || "");
+                            form.setValue("musicSupervisorContactPhone", selectedContact.phone || "");
+                            // Use notes as address if available
+                            const addressMatch = selectedContact.notes?.match(/Address:\s*(.+?)(?:\n|$)/i);
+                            if (addressMatch) {
+                              form.setValue("musicSupervisorAddress", addressMatch[1]);
                             }
                           }
                         }}
@@ -703,11 +740,43 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="clearanceCompanyName">Company Name</Label>
-                    <Input
-                      id="clearanceCompanyName"
-                      {...form.register("clearanceCompanyName")}
-                      placeholder="Clearance company name"
-                    />
+                    <div className="flex space-x-2">
+                      <Select
+                        value=""
+                        onValueChange={(value) => {
+                          const contactId = parseInt(value);
+                          const selectedContact = contacts.find(c => c.id === contactId);
+                          if (selectedContact) {
+                            form.setValue("clearanceCompanyName", selectedContact.company || selectedContact.name);
+                            form.setValue("clearanceCompanyContactName", selectedContact.name);
+                            form.setValue("clearanceCompanyContactEmail", selectedContact.email || "");
+                            form.setValue("clearanceCompanyContactPhone", selectedContact.phone || "");
+                            // Use notes as address if available
+                            const addressMatch = selectedContact.notes?.match(/Address:\s*(.+?)(?:\n|$)/i);
+                            if (addressMatch) {
+                              form.setValue("clearanceCompanyAddress", addressMatch[1]);
+                            }
+                          }
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select from contacts" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {contacts.map((contact) => (
+                            <SelectItem key={contact.id} value={contact.id.toString()}>
+                              {contact.name} {contact.company && `(${contact.company})`}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Input
+                        id="clearanceCompanyName"
+                        {...form.register("clearanceCompanyName")}
+                        placeholder="Clearance company name"
+                        className="flex-1"
+                      />
+                    </div>
                   </div>
                   <div>
                     <Label htmlFor="clearanceCompanyContactName">Contact Name</Label>
