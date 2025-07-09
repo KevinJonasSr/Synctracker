@@ -144,12 +144,15 @@ export default function SmartPitchMatching() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="commercial">Commercial</SelectItem>
-                  <SelectItem value="tv">TV Show</SelectItem>
+                  <SelectItem value="documentary">Documentary</SelectItem>
                   <SelectItem value="film">Film</SelectItem>
                   <SelectItem value="game">Video Game</SelectItem>
-                  <SelectItem value="documentary">Documentary</SelectItem>
                   <SelectItem value="podcast">Podcast</SelectItem>
+                  <SelectItem value="promos">Promos</SelectItem>
                   <SelectItem value="social">Social Media</SelectItem>
+                  <SelectItem value="sports">Sports</SelectItem>
+                  <SelectItem value="trailers">Trailers</SelectItem>
+                  <SelectItem value="tv">TV Show</SelectItem>
                 </SelectContent>
               </Select>
             </div>

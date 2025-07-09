@@ -288,13 +288,16 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
                   <SelectValue placeholder="Select project type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="tv">TV Show</SelectItem>
-                  <SelectItem value="film">Film</SelectItem>
                   <SelectItem value="commercial">Commercial</SelectItem>
-                  <SelectItem value="game">Video Game</SelectItem>
                   <SelectItem value="documentary">Documentary</SelectItem>
-                  <SelectItem value="podcast">Podcast</SelectItem>
+                  <SelectItem value="film">Film</SelectItem>
+                  <SelectItem value="game">Video Game</SelectItem>
                   <SelectItem value="other">Other</SelectItem>
+                  <SelectItem value="podcast">Podcast</SelectItem>
+                  <SelectItem value="promos">Promos</SelectItem>
+                  <SelectItem value="sports">Sports</SelectItem>
+                  <SelectItem value="trailers">Trailers</SelectItem>
+                  <SelectItem value="tv">TV Show</SelectItem>
                 </SelectContent>
               </Select>
             </div>

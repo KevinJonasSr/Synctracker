@@ -367,11 +367,13 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
                   <SelectItem value="game">Video Game</SelectItem>
                   <SelectItem value="indie_film">Indie Film</SelectItem>
                   <SelectItem value="non_profit">Non-Profit</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
                   <SelectItem value="podcast">Podcast</SelectItem>
+                  <SelectItem value="promos">Promos</SelectItem>
                   <SelectItem value="sports">Sports</SelectItem>
                   <SelectItem value="streaming">Streaming Platform</SelectItem>
+                  <SelectItem value="trailers">Trailers</SelectItem>
                   <SelectItem value="tv">TV Series</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
               </Select>
               {form.formState.errors.projectType && (
