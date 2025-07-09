@@ -90,6 +90,8 @@ export const deals = pgTable("deals", {
   dealValue: decimal("deal_value", { precision: 10, scale: 2 }),
   fullSongValue: decimal("full_song_value", { precision: 10, scale: 2 }),
   ourFee: decimal("our_fee", { precision: 10, scale: 2 }),
+  fullRecordingFee: decimal("full_recording_fee", { precision: 10, scale: 2 }),
+  ourRecordingFee: decimal("our_recording_fee", { precision: 10, scale: 2 }),
   usage: text("usage"), // background, featured, opening, etc.
   media: text("media"), // TV, Film, Commercial, etc.
   territory: text("territory").default("worldwide"),

@@ -66,6 +66,8 @@ export default function ComprehensiveAddDealForm({ open, onClose }: Comprehensiv
       dealValue: undefined,
       fullSongValue: undefined,
       ourFee: undefined,
+      fullRecordingFee: undefined,
+      ourRecordingFee: undefined,
       usage: "",
       media: "",
       territory: "worldwide",
@@ -136,6 +138,8 @@ export default function ComprehensiveAddDealForm({ open, onClose }: Comprehensiv
         dealValue: data.dealValue ? parseFloat(data.dealValue.toString()) : null,
         fullSongValue: data.fullSongValue ? parseFloat(data.fullSongValue.toString()) : null,
         ourFee: data.ourFee ? parseFloat(data.ourFee.toString()) : null,
+        fullRecordingFee: data.fullRecordingFee ? parseFloat(data.fullRecordingFee.toString()) : null,
+        ourRecordingFee: data.ourRecordingFee ? parseFloat(data.ourRecordingFee.toString()) : null,
         pitchDate: data.pitchDate ? new Date(data.pitchDate).toISOString() : null,
         airDate: data.airDate ? new Date(data.airDate).toISOString() : null,
       };
@@ -672,7 +676,7 @@ export default function ComprehensiveAddDealForm({ open, onClose }: Comprehensiv
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="fullSongValue">100% Song Value ($)</Label>
+                  <Label htmlFor="fullSongValue">100% Publishing Fee ($)</Label>
                   <Input
                     id="fullSongValue"
                     type="number"
@@ -690,6 +694,31 @@ export default function ComprehensiveAddDealForm({ open, onClose }: Comprehensiv
                     step="0.01"
                     min="0"
                     {...form.register("ourFee", { valueAsNumber: true })}
+                    placeholder="0.00"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="fullRecordingFee">100% Recording Fee ($)</Label>
+                  <Input
+                    id="fullRecordingFee"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    {...form.register("fullRecordingFee", { valueAsNumber: true })}
+                    placeholder="0.00"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="ourRecordingFee">Our Fee Based on Splits ($)</Label>
+                  <Input
+                    id="ourRecordingFee"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    {...form.register("ourRecordingFee", { valueAsNumber: true })}
                     placeholder="0.00"
                   />
                 </div>
