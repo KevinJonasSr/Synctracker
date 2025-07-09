@@ -292,6 +292,7 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
                   <SelectItem value="documentary">Documentary</SelectItem>
                   <SelectItem value="film">Film</SelectItem>
                   <SelectItem value="game">Video Game</SelectItem>
+                  <SelectItem value="indie_film">Indie Film</SelectItem>
                   <SelectItem value="other">Other</SelectItem>
                   <SelectItem value="podcast">Podcast</SelectItem>
                   <SelectItem value="promos">Promos</SelectItem>
