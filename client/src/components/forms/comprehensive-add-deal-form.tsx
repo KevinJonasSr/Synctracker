@@ -53,6 +53,7 @@ export default function ComprehensiveAddDealForm({ open, onClose }: Comprehensiv
   
   const form = useForm<InsertDeal>({
     resolver: zodResolver(insertDealSchema),
+    shouldFocusError: false, // Prevent auto-focus on validation errors
     defaultValues: {
       projectName: "",
       episodeNumber: "",
@@ -303,9 +304,24 @@ export default function ComprehensiveAddDealForm({ open, onClose }: Comprehensiv
         
         <form onSubmit={form.handleSubmit(onSubmit, (errors) => {
           console.log("Form validation errors:", errors);
+          
+          // Find the first error and show a specific message
+          const firstError = Object.keys(errors)[0];
+          let errorMessage = "Please check the form for errors and try again.";
+          
+          if (firstError === "contactId") {
+            errorMessage = "Please select a contact for this deal.";
+          } else if (firstError === "songId") {
+            errorMessage = "Please select a song for this deal.";
+          } else if (firstError === "projectName") {
+            errorMessage = "Please enter a project name.";
+          } else if (firstError === "projectType") {
+            errorMessage = "Please select a project type.";
+          }
+          
           toast({
             title: "Form validation failed",
-            description: "Please check the form for errors and try again.",
+            description: errorMessage,
             variant: "destructive",
           });
         })} className="space-y-6">
@@ -660,12 +676,15 @@ export default function ComprehensiveAddDealForm({ open, onClose }: Comprehensiv
                       ))}
                     </SelectContent>
                   </Select>
+                  {form.formState.errors.songId && (
+                    <p className="text-sm text-red-600 mt-1">{form.formState.errors.songId.message}</p>
+                  )}
                 </div>
                 <div>
                   <Label htmlFor="contactId">Contact *</Label>
                   <div className="flex space-x-2">
                     <Select
-                      value={form.watch("contactId")?.toString()}
+                      value={form.watch("contactId")?.toString() || ""}
                       onValueChange={(value) => {
                         const contactId = parseInt(value);
                         form.setValue("contactId", contactId);
@@ -700,6 +719,9 @@ export default function ComprehensiveAddDealForm({ open, onClose }: Comprehensiv
                       <Plus className="h-4 w-4" />
                     </Button>
                   </div>
+                  {form.formState.errors.contactId && (
+                    <p className="text-sm text-red-600 mt-1">{form.formState.errors.contactId.message}</p>
+                  )}
                 </div>
               </div>
 
