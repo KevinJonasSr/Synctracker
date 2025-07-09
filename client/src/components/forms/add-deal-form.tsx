@@ -372,6 +372,7 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
                   <SelectItem value="promos">Promos</SelectItem>
                   <SelectItem value="sports">Sports</SelectItem>
                   <SelectItem value="streaming">Streaming Platform</SelectItem>
+                  <SelectItem value="student_film">Student Film</SelectItem>
                   <SelectItem value="trailers">Trailers</SelectItem>
                   <SelectItem value="tv">TV Series</SelectItem>
                 </SelectContent>

@@ -156,6 +156,11 @@ Changelog:
   * Database Schema Optimization - Enhanced insertDealSchema to handle string date inputs with proper conversion to Date objects
   * Storage Layer Date Conversion - Automatic conversion of ISO date strings to Date objects for database compatibility
   * Form Validation Resolution - Fixed complex validation issues preventing form submissions
+- July 09, 2025. Enhanced project type management:
+  * Added new project types: Promos, Sports, Trailers, Indie Film, Student Film, Non-Profit
+  * Alphabetized all project type dropdowns for consistency across application
+  * Updated comprehensive add deal form, edit deal form, smart pitch matching, and legacy add deal form
+  * Complete project type list: Commercial, Documentary, Film, Game, Indie Film, Non-Profit, Other, Podcast, Promos, Sports, Student Film, Trailers, TV Show
 ```
 
 ## User Preferences

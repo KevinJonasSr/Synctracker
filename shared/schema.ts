@@ -62,7 +62,7 @@ export const deals = pgTable("deals", {
   id: serial("id").primaryKey(),
   projectName: text("project_name").notNull(),
   episodeNumber: text("episode_number"),
-  projectType: text("project_type").notNull(), // commercial, film, game, promos, sports, trailers, tv, etc.
+  projectType: text("project_type").notNull(), // commercial, documentary, film, game, indie_film, non_profit, podcast, promos, sports, student_film, trailers, tv, etc.
   projectDescription: text("project_description"),
   songId: integer("song_id").references(() => songs.id).notNull(),
   contactId: integer("contact_id").references(() => contacts.id).notNull(),
