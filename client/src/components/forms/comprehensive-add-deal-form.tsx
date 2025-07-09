@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -68,6 +68,16 @@ export default function ComprehensiveAddDealForm({ open, onClose }: Comprehensiv
       ourFee: undefined,
       fullRecordingFee: undefined,
       ourRecordingFee: undefined,
+      
+      // Status dates
+      pitchedDate: undefined,
+      pendingApprovalDate: undefined,
+      quotedDate: undefined,
+      useConfirmedDate: undefined,
+      beingDraftedDate: undefined,
+      outForSignatureDate: undefined,
+      paymentReceivedDate: undefined,
+      completedDate: undefined,
       usage: "",
       media: "",
       territory: "worldwide",
@@ -88,6 +98,29 @@ export default function ComprehensiveAddDealForm({ open, onClose }: Comprehensiv
       pitchDate: undefined,
     },
   });
+
+  // Watch for status changes to auto-update dates
+  const watchedStatus = form.watch("status");
+  useEffect(() => {
+    if (watchedStatus && watchedStatus !== "pitched") {
+      const now = new Date().toISOString().slice(0, 16); // Format for datetime-local
+      const fieldMap = {
+        "pitched": "pitchedDate",
+        "pending approval": "pendingApprovalDate",
+        "quoted": "quotedDate",
+        "use confirmed": "useConfirmedDate",
+        "being drafted": "beingDraftedDate",
+        "out for signature": "outForSignatureDate",
+        "payment received": "paymentReceivedDate",
+        "completed": "completedDate"
+      };
+      
+      const dateField = fieldMap[watchedStatus.toLowerCase()];
+      if (dateField && !form.getValues(dateField)) {
+        form.setValue(dateField, now);
+      }
+    }
+  }, [watchedStatus, form]);
 
   const { data: songs = [] } = useQuery<Song[]>({
     queryKey: ["/api/songs"],
@@ -141,6 +174,16 @@ export default function ComprehensiveAddDealForm({ open, onClose }: Comprehensiv
         fullRecordingFee: data.fullRecordingFee ? parseFloat(data.fullRecordingFee.toString()) : null,
         ourRecordingFee: data.ourRecordingFee ? parseFloat(data.ourRecordingFee.toString()) : null,
         pitchDate: data.pitchDate ? new Date(data.pitchDate).toISOString() : null,
+        
+        // Status dates
+        pitchedDate: data.pitchedDate ? new Date(data.pitchedDate).toISOString() : null,
+        pendingApprovalDate: data.pendingApprovalDate ? new Date(data.pendingApprovalDate).toISOString() : null,
+        quotedDate: data.quotedDate ? new Date(data.quotedDate).toISOString() : null,
+        useConfirmedDate: data.useConfirmedDate ? new Date(data.useConfirmedDate).toISOString() : null,
+        beingDraftedDate: data.beingDraftedDate ? new Date(data.beingDraftedDate).toISOString() : null,
+        outForSignatureDate: data.outForSignatureDate ? new Date(data.outForSignatureDate).toISOString() : null,
+        paymentReceivedDate: data.paymentReceivedDate ? new Date(data.paymentReceivedDate).toISOString() : null,
+        completedDate: data.completedDate ? new Date(data.completedDate).toISOString() : null,
         airDate: data.airDate ? new Date(data.airDate).toISOString() : null,
       };
       
@@ -742,6 +785,85 @@ export default function ComprehensiveAddDealForm({ open, onClose }: Comprehensiv
                   type="date"
                   {...form.register("pitchDate")}
                 />
+              </div>
+              
+              {/* Status Change Dates */}
+              <div>
+                <Label className="text-sm font-medium text-green-800">Status Timeline</Label>
+                <div className="grid grid-cols-2 gap-4 mt-2">
+                  <div>
+                    <Label htmlFor="pitchedDate" className="text-xs">Pitched Date</Label>
+                    <Input
+                      id="pitchedDate"
+                      type="datetime-local"
+                      {...form.register("pitchedDate")}
+                      className="text-xs"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="pendingApprovalDate" className="text-xs">Pending Approval Date</Label>
+                    <Input
+                      id="pendingApprovalDate"
+                      type="datetime-local"
+                      {...form.register("pendingApprovalDate")}
+                      className="text-xs"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="quotedDate" className="text-xs">Quoted Date</Label>
+                    <Input
+                      id="quotedDate"
+                      type="datetime-local"
+                      {...form.register("quotedDate")}
+                      className="text-xs"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="useConfirmedDate" className="text-xs">Use Confirmed Date</Label>
+                    <Input
+                      id="useConfirmedDate"
+                      type="datetime-local"
+                      {...form.register("useConfirmedDate")}
+                      className="text-xs"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="beingDraftedDate" className="text-xs">Being Drafted Date</Label>
+                    <Input
+                      id="beingDraftedDate"
+                      type="datetime-local"
+                      {...form.register("beingDraftedDate")}
+                      className="text-xs"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="outForSignatureDate" className="text-xs">Out for Signature Date</Label>
+                    <Input
+                      id="outForSignatureDate"
+                      type="datetime-local"
+                      {...form.register("outForSignatureDate")}
+                      className="text-xs"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="paymentReceivedDate" className="text-xs">Payment Received Date</Label>
+                    <Input
+                      id="paymentReceivedDate"
+                      type="datetime-local"
+                      {...form.register("paymentReceivedDate")}
+                      className="text-xs"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="completedDate" className="text-xs">Completed Date</Label>
+                    <Input
+                      id="completedDate"
+                      type="datetime-local"
+                      {...form.register("completedDate")}
+                      className="text-xs"
+                    />
+                  </div>
+                </div>
               </div>
 
               <div>

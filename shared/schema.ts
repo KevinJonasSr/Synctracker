@@ -87,6 +87,16 @@ export const deals = pgTable("deals", {
   clearanceCompanyContactPhone: text("clearance_company_contact_phone"),
   
   status: text("status").notNull().default("pitched"), // Pitched, Pending Approval, Quoted, Use Confirmed, Being Drafted, Out for Signature, Payment Received, Completed
+  
+  // Status change dates
+  pitchedDate: timestamp("pitched_date"),
+  pendingApprovalDate: timestamp("pending_approval_date"),
+  quotedDate: timestamp("quoted_date"),
+  useConfirmedDate: timestamp("use_confirmed_date"),
+  beingDraftedDate: timestamp("being_drafted_date"),
+  outForSignatureDate: timestamp("out_for_signature_date"),
+  paymentReceivedDate: timestamp("payment_received_date"),
+  completedDate: timestamp("completed_date"),
   dealValue: decimal("deal_value", { precision: 10, scale: 2 }),
   fullSongValue: decimal("full_song_value", { precision: 10, scale: 2 }),
   ourFee: decimal("our_fee", { precision: 10, scale: 2 }),
