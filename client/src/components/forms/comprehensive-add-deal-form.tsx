@@ -561,7 +561,8 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                           const contactId = parseInt(value);
                           const selectedContact = contacts.find(c => c.id === contactId);
                           if (selectedContact) {
-                            form.setValue("licenseeCompanyName", selectedContact.company || selectedContact.name);
+                            // Company Name should be the actual company, not the contact name
+                            form.setValue("licenseeCompanyName", selectedContact.company || "");
                             form.setValue("licenseeContactName", selectedContact.name);
                             form.setValue("licenseeContactEmail", selectedContact.email || "");
                             form.setValue("licenseeContactPhone", selectedContact.phone || "");
@@ -747,7 +748,8 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                           const contactId = parseInt(value);
                           const selectedContact = contacts.find(c => c.id === contactId);
                           if (selectedContact) {
-                            form.setValue("clearanceCompanyName", selectedContact.company || selectedContact.name);
+                            // Company Name should be the actual company, not the contact name
+                            form.setValue("clearanceCompanyName", selectedContact.company || "");
                             form.setValue("clearanceCompanyContactName", selectedContact.name);
                             form.setValue("clearanceCompanyContactEmail", selectedContact.email || "");
                             form.setValue("clearanceCompanyContactPhone", selectedContact.phone || "");
