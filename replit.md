@@ -161,6 +161,13 @@ Changelog:
   * Alphabetized all project type dropdowns for consistency across application
   * Updated comprehensive add deal form, edit deal form, smart pitch matching, and legacy add deal form
   * Complete project type list: Commercial, Documentary, Film, Game, Indie Film, Non-Profit, Other, Podcast, Promos, Sports, Student Film, Trailers, TV Show
+- July 09, 2025. Resolved comprehensive form validation and status tracking system:
+  * Fixed server-side validation errors by enhancing insertDealSchema to handle string/number type coercion from form inputs
+  * Implemented automatic status date population when deal status is selected in form
+  * Enhanced automatic fee calculation with real-time split percentage parsing for both publishing and recording fees
+  * Successfully resolved all form submission issues - deals now create properly without validation errors
+  * Status dates automatically populate in Additional Information section when corresponding status is selected
+  * Form now supports manual status date entry and automatic calculation of fees based on splits percentage
 ```
 
 ## User Preferences
