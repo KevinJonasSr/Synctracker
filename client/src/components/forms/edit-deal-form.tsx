@@ -102,8 +102,10 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
 
   // Watch for status changes to auto-update dates
   const watchedStatus = form.watch("status");
+  const [previousStatus, setPreviousStatus] = useState<string | null>(null);
+  
   useEffect(() => {
-    if (watchedStatus) {
+    if (watchedStatus && watchedStatus !== previousStatus) {
       const now = new Date().toISOString().slice(0, 16); // Format for datetime-local
       const fieldMap = {
         "pitched": "pitchedDate",
@@ -118,11 +120,14 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
       
       const dateField = fieldMap[watchedStatus.toLowerCase()];
       if (dateField && !form.getValues(dateField)) {
+        console.log("Status changed from", previousStatus, "to", watchedStatus);
         console.log("Auto-filling date field:", dateField, "with:", now);
         form.setValue(dateField, now);
       }
+      
+      setPreviousStatus(watchedStatus);
     }
-  }, [watchedStatus, form]);
+  }, [watchedStatus, previousStatus, form]);
 
   const { data: songs = [] } = useQuery<Song[]>({
     queryKey: ["/api/songs"],
