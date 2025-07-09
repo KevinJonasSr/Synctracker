@@ -121,6 +121,72 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
     },
   });
 
+  // Reset form when deal prop changes
+  useEffect(() => {
+    form.reset({
+      projectName: deal?.projectName || "",
+      episodeNumber: deal?.episodeNumber || "",
+      projectType: deal?.projectType || "",
+      projectDescription: deal?.projectDescription || "",
+      songId: deal?.songId || undefined,
+      contactId: deal?.contactId || undefined,
+      
+      // Contact Information
+      licenseeCompanyName: deal?.licenseeCompanyName || "",
+      licenseeAddress: deal?.licenseeAddress || "",
+      licenseeContactName: deal?.licenseeContactName || "",
+      licenseeContactEmail: deal?.licenseeContactEmail || "",
+      licenseeContactPhone: deal?.licenseeContactPhone || "",
+      
+      musicSupervisorName: deal?.musicSupervisorName || "",
+      musicSupervisorAddress: deal?.musicSupervisorAddress || "",
+      musicSupervisorContactName: deal?.musicSupervisorContactName || "",
+      musicSupervisorContactEmail: deal?.musicSupervisorContactEmail || "",
+      musicSupervisorContactPhone: deal?.musicSupervisorContactPhone || "",
+      
+      clearanceCompanyName: deal?.clearanceCompanyName || "",
+      clearanceCompanyAddress: deal?.clearanceCompanyAddress || "",
+      clearanceCompanyContactName: deal?.clearanceCompanyContactName || "",
+      clearanceCompanyContactEmail: deal?.clearanceCompanyContactEmail || "",
+      clearanceCompanyContactPhone: deal?.clearanceCompanyContactPhone || "",
+      
+      status: deal?.status || "pitched",
+      dealValue: deal?.dealValue || undefined,
+      fullSongValue: deal?.fullSongValue || undefined,
+      ourFee: deal?.ourFee || undefined,
+      fullRecordingFee: deal?.fullRecordingFee || undefined,
+      ourRecordingFee: deal?.ourRecordingFee || undefined,
+      
+      // Status dates
+      pitchedDate: deal?.pitchedDate ? new Date(deal.pitchedDate).toISOString().slice(0, 16) : undefined,
+      pendingApprovalDate: deal?.pendingApprovalDate ? new Date(deal.pendingApprovalDate).toISOString().slice(0, 16) : undefined,
+      quotedDate: deal?.quotedDate ? new Date(deal.quotedDate).toISOString().slice(0, 16) : undefined,
+      useConfirmedDate: deal?.useConfirmedDate ? new Date(deal.useConfirmedDate).toISOString().slice(0, 16) : undefined,
+      beingDraftedDate: deal?.beingDraftedDate ? new Date(deal.beingDraftedDate).toISOString().slice(0, 16) : undefined,
+      outForSignatureDate: deal?.outForSignatureDate ? new Date(deal.outForSignatureDate).toISOString().slice(0, 16) : undefined,
+      paymentReceivedDate: deal?.paymentReceivedDate ? new Date(deal.paymentReceivedDate).toISOString().slice(0, 16) : undefined,
+      completedDate: deal?.completedDate ? new Date(deal.completedDate).toISOString().slice(0, 16) : undefined,
+      usage: deal?.usage || "",
+      media: deal?.media || "",
+      territory: deal?.territory || "worldwide",
+      term: deal?.term || "",
+      exclusivity: deal?.exclusivity || false,
+      exclusivityRestrictions: deal?.exclusivityRestrictions || "",
+      
+      // Song Information
+      writers: deal?.writers || "",
+      publishingInfo: deal?.publishingInfo || "",
+      splits: deal?.splits || "",
+      artist: deal?.artist || "",
+      label: deal?.label || "",
+      artistLabelSplits: deal?.artistLabelSplits || "",
+      
+      notes: deal?.notes || "",
+      airDate: deal?.airDate ? new Date(deal.airDate).toISOString().split('T')[0] : "",
+      pitchDate: deal?.pitchDate ? new Date(deal.pitchDate).toISOString().split('T')[0] : undefined,
+    });
+  }, [deal, form]);
+
   // Watch for status changes to auto-update dates
   const watchedStatus = form.watch("status");
   useEffect(() => {
