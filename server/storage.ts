@@ -114,6 +114,9 @@ export interface IStorage {
 
   // Analytics Events
   createAnalyticsEvent(event: InsertAnalyticsEvent): Promise<AnalyticsEvent>;
+
+  // Contact extraction from deals
+  extractContactsFromDeal(dealData: any): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -307,6 +310,9 @@ export class DatabaseStorage implements IStorage {
         processedDeal.completedDate = now;
       }
       
+      // Extract contacts from deal data before creating the deal
+      await this.extractContactsFromDeal(processedDeal);
+      
       const [created] = await db.insert(deals).values(processedDeal).returning();
       return created;
     } catch (error) {
@@ -333,6 +339,9 @@ export class DatabaseStorage implements IStorage {
       pitchDate: deal.pitchDate ? new Date(deal.pitchDate) : deal.pitchDate,
       updatedAt: new Date()
     };
+
+    // Extract contacts from deal data when updating
+    await this.extractContactsFromDeal(processedDeal);
 
     const [updated] = await db
       .update(deals)
@@ -772,6 +781,73 @@ export class DatabaseStorage implements IStorage {
   async createAnalyticsEvent(event: InsertAnalyticsEvent): Promise<AnalyticsEvent> {
     const [newEvent] = await db.insert(analyticsEvents).values(event).returning();
     return newEvent;
+  }
+
+  // Contact extraction from deals
+  async extractContactsFromDeal(dealData: any): Promise<void> {
+    const contactsToCreate: InsertContact[] = [];
+    
+    // Extract Licensee/Production Company contact
+    if (dealData.licenseeContactName && dealData.licenseeContactEmail) {
+      const existingContact = await db.select()
+        .from(contacts)
+        .where(eq(contacts.email, dealData.licenseeContactEmail))
+        .limit(1);
+      
+      if (existingContact.length === 0) {
+        contactsToCreate.push({
+          name: dealData.licenseeContactName,
+          email: dealData.licenseeContactEmail,
+          phone: dealData.licenseeContactPhone || "",
+          company: dealData.licenseeCompanyName || "",
+          role: "Licensee/Production Company Contact",
+          notes: `Contact from ${dealData.projectName} deal. Address: ${dealData.licenseeAddress || "Not provided"}`
+        });
+      }
+    }
+    
+    // Extract Music Supervisor contact
+    if (dealData.musicSupervisorContactName && dealData.musicSupervisorContactEmail) {
+      const existingContact = await db.select()
+        .from(contacts)
+        .where(eq(contacts.email, dealData.musicSupervisorContactEmail))
+        .limit(1);
+      
+      if (existingContact.length === 0) {
+        contactsToCreate.push({
+          name: dealData.musicSupervisorContactName,
+          email: dealData.musicSupervisorContactEmail,
+          phone: dealData.musicSupervisorContactPhone || "",
+          company: dealData.musicSupervisorName || "",
+          role: "Music Supervisor",
+          notes: `Contact from ${dealData.projectName} deal. Address: ${dealData.musicSupervisorAddress || "Not provided"}`
+        });
+      }
+    }
+    
+    // Extract Clearance Company contact
+    if (dealData.clearanceCompanyContactName && dealData.clearanceCompanyContactEmail) {
+      const existingContact = await db.select()
+        .from(contacts)
+        .where(eq(contacts.email, dealData.clearanceCompanyContactEmail))
+        .limit(1);
+      
+      if (existingContact.length === 0) {
+        contactsToCreate.push({
+          name: dealData.clearanceCompanyContactName,
+          email: dealData.clearanceCompanyContactEmail,
+          phone: dealData.clearanceCompanyContactPhone || "",
+          company: dealData.clearanceCompanyName || "",
+          role: "Clearance Company Contact",
+          notes: `Contact from ${dealData.projectName} deal. Address: ${dealData.clearanceCompanyAddress || "Not provided"}`
+        });
+      }
+    }
+    
+    // Create all new contacts
+    if (contactsToCreate.length > 0) {
+      await db.insert(contacts).values(contactsToCreate);
+    }
   }
 }
 
