@@ -64,6 +64,8 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
       
       status: "pitched",
       dealValue: undefined,
+      fullSongValue: undefined,
+      ourFee: undefined,
       usage: "",
       media: "",
       territory: "worldwide",
@@ -448,16 +450,31 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="dealValue">Deal Value</Label>
+              <Label htmlFor="fullSongValue">100% Song Value ($)</Label>
               <Input
-                id="dealValue"
+                id="fullSongValue"
                 type="number"
                 step="0.01"
-                {...form.register("dealValue")}
-                placeholder="Enter deal value"
+                min="0"
+                {...form.register("fullSongValue", { valueAsNumber: true })}
+                placeholder="0.00"
               />
             </div>
             
+            <div>
+              <Label htmlFor="ourFee">Our Fee Based on Splits ($)</Label>
+              <Input
+                id="ourFee"
+                type="number"
+                step="0.01"
+                min="0"
+                {...form.register("ourFee", { valueAsNumber: true })}
+                placeholder="0.00"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="usage">Usage</Label>
               <Input
