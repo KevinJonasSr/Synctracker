@@ -31,7 +31,7 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
   const [newContactProjects, setNewContactProjects] = useState("");
 
   const form = useForm<InsertDeal>({
-    resolver: zodResolver(insertDealSchema),
+    resolver: zodResolver(insertDealSchema.partial()),
     defaultValues: {
       projectName: "",
       projectType: "",
@@ -589,7 +589,13 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
               type="submit" 
               className="flex-1 bg-brand-primary hover:bg-blue-700"
               disabled={updateDealMutation.isPending}
-              onClick={() => console.log("Update Deal button clicked!")}
+              onClick={(e) => {
+                console.log("Update Deal button clicked!");
+                console.log("Form is valid:", form.formState.isValid);
+                console.log("Form errors:", form.formState.errors);
+                console.log("Form values:", form.getValues());
+                // Don't prevent default - let form submission handle it
+              }}
             >
               {updateDealMutation.isPending ? "Updating..." : "Update Deal"}
             </Button>
