@@ -5,7 +5,7 @@ import MetricsCards from "@/components/dashboard/metrics-cards";
 import DealPipeline from "@/components/dashboard/deal-pipeline";
 import RecentActivity from "@/components/dashboard/recent-activity";
 import UrgentActions from "@/components/dashboard/urgent-actions";
-import AddDealForm from "@/components/forms/add-deal-form";
+import ComprehensiveAddDealForm from "@/components/forms/comprehensive-add-deal-form";
 import type { DashboardMetrics, DealWithRelations } from "@shared/schema";
 
 export default function Dashboard() {
@@ -86,7 +86,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <AddDealForm open={showAddDeal} onClose={() => setShowAddDeal(false)} />
+      <ComprehensiveAddDealForm open={showAddDeal} onClose={() => setShowAddDeal(false)} />
     </div>
   );
 }
