@@ -285,7 +285,29 @@ export class DatabaseStorage implements IStorage {
 
   async createDeal(deal: any): Promise<Deal> {
     try {
-      const [created] = await db.insert(deals).values(deal).returning();
+      // Auto-populate status change dates based on current status
+      const now = new Date();
+      const processedDeal = { ...deal };
+      
+      if (deal.status === 'pitched' && !deal.pitchedDate) {
+        processedDeal.pitchedDate = now;
+      } else if (deal.status === 'pending_approval' && !deal.pendingApprovalDate) {
+        processedDeal.pendingApprovalDate = now;
+      } else if (deal.status === 'quoted' && !deal.quotedDate) {
+        processedDeal.quotedDate = now;
+      } else if (deal.status === 'use_confirmed' && !deal.useConfirmedDate) {
+        processedDeal.useConfirmedDate = now;
+      } else if (deal.status === 'being_drafted' && !deal.beingDraftedDate) {
+        processedDeal.beingDraftedDate = now;
+      } else if (deal.status === 'out_for_signature' && !deal.outForSignatureDate) {
+        processedDeal.outForSignatureDate = now;
+      } else if (deal.status === 'payment_received' && !deal.paymentReceivedDate) {
+        processedDeal.paymentReceivedDate = now;
+      } else if (deal.status === 'completed' && !deal.completedDate) {
+        processedDeal.completedDate = now;
+      }
+      
+      const [created] = await db.insert(deals).values(processedDeal).returning();
       return created;
     } catch (error) {
       console.error("Database error in createDeal:", error);

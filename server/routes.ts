@@ -213,7 +213,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         confirmationDate: validatedData.confirmationDate && validatedData.confirmationDate !== '' ? new Date(validatedData.confirmationDate) : null,
         completionDate: validatedData.completionDate && validatedData.completionDate !== '' ? new Date(validatedData.completionDate) : null,
         paymentDate: validatedData.paymentDate && validatedData.paymentDate !== '' ? new Date(validatedData.paymentDate) : null,
-        paymentDueDate: validatedData.paymentDueDate && validatedData.paymentDueDate !== '' ? new Date(validatedData.paymentDueDate) : null
+        paymentDueDate: validatedData.paymentDueDate && validatedData.paymentDueDate !== '' ? new Date(validatedData.paymentDueDate) : null,
+        // Status change date fields
+        pitchedDate: validatedData.pitchedDate && validatedData.pitchedDate !== '' ? new Date(validatedData.pitchedDate) : null,
+        pendingApprovalDate: validatedData.pendingApprovalDate && validatedData.pendingApprovalDate !== '' ? new Date(validatedData.pendingApprovalDate) : null,
+        quotedDate: validatedData.quotedDate && validatedData.quotedDate !== '' ? new Date(validatedData.quotedDate) : null,
+        useConfirmedDate: validatedData.useConfirmedDate && validatedData.useConfirmedDate !== '' ? new Date(validatedData.useConfirmedDate) : null,
+        beingDraftedDate: validatedData.beingDraftedDate && validatedData.beingDraftedDate !== '' ? new Date(validatedData.beingDraftedDate) : null,
+        outForSignatureDate: validatedData.outForSignatureDate && validatedData.outForSignatureDate !== '' ? new Date(validatedData.outForSignatureDate) : null,
+        paymentReceivedDate: validatedData.paymentReceivedDate && validatedData.paymentReceivedDate !== '' ? new Date(validatedData.paymentReceivedDate) : null,
+        completedDate: validatedData.completedDate && validatedData.completedDate !== '' ? new Date(validatedData.completedDate) : null
       };
       
       const deal = await dbStorage.createDeal(processedData);
