@@ -667,7 +667,44 @@ export default function ComprehensiveAddDealForm({ open, onClose }: Comprehensiv
                   <Label htmlFor="songId">Song Title *</Label>
                   <Select
                     value={form.watch("songId")?.toString()}
-                    onValueChange={(value) => form.setValue("songId", parseInt(value))}
+                    onValueChange={(value) => {
+                      const songId = parseInt(value);
+                      form.setValue("songId", songId);
+                      
+                      // Auto-populate song information fields
+                      const selectedSong = songs.find(s => s.id === songId);
+                      if (selectedSong) {
+                        // Auto-populate Writers field
+                        if (selectedSong.composer) {
+                          form.setValue("writers", selectedSong.composer);
+                        }
+                        
+                        // Auto-populate Publishing Information
+                        if (selectedSong.publisher) {
+                          form.setValue("publishingInfo", selectedSong.publisher);
+                        }
+                        
+                        // Auto-populate Artist field
+                        if (selectedSong.artist) {
+                          form.setValue("artist", selectedSong.artist);
+                        }
+                        
+                        // Auto-populate Label field from producer field
+                        if (selectedSong.producer) {
+                          form.setValue("label", selectedSong.producer);
+                        }
+                        
+                        // Set splits to default 50/50 if not specified
+                        if (!form.watch("splits")) {
+                          form.setValue("splits", "50% Writer / 50% Publisher");
+                        }
+                        
+                        // Set artist/label splits to default if not specified
+                        if (!form.watch("artistLabelSplits")) {
+                          form.setValue("artistLabelSplits", "50% Artist / 50% Label");
+                        }
+                      }
+                    }}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select a song" />
