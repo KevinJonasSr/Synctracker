@@ -313,14 +313,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/pitches", async (req, res) => {
     try {
-      const validatedData = insertPitchSchema.parse(req.body);
-      const pitch = await dbStorage.createPitch(validatedData);
+      console.log("POST /api/pitches - Request body:", req.body);
+      
+      // Manual validation and processing since submissionDate is auto-generated
+      const { dealId, status, notes, followUpDate } = req.body;
+      
+      if (!dealId) {
+        return res.status(400).json({ error: "dealId is required" });
+      }
+      
+      const processedData = {
+        dealId: parseInt(dealId),
+        status: status || "pending",
+        notes: notes || "",
+        followUpDate: followUpDate ? new Date(followUpDate) : null,
+      };
+      
+      console.log("Processed pitch data:", processedData);
+      const pitch = await dbStorage.createPitch(processedData);
+      console.log("Created pitch:", pitch);
       res.json(pitch);
     } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: error.errors });
-      }
-      res.status(500).json({ error: "Failed to create pitch" });
+      console.error("Error creating pitch:", error);
+      res.status(500).json({ error: "Failed to create pitch", details: error.message });
     }
   });
 
