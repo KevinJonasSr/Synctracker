@@ -34,11 +34,9 @@ export default function Pitches() {
   });
 
   const form = useForm<InsertPitch>({
-    // Remove resolver temporarily to avoid date conversion issues
-    // resolver: zodResolver(insertPitchSchema),
+    resolver: zodResolver(insertPitchSchema),
     defaultValues: {
       dealId: undefined,
-      submissionDate: new Date().toISOString().slice(0, 16),
       status: "pending",
       notes: "",
       followUpDate: undefined,
@@ -70,13 +68,12 @@ export default function Pitches() {
     },
   });
 
-  const onSubmit = (data: any) => {
-    // Convert date strings to Date objects
+  const onSubmit = (data: InsertPitch) => {
+    // Convert follow-up date string to Date object if provided
     const processedData = {
       ...data,
-      dealId: parseInt(data.dealId),
-      submissionDate: new Date(data.submissionDate),
-      followUpDate: data.followUpDate ? new Date(data.followUpDate) : null,
+      dealId: parseInt(data.dealId as any),
+      followUpDate: data.followUpDate ? new Date(data.followUpDate) : undefined,
     };
     
     createPitchMutation.mutate(processedData);
@@ -232,33 +229,23 @@ export default function Pitches() {
             <DialogTitle>Create New Pitch</DialogTitle>
           </DialogHeader>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="dealId">Associated Deal</Label>
-                <Select
-                  value={form.watch("dealId")?.toString() || ""}
-                  onValueChange={(value) => form.setValue("dealId", parseInt(value))}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a deal" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {deals.map((deal) => (
-                      <SelectItem key={deal.id} value={deal.id.toString()}>
-                        {deal.projectName} {deal.episodeNumber && `- Episode ${deal.episodeNumber}`}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="submissionDate">Submission Date</Label>
-                <Input
-                  id="submissionDate"
-                  type="datetime-local"
-                  {...form.register("submissionDate")}
-                />
-              </div>
+            <div>
+              <Label htmlFor="dealId">Associated Deal</Label>
+              <Select
+                value={form.watch("dealId")?.toString() || ""}
+                onValueChange={(value) => form.setValue("dealId", parseInt(value))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a deal" />
+                </SelectTrigger>
+                <SelectContent>
+                  {deals.map((deal) => (
+                    <SelectItem key={deal.id} value={deal.id.toString()}>
+                      {deal.projectName} {deal.episodeNumber && `- Episode ${deal.episodeNumber}`}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
