@@ -490,7 +490,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                       form.setValue("completedDate", null);
                       
                       // Set the appropriate status date
-                      if (value === 'pitched') {
+                      if (value === 'new_request') {
                         form.setValue("pitchedDate", now);
                       } else if (value === 'pending_approval') {
                         form.setValue("pendingApprovalDate", now);
@@ -513,7 +513,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="pitched">Pitched</SelectItem>
+                      <SelectItem value="new_request">New Request</SelectItem>
                       <SelectItem value="pending_approval">Pending Approval</SelectItem>
                       <SelectItem value="quoted">Quoted</SelectItem>
                       <SelectItem value="use_confirmed">Use Confirmed</SelectItem>

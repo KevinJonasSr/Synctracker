@@ -86,7 +86,7 @@ export const deals = pgTable("deals", {
   clearanceCompanyContactEmail: text("clearance_company_contact_email"),
   clearanceCompanyContactPhone: text("clearance_company_contact_phone"),
   
-  status: text("status").notNull().default("pitched"), // Pitched, Pending Approval, Quoted, Use Confirmed, Being Drafted, Out for Signature, Payment Received, Completed
+  status: text("status").notNull().default("new request"), // New Request, Pending Approval, Quoted, Use Confirmed, Being Drafted, Out for Signature, Payment Received, Completed
   
   // Status change dates
   pitchedDate: timestamp("pitched_date"),

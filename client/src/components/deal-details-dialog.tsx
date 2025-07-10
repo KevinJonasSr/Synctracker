@@ -354,7 +354,7 @@ export default function DealDetailsDialog({ deal, open, onClose }: DealDetailsDi
                     <div className="flex items-center space-x-4 p-3 bg-blue-50 rounded-lg">
                       <Calendar className="h-4 w-4 text-blue-500" />
                       <div>
-                        <p className="text-xs font-medium text-blue-700">Pitched</p>
+                        <p className="text-xs font-medium text-blue-700">New Request</p>
                         <p className="text-xs text-blue-600">{formatDateTime(deal.pitchedDate)}</p>
                       </div>
                     </div>

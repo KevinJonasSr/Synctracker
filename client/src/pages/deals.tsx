@@ -85,7 +85,7 @@ export default function Deals() {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
           <TabsList>
             <TabsTrigger value="all">All Deals</TabsTrigger>
-            <TabsTrigger value="pitched">Pitched</TabsTrigger>
+            <TabsTrigger value="new request">New Request</TabsTrigger>
             <TabsTrigger value="under_review">Under Review</TabsTrigger>
             <TabsTrigger value="confirmed">Confirmed</TabsTrigger>
             <TabsTrigger value="completed">Completed</TabsTrigger>
