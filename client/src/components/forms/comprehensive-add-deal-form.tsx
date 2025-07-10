@@ -493,19 +493,19 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                       form.setValue("completedDate", null);
                       
                       // Set the appropriate status date
-                      if (value === 'new_request') {
+                      if (value === 'new request') {
                         form.setValue("pitchedDate", now);
-                      } else if (value === 'pending_approval') {
+                      } else if (value === 'pending approval') {
                         form.setValue("pendingApprovalDate", now);
                       } else if (value === 'quoted') {
                         form.setValue("quotedDate", now);
-                      } else if (value === 'use_confirmed') {
+                      } else if (value === 'use confirmed') {
                         form.setValue("useConfirmedDate", now);
-                      } else if (value === 'being_drafted') {
+                      } else if (value === 'being drafted') {
                         form.setValue("beingDraftedDate", now);
-                      } else if (value === 'out_for_signature') {
+                      } else if (value === 'out for signature') {
                         form.setValue("outForSignatureDate", now);
-                      } else if (value === 'payment_received') {
+                      } else if (value === 'payment received') {
                         form.setValue("paymentReceivedDate", now);
                       } else if (value === 'completed') {
                         form.setValue("completedDate", now);
@@ -516,13 +516,13 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="new_request">New Request</SelectItem>
-                      <SelectItem value="pending_approval">Pending Approval</SelectItem>
+                      <SelectItem value="new request">New Request</SelectItem>
+                      <SelectItem value="pending approval">Pending Approval</SelectItem>
                       <SelectItem value="quoted">Quoted</SelectItem>
-                      <SelectItem value="use_confirmed">Use Confirmed</SelectItem>
-                      <SelectItem value="being_drafted">Being Drafted</SelectItem>
-                      <SelectItem value="out_for_signature">Out for Signature</SelectItem>
-                      <SelectItem value="payment_received">Payment Received</SelectItem>
+                      <SelectItem value="use confirmed">Use Confirmed</SelectItem>
+                      <SelectItem value="being drafted">Being Drafted</SelectItem>
+                      <SelectItem value="out for signature">Out for Signature</SelectItem>
+                      <SelectItem value="payment received">Payment Received</SelectItem>
                       <SelectItem value="completed">Completed</SelectItem>
                     </SelectContent>
                   </Select>

@@ -19,7 +19,10 @@ export default function DealPipeline({ deals, dealsByStatus }: DealPipelineProps
     setShowDealDetails(true);
   };
   const getStatusColor = (status: string) => {
-    switch (status) {
+    // Normalize status to handle both underscore and space formats
+    const normalizedStatus = status.replace(/_/g, ' ').toLowerCase();
+    
+    switch (normalizedStatus) {
       case "new request":
         return "bg-red-100 text-red-800";
       case "pending approval":
@@ -35,7 +38,7 @@ export default function DealPipeline({ deals, dealsByStatus }: DealPipelineProps
       case "payment received":
         return "bg-emerald-100 text-emerald-800";
       case "completed":
-        return "bg-status-completed/10 text-status-completed";
+        return "bg-green-100 text-green-800";
       default:
         return "bg-gray-300/10 text-gray-600";
     }

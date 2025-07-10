@@ -110,7 +110,7 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
     if (watchedStatus && watchedStatus !== previousStatus) {
       const now = new Date().toISOString().slice(0, 16); // Format for datetime-local
       const fieldMap = {
-        "new_request": "pitchedDate",
+        "new request": "pitchedDate",
         "pending approval": "pendingApprovalDate",
         "quoted": "quotedDate",
         "use confirmed": "useConfirmedDate",
@@ -376,7 +376,7 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="new_request">New Request</SelectItem>
+                  <SelectItem value="new request">New Request</SelectItem>
                   <SelectItem value="pending approval">Pending Approval</SelectItem>
                   <SelectItem value="quoted">Quoted</SelectItem>
                   <SelectItem value="use confirmed">Use Confirmed</SelectItem>

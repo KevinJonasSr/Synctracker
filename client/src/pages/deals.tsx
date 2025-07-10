@@ -34,7 +34,10 @@ export default function Deals() {
   });
 
   const getStatusColor = (status: string) => {
-    switch (status) {
+    // Normalize status to handle both underscore and space formats
+    const normalizedStatus = status.replace(/_/g, ' ').toLowerCase();
+    
+    switch (normalizedStatus) {
       case "new request":
         return "bg-red-100 text-red-800";
       case "pending approval":
