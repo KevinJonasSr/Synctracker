@@ -86,7 +86,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
       clearanceCompanyContactEmail: deal?.clearanceCompanyContactEmail || "",
       clearanceCompanyContactPhone: deal?.clearanceCompanyContactPhone || "",
       
-      status: deal?.status || "pitched",
+      status: deal?.status || "new_request",
       dealValue: deal?.dealValue || undefined,
       fullSongValue: deal?.fullSongValue || undefined,
       ourFee: deal?.ourFee || undefined,
@@ -152,7 +152,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
       clearanceCompanyContactEmail: deal?.clearanceCompanyContactEmail || "",
       clearanceCompanyContactPhone: deal?.clearanceCompanyContactPhone || "",
       
-      status: deal?.status || "pitched",
+      status: deal?.status || "new_request",
       dealValue: deal?.dealValue || undefined,
       fullSongValue: deal?.fullSongValue || undefined,
       ourFee: deal?.ourFee || undefined,
