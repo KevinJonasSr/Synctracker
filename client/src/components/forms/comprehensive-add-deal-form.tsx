@@ -577,7 +577,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                         }}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Select company" />
+                          <SelectValue placeholder="Select Licensee/Production Company Name" />
                         </SelectTrigger>
                         <SelectContent>
                           {contacts
@@ -598,12 +598,6 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                         <Plus className="h-4 w-4" />
                       </Button>
                     </div>
-                    <Input
-                      id="licenseeCompanyName"
-                      {...form.register("licenseeCompanyName")}
-                      placeholder="Production company name"
-                      className="mt-2"
-                    />
                   </div>
                   <div>
                     <Label htmlFor="licenseeContactName">Contact Name</Label>
@@ -774,7 +768,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                         }}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Select company" />
+                          <SelectValue placeholder="Select Clearance Company Name" />
                         </SelectTrigger>
                         <SelectContent>
                           {contacts
@@ -795,12 +789,6 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                         <Plus className="h-4 w-4" />
                       </Button>
                     </div>
-                    <Input
-                      id="clearanceCompanyName"
-                      {...form.register("clearanceCompanyName")}
-                      placeholder="Clearance company name"
-                      className="mt-2"
-                    />
                   </div>
                   <div>
                     <Label htmlFor="clearanceCompanyContactName">Contact Name</Label>
