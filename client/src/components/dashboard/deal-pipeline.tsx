@@ -21,7 +21,7 @@ export default function DealPipeline({ deals, dealsByStatus }: DealPipelineProps
   const getStatusColor = (status: string) => {
     switch (status) {
       case "new request":
-        return "bg-gray-300/10 text-gray-600";
+        return "bg-red-100 text-red-800";
       case "pending approval":
         return "bg-yellow-100 text-yellow-800";
       case "quoted":
@@ -83,7 +83,7 @@ export default function DealPipeline({ deals, dealsByStatus }: DealPipelineProps
         {/* Pipeline Stages */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
+            <div className="w-3 h-3 bg-red-300 rounded-full"></div>
             <span className="text-sm font-medium text-gray-600">New Request</span>
             <span className="text-sm text-gray-500">({dealsByStatus["new request"] || 0})</span>
           </div>

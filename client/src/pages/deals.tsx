@@ -36,7 +36,7 @@ export default function Deals() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "new request":
-        return "bg-gray-100 text-gray-800";
+        return "bg-red-100 text-red-800";
       case "pending approval":
         return "bg-yellow-100 text-yellow-800";
       case "quoted":
@@ -89,9 +89,9 @@ export default function Deals() {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
           <TabsList>
             <TabsTrigger value="all" className="data-[state=active]:bg-gray-100">All Deals</TabsTrigger>
-            <TabsTrigger value="new request" className="data-[state=active]:bg-gray-100">
+            <TabsTrigger value="new request" className="data-[state=active]:bg-red-100">
               <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                <div className="w-2 h-2 bg-red-300 rounded-full"></div>
                 <span>New Request</span>
               </div>
             </TabsTrigger>
