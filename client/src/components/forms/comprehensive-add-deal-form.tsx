@@ -1124,15 +1124,6 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4 bg-green-50">
-              <div>
-                <Label htmlFor="pitchDate">New Request Date</Label>
-                <Input
-                  id="pitchDate"
-                  type="date"
-                  {...form.register("pitchDate")}
-                />
-              </div>
-              
               {/* Status Change Dates */}
               <div>
                 <Label className="text-sm font-medium text-green-800">Status Timeline</Label>
