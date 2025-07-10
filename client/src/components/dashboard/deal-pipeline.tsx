@@ -83,12 +83,12 @@ export default function DealPipeline({ deals, dealsByStatus }: DealPipelineProps
         {/* Pipeline Stages */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-gray-300 rounded-full"></div>
+            <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
             <span className="text-sm font-medium text-gray-600">New Request</span>
             <span className="text-sm text-gray-500">({dealsByStatus["new request"] || 0})</span>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-status-pending rounded-full"></div>
+            <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
             <span className="text-sm font-medium text-gray-600">Pending Approval</span>
             <span className="text-sm text-gray-500">({dealsByStatus["pending approval"] || 0})</span>
           </div>
@@ -98,12 +98,27 @@ export default function DealPipeline({ deals, dealsByStatus }: DealPipelineProps
             <span className="text-sm text-gray-500">({dealsByStatus.quoted || 0})</span>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-brand-primary rounded-full"></div>
-            <span className="text-sm font-medium text-gray-600">Confirmed</span>
-            <span className="text-sm text-gray-500">({dealsByStatus.confirmed || 0})</span>
+            <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+            <span className="text-sm font-medium text-gray-600">Use Confirmed</span>
+            <span className="text-sm text-gray-500">({dealsByStatus["use confirmed"] || 0})</span>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-status-completed rounded-full"></div>
+            <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
+            <span className="text-sm font-medium text-gray-600">Being Drafted</span>
+            <span className="text-sm text-gray-500">({dealsByStatus["being drafted"] || 0})</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
+            <span className="text-sm font-medium text-gray-600">Out for Signature</span>
+            <span className="text-sm text-gray-500">({dealsByStatus["out for signature"] || 0})</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <div className="w-3 h-3 bg-emerald-500 rounded-full"></div>
+            <span className="text-sm font-medium text-gray-600">Payment Received</span>
+            <span className="text-sm text-gray-500">({dealsByStatus["payment received"] || 0})</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <div className="w-3 h-3 bg-green-600 rounded-full"></div>
             <span className="text-sm font-medium text-gray-600">Completed</span>
             <span className="text-sm text-gray-500">({dealsByStatus.completed || 0})</span>
           </div>

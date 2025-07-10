@@ -88,13 +88,43 @@ export default function Deals() {
       <div className="p-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
           <TabsList>
-            <TabsTrigger value="all">All Deals</TabsTrigger>
-            <TabsTrigger value="new request">New Request</TabsTrigger>
-            <TabsTrigger value="pending approval">Pending Approval</TabsTrigger>
-            <TabsTrigger value="quoted">Quoted</TabsTrigger>
-            <TabsTrigger value="confirmed">Confirmed</TabsTrigger>
-            <TabsTrigger value="completed">Completed</TabsTrigger>
-            <TabsTrigger value="paid">Paid</TabsTrigger>
+            <TabsTrigger value="all" className="data-[state=active]:bg-gray-100">All Deals</TabsTrigger>
+            <TabsTrigger value="new request" className="data-[state=active]:bg-gray-100">
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                <span>New Request</span>
+              </div>
+            </TabsTrigger>
+            <TabsTrigger value="pending approval" className="data-[state=active]:bg-yellow-100">
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                <span>Pending Approval</span>
+              </div>
+            </TabsTrigger>
+            <TabsTrigger value="quoted" className="data-[state=active]:bg-blue-100">
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                <span>Quoted</span>
+              </div>
+            </TabsTrigger>
+            <TabsTrigger value="confirmed" className="data-[state=active]:bg-green-100">
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span>Confirmed</span>
+              </div>
+            </TabsTrigger>
+            <TabsTrigger value="completed" className="data-[state=active]:bg-green-100">
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+                <span>Completed</span>
+              </div>
+            </TabsTrigger>
+            <TabsTrigger value="paid" className="data-[state=active]:bg-emerald-100">
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                <span>Paid</span>
+              </div>
+            </TabsTrigger>
           </TabsList>
           
           <TabsContent value={activeTab} className="mt-6">
