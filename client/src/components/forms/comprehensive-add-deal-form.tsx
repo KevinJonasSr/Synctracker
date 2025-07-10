@@ -556,6 +556,14 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="licenseeCompanyName">Company Name</Label>
+                    <Input
+                      id="licenseeCompanyName"
+                      {...form.register("licenseeCompanyName")}
+                      placeholder="Production company name"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="licenseeContactName">Contact Name</Label>
                     <div className="flex space-x-2">
                       <Select
                         value=""
@@ -563,7 +571,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                           const contactId = parseInt(value);
                           const selectedContact = contacts.find(c => c.id === contactId);
                           if (selectedContact) {
-                            // Company Name should be the actual company, not the contact name
+                            // Auto-fill all fields from selected contact
                             form.setValue("licenseeCompanyName", selectedContact.company || "");
                             form.setValue("licenseeContactName", selectedContact.name);
                             form.setValue("licenseeContactEmail", selectedContact.email || "");
@@ -577,14 +585,14 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                         }}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Select Licensee/Production Company Name" />
+                          <SelectValue placeholder="Select Contact Name" />
                         </SelectTrigger>
                         <SelectContent>
                           {contacts
                             .filter(contact => contact.company) // Only show contacts with companies
                             .map((contact) => (
                             <SelectItem key={contact.id} value={contact.id.toString()}>
-                              {contact.company} - {contact.name}
+                              {contact.name} - {contact.company}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -598,14 +606,6 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                         <Plus className="h-4 w-4" />
                       </Button>
                     </div>
-                  </div>
-                  <div>
-                    <Label htmlFor="licenseeContactName">Contact Name</Label>
-                    <Input
-                      id="licenseeContactName"
-                      {...form.register("licenseeContactName")}
-                      placeholder="Contact person name"
-                    />
                   </div>
                 </div>
                 <div className="grid grid-cols-3 gap-4 mt-3">
@@ -747,6 +747,14 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="clearanceCompanyName">Company Name</Label>
+                    <Input
+                      id="clearanceCompanyName"
+                      {...form.register("clearanceCompanyName")}
+                      placeholder="Clearance company name"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="clearanceCompanyContactName">Contact Name</Label>
                     <div className="flex space-x-2">
                       <Select
                         value=""
@@ -754,7 +762,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                           const contactId = parseInt(value);
                           const selectedContact = contacts.find(c => c.id === contactId);
                           if (selectedContact) {
-                            // Company Name should be the actual company, not the contact name
+                            // Auto-fill all fields from selected contact
                             form.setValue("clearanceCompanyName", selectedContact.company || "");
                             form.setValue("clearanceCompanyContactName", selectedContact.name);
                             form.setValue("clearanceCompanyContactEmail", selectedContact.email || "");
@@ -768,14 +776,14 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                         }}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Select Clearance Company Name" />
+                          <SelectValue placeholder="Select Contact Name" />
                         </SelectTrigger>
                         <SelectContent>
                           {contacts
                             .filter(contact => contact.company) // Only show contacts with companies
                             .map((contact) => (
                             <SelectItem key={contact.id} value={contact.id.toString()}>
-                              {contact.company} - {contact.name}
+                              {contact.name} - {contact.company}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -789,14 +797,6 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                         <Plus className="h-4 w-4" />
                       </Button>
                     </div>
-                  </div>
-                  <div>
-                    <Label htmlFor="clearanceCompanyContactName">Contact Name</Label>
-                    <Input
-                      id="clearanceCompanyContactName"
-                      {...form.register("clearanceCompanyContactName")}
-                      placeholder="Contact person name"
-                    />
                   </div>
                 </div>
                 <div className="grid grid-cols-3 gap-4 mt-3">
