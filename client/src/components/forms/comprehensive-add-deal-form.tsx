@@ -1125,7 +1125,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
             </CardHeader>
             <CardContent className="space-y-4 bg-green-50">
               <div>
-                <Label htmlFor="pitchDate">Pitch Date</Label>
+                <Label htmlFor="pitchDate">New Request Date</Label>
                 <Input
                   id="pitchDate"
                   type="date"
@@ -1138,7 +1138,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                 <Label className="text-sm font-medium text-green-800">Status Timeline</Label>
                 <div className="grid grid-cols-2 gap-4 mt-2">
                   <div>
-                    <Label htmlFor="pitchedDate" className="text-xs">Pitched Date</Label>
+                    <Label htmlFor="pitchedDate" className="text-xs">New Request Date</Label>
                     <Input
                       id="pitchedDate"
                       type="datetime-local"

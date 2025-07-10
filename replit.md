@@ -175,6 +175,8 @@ Changelog:
   * Updated database schema default status from "pitched" to "new request"
   * Successfully migrated 15 existing deals from "pitched" to "new request" status
   * Fixed comprehensive status display and filtering across Deal Pipeline, forms, and detail views
+  * Updated Add New Deal form to default to "New Request" status
+  * Changed "Pitch Date" labels to "New Request Date" in Additional Information section
 ```
 
 ## User Preferences

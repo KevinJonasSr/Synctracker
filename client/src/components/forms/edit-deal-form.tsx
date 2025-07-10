@@ -498,7 +498,7 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
               />
             </div>
             <div>
-              <Label htmlFor="pitchDate">Pitch Date</Label>
+              <Label htmlFor="pitchDate">New Request Date</Label>
               <Input
                 id="pitchDate"
                 type="date"
