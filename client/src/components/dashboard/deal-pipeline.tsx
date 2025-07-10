@@ -43,8 +43,8 @@ export default function DealPipeline({ deals, dealsByStatus }: DealPipelineProps
 
   const getStatusLabel = (status: string) => {
     switch (status) {
-      case "pitched":
-        return "Pitched";
+      case "new request":
+        return "New Request";
       case "pending approval":
         return "Pending Approval";
       case "quoted":

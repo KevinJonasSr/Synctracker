@@ -168,6 +168,13 @@ Changelog:
   * Successfully resolved all form submission issues - deals now create properly without validation errors
   * Status dates automatically populate in Additional Information section when corresponding status is selected
   * Form now supports manual status date entry and automatic calculation of fees based on splits percentage
+- July 10, 2025. Enhanced pitch creation system and status terminology updates:
+  * Resolved critical pitch creation bug by fixing apiRequest function parameter order
+  * Updated Deal Pipeline status terminology from "Pitched" to "New Request" across all components
+  * Implemented auto-generated submission timestamps for pitch creation
+  * Updated database schema default status from "pitched" to "new request"
+  * Successfully migrated 15 existing deals from "pitched" to "new request" status
+  * Fixed comprehensive status display and filtering across Deal Pipeline, forms, and detail views
 ```
 
 ## User Preferences
