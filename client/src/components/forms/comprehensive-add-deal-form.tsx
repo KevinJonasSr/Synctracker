@@ -45,6 +45,8 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
   const { toast } = useToast();
   const isEditing = !!deal;
   const [showAddContact, setShowAddContact] = useState(false);
+  const [showAddLicenseeContact, setShowAddLicenseeContact] = useState(false);
+  const [showAddClearanceContact, setShowAddClearanceContact] = useState(false);
   const [newContactName, setNewContactName] = useState("");
   const [newContactEmail, setNewContactEmail] = useState("");
   const [newContactPhone, setNewContactPhone] = useState("");
@@ -574,17 +576,27 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                           }
                         }}
                       >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select from contacts" />
+                        <SelectTrigger className="w-40">
+                          <SelectValue placeholder="Select contact" />
                         </SelectTrigger>
                         <SelectContent>
-                          {contacts.map((contact) => (
+                          {contacts
+                            .filter(contact => contact.company) // Only show contacts with companies
+                            .map((contact) => (
                             <SelectItem key={contact.id} value={contact.id.toString()}>
-                              {contact.name} {contact.company && `(${contact.company})`}
+                              {contact.company} - {contact.name}
                             </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => setShowAddLicenseeContact(true)}
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
                       <Input
                         id="licenseeCompanyName"
                         {...form.register("licenseeCompanyName")}
@@ -761,17 +773,27 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                           }
                         }}
                       >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select from contacts" />
+                        <SelectTrigger className="w-40">
+                          <SelectValue placeholder="Select contact" />
                         </SelectTrigger>
                         <SelectContent>
-                          {contacts.map((contact) => (
+                          {contacts
+                            .filter(contact => contact.company) // Only show contacts with companies
+                            .map((contact) => (
                             <SelectItem key={contact.id} value={contact.id.toString()}>
-                              {contact.name} {contact.company && `(${contact.company})`}
+                              {contact.company} - {contact.name}
                             </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => setShowAddClearanceContact(true)}
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
                       <Input
                         id="clearanceCompanyName"
                         {...form.register("clearanceCompanyName")}
@@ -1321,6 +1343,244 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
               </Button>
               <Button 
                 onClick={handleAddContact}
+                className="flex-1 bg-brand-primary hover:bg-blue-700"
+                disabled={createContactMutation.isPending}
+              >
+                {createContactMutation.isPending ? "Adding..." : "Add Contact"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Licensee Contact Dialog */}
+      <Dialog open={showAddLicenseeContact} onOpenChange={setShowAddLicenseeContact}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Add New Licensee/Production Company Contact</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="newLicenseeContactName">Contact Name *</Label>
+                <Input
+                  id="newLicenseeContactName"
+                  value={newContactName}
+                  onChange={(e) => setNewContactName(e.target.value)}
+                  placeholder="Contact person name"
+                />
+              </div>
+              <div>
+                <Label htmlFor="newLicenseeCompanyName">Company Name *</Label>
+                <Input
+                  id="newLicenseeCompanyName"
+                  value={newContactCompany}
+                  onChange={(e) => setNewContactCompany(e.target.value)}
+                  placeholder="Production company name"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="newLicenseeEmail">Email *</Label>
+                <Input
+                  id="newLicenseeEmail"
+                  type="email"
+                  value={newContactEmail}
+                  onChange={(e) => setNewContactEmail(e.target.value)}
+                  placeholder="contact@company.com"
+                />
+              </div>
+              <div>
+                <Label htmlFor="newLicenseePhone">Phone</Label>
+                <Input
+                  id="newLicenseePhone"
+                  type="tel"
+                  value={newContactPhone}
+                  onChange={(e) => setNewContactPhone(formatPhoneNumber(e.target.value))}
+                  placeholder="(555) 123-4567"
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="newLicenseeNotes">Address</Label>
+              <Textarea
+                id="newLicenseeNotes"
+                value={newContactNotes}
+                onChange={(e) => setNewContactNotes(e.target.value)}
+                placeholder="Company address"
+                rows={2}
+              />
+            </div>
+
+            <div className="flex space-x-4 pt-4">
+              <Button type="button" variant="outline" onClick={() => {
+                setShowAddLicenseeContact(false);
+                setNewContactName("");
+                setNewContactEmail("");
+                setNewContactPhone("");
+                setNewContactCompany("");
+                setNewContactNotes("");
+              }} className="flex-1">
+                Cancel
+              </Button>
+              <Button 
+                onClick={() => {
+                  if (!newContactName.trim() || !newContactEmail.trim() || !newContactCompany.trim()) {
+                    toast({
+                      title: "Missing required fields",
+                      description: "Please provide contact name, email, and company name.",
+                      variant: "destructive",
+                    });
+                    return;
+                  }
+
+                  const contactData = {
+                    name: newContactName.trim(),
+                    email: newContactEmail.trim(),
+                    phone: newContactPhone.trim() || null,
+                    company: newContactCompany.trim(),
+                    role: "Licensee Contact",
+                    notes: `Address: ${newContactNotes.trim()}`.trim() || null,
+                  };
+
+                  createContactMutation.mutate(contactData);
+                  
+                  // Auto-populate licensee fields
+                  form.setValue("licenseeCompanyName", newContactCompany.trim());
+                  form.setValue("licenseeContactName", newContactName.trim());
+                  form.setValue("licenseeContactEmail", newContactEmail.trim());
+                  form.setValue("licenseeContactPhone", newContactPhone.trim());
+                  form.setValue("licenseeAddress", newContactNotes.trim());
+                  
+                  setShowAddLicenseeContact(false);
+                  setNewContactName("");
+                  setNewContactEmail("");
+                  setNewContactPhone("");
+                  setNewContactCompany("");
+                  setNewContactNotes("");
+                }}
+                className="flex-1 bg-brand-primary hover:bg-blue-700"
+                disabled={createContactMutation.isPending}
+              >
+                {createContactMutation.isPending ? "Adding..." : "Add Contact"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Clearance Company Contact Dialog */}
+      <Dialog open={showAddClearanceContact} onOpenChange={setShowAddClearanceContact}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Add New Clearance Company Contact</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="newClearanceContactName">Contact Name *</Label>
+                <Input
+                  id="newClearanceContactName"
+                  value={newContactName}
+                  onChange={(e) => setNewContactName(e.target.value)}
+                  placeholder="Contact person name"
+                />
+              </div>
+              <div>
+                <Label htmlFor="newClearanceCompanyName">Company Name *</Label>
+                <Input
+                  id="newClearanceCompanyName"
+                  value={newContactCompany}
+                  onChange={(e) => setNewContactCompany(e.target.value)}
+                  placeholder="Clearance company name"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="newClearanceEmail">Email *</Label>
+                <Input
+                  id="newClearanceEmail"
+                  type="email"
+                  value={newContactEmail}
+                  onChange={(e) => setNewContactEmail(e.target.value)}
+                  placeholder="contact@clearance.com"
+                />
+              </div>
+              <div>
+                <Label htmlFor="newClearancePhone">Phone</Label>
+                <Input
+                  id="newClearancePhone"
+                  type="tel"
+                  value={newContactPhone}
+                  onChange={(e) => setNewContactPhone(formatPhoneNumber(e.target.value))}
+                  placeholder="(555) 123-4567"
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="newClearanceNotes">Address</Label>
+              <Textarea
+                id="newClearanceNotes"
+                value={newContactNotes}
+                onChange={(e) => setNewContactNotes(e.target.value)}
+                placeholder="Company address"
+                rows={2}
+              />
+            </div>
+
+            <div className="flex space-x-4 pt-4">
+              <Button type="button" variant="outline" onClick={() => {
+                setShowAddClearanceContact(false);
+                setNewContactName("");
+                setNewContactEmail("");
+                setNewContactPhone("");
+                setNewContactCompany("");
+                setNewContactNotes("");
+              }} className="flex-1">
+                Cancel
+              </Button>
+              <Button 
+                onClick={() => {
+                  if (!newContactName.trim() || !newContactEmail.trim() || !newContactCompany.trim()) {
+                    toast({
+                      title: "Missing required fields",
+                      description: "Please provide contact name, email, and company name.",
+                      variant: "destructive",
+                    });
+                    return;
+                  }
+
+                  const contactData = {
+                    name: newContactName.trim(),
+                    email: newContactEmail.trim(),
+                    phone: newContactPhone.trim() || null,
+                    company: newContactCompany.trim(),
+                    role: "Clearance Contact",
+                    notes: `Address: ${newContactNotes.trim()}`.trim() || null,
+                  };
+
+                  createContactMutation.mutate(contactData);
+                  
+                  // Auto-populate clearance fields
+                  form.setValue("clearanceCompanyName", newContactCompany.trim());
+                  form.setValue("clearanceCompanyContactName", newContactName.trim());
+                  form.setValue("clearanceCompanyContactEmail", newContactEmail.trim());
+                  form.setValue("clearanceCompanyContactPhone", newContactPhone.trim());
+                  form.setValue("clearanceCompanyAddress", newContactNotes.trim());
+                  
+                  setShowAddClearanceContact(false);
+                  setNewContactName("");
+                  setNewContactEmail("");
+                  setNewContactPhone("");
+                  setNewContactCompany("");
+                  setNewContactNotes("");
+                }}
                 className="flex-1 bg-brand-primary hover:bg-blue-700"
                 disabled={createContactMutation.isPending}
               >
