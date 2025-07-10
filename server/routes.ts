@@ -202,7 +202,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/deals", async (req, res) => {
     try {
+      console.log('Received deal data:', req.body);
       const validatedData = insertDealSchema.parse(req.body);
+      console.log('Validated data:', validatedData);
       
       // Convert date strings to Date objects for database insertion
       const processedData = {
@@ -225,6 +227,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         completedDate: validatedData.completedDate && validatedData.completedDate !== '' ? new Date(validatedData.completedDate) : null
       };
       
+      console.log('Processed data:', processedData);
       const deal = await dbStorage.createDeal(processedData);
       
       // Auto-create calendar event for air date if provided

@@ -222,7 +222,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
 
   const createContactMutation = useMutation({
     mutationFn: async (contactData: any) => {
-      const response = await apiRequest('POST', '/api/contacts', contactData);
+      const response = await apiRequest('/api/contacts', { method: 'POST', body: contactData });
       return response.json();
     },
     onSuccess: (newContact) => {
@@ -280,7 +280,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
       console.log("Processed data:", processedData);
       const endpoint = isEditing ? `/api/deals/${deal.id}` : "/api/deals";
       const method = isEditing ? "PUT" : "POST";
-      const response = await apiRequest(method, endpoint, processedData);
+      const response = await apiRequest(endpoint, { method, body: processedData });
       return response.json();
     },
     onSuccess: async (newDeal) => {
@@ -290,12 +290,15 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
       // Auto-create calendar event if airdate is set
       if (newDeal.airDate) {
         try {
-          await apiRequest("POST", "/api/calendar-events", {
-            title: `Air Date: ${newDeal.projectName}`,
-            description: `Air date for ${newDeal.projectName}`,
-            eventDate: newDeal.airDate,
-            entityType: "deal",
-            entityId: newDeal.id
+          await apiRequest("/api/calendar-events", {
+            method: "POST",
+            body: {
+              title: `Air Date: ${newDeal.projectName}`,
+              description: `Air date for ${newDeal.projectName}`,
+              eventDate: newDeal.airDate,
+              entityType: "deal",
+              entityId: newDeal.id
+            }
           });
           queryClient.invalidateQueries({ queryKey: ["/api/calendar-events"] });
         } catch (error) {
