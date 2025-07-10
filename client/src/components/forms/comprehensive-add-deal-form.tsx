@@ -576,8 +576,8 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                           }
                         }}
                       >
-                        <SelectTrigger className="w-40">
-                          <SelectValue placeholder="Select contact" />
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select company" />
                         </SelectTrigger>
                         <SelectContent>
                           {contacts
@@ -597,13 +597,13 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                       >
                         <Plus className="h-4 w-4" />
                       </Button>
-                      <Input
-                        id="licenseeCompanyName"
-                        {...form.register("licenseeCompanyName")}
-                        placeholder="Production company name"
-                        className="flex-1"
-                      />
                     </div>
+                    <Input
+                      id="licenseeCompanyName"
+                      {...form.register("licenseeCompanyName")}
+                      placeholder="Production company name"
+                      className="mt-2"
+                    />
                   </div>
                   <div>
                     <Label htmlFor="licenseeContactName">Contact Name</Label>
@@ -773,8 +773,8 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                           }
                         }}
                       >
-                        <SelectTrigger className="w-40">
-                          <SelectValue placeholder="Select contact" />
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select company" />
                         </SelectTrigger>
                         <SelectContent>
                           {contacts
@@ -794,13 +794,13 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                       >
                         <Plus className="h-4 w-4" />
                       </Button>
-                      <Input
-                        id="clearanceCompanyName"
-                        {...form.register("clearanceCompanyName")}
-                        placeholder="Clearance company name"
-                        className="flex-1"
-                      />
                     </div>
+                    <Input
+                      id="clearanceCompanyName"
+                      {...form.register("clearanceCompanyName")}
+                      placeholder="Clearance company name"
+                      className="mt-2"
+                    />
                   </div>
                   <div>
                     <Label htmlFor="clearanceCompanyContactName">Contact Name</Label>
