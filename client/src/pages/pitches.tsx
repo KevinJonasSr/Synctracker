@@ -80,14 +80,15 @@ export default function Pitches() {
       return;
     }
 
-    // Convert and validate data
+    // Convert and validate data - send strings to server, not Date objects
     const processedData = {
       dealId: parseInt(data.dealId),
       status: data.status || "pending",
       notes: data.notes || "",
-      followUpDate: data.followUpDate && data.followUpDate !== "" ? new Date(data.followUpDate) : undefined,
+      followUpDate: data.followUpDate && data.followUpDate !== "" ? data.followUpDate : undefined,
     };
     
+    console.log("Submitting pitch data:", processedData);
     createPitchMutation.mutate(processedData);
   };
 
