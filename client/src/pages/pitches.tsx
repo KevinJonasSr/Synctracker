@@ -1,18 +1,77 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import Header from "@/components/layout/header";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Send, Calendar, Clock, CheckCircle } from "lucide-react";
-import type { Pitch } from "@shared/schema";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Send, Calendar, Clock, CheckCircle, Plus } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { queryClient, apiRequest } from "@/lib/queryClient";
+import { insertPitchSchema, type Pitch, type InsertPitch, type Deal, type Song } from "@shared/schema";
 
 export default function Pitches() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [showAddPitch, setShowAddPitch] = useState(false);
+  const { toast } = useToast();
 
   const { data: pitches = [], isLoading } = useQuery<Pitch[]>({
     queryKey: ["/api/pitches"],
   });
+
+  const { data: deals = [] } = useQuery<Deal[]>({
+    queryKey: ["/api/deals"],
+  });
+
+  const { data: songs = [] } = useQuery<Song[]>({
+    queryKey: ["/api/songs"],
+  });
+
+  const form = useForm<InsertPitch>({
+    resolver: zodResolver(insertPitchSchema),
+    defaultValues: {
+      dealId: undefined,
+      submissionDate: new Date().toISOString().slice(0, 16),
+      status: "pending",
+      notes: "",
+      followUpDate: undefined,
+    },
+  });
+
+  const createPitchMutation = useMutation({
+    mutationFn: async (data: InsertPitch) => {
+      return apiRequest("/api/pitches", {
+        method: "POST",
+        body: data,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/pitches"] });
+      toast({
+        title: "Pitch created",
+        description: "Your new pitch has been added successfully.",
+      });
+      setShowAddPitch(false);
+      form.reset();
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error creating pitch",
+        description: error.message || "Failed to create pitch",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const onSubmit = (data: InsertPitch) => {
+    createPitchMutation.mutate(data);
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -57,7 +116,7 @@ export default function Pitches() {
         searchPlaceholder="Search pitches, projects..."
         newItemLabel="New Pitch"
         onSearch={setSearchQuery}
-        onNewItem={() => {}}
+        onNewItem={() => setShowAddPitch(true)}
       />
       
       <div className="p-6">
@@ -156,6 +215,100 @@ export default function Pitches() {
           </div>
         )}
       </div>
+
+      {/* Add Pitch Dialog */}
+      <Dialog open={showAddPitch} onOpenChange={setShowAddPitch}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Create New Pitch</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="dealId">Associated Deal</Label>
+                <Select
+                  value={form.watch("dealId")?.toString() || ""}
+                  onValueChange={(value) => form.setValue("dealId", parseInt(value))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a deal" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {deals.map((deal) => (
+                      <SelectItem key={deal.id} value={deal.id.toString()}>
+                        {deal.projectName} {deal.episodeNumber && `- Episode ${deal.episodeNumber}`}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="submissionDate">Submission Date</Label>
+                <Input
+                  id="submissionDate"
+                  type="datetime-local"
+                  {...form.register("submissionDate")}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="status">Status</Label>
+                <Select
+                  value={form.watch("status")}
+                  onValueChange={(value) => form.setValue("status", value as "pending" | "responded" | "no_response")}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="responded">Responded</SelectItem>
+                    <SelectItem value="no_response">No Response</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="followUpDate">Follow-up Date (Optional)</Label>
+                <Input
+                  id="followUpDate"
+                  type="datetime-local"
+                  {...form.register("followUpDate")}
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="notes">Notes</Label>
+              <Textarea
+                id="notes"
+                {...form.register("notes")}
+                placeholder="Add notes about this pitch..."
+                rows={4}
+              />
+            </div>
+
+            <div className="flex space-x-4 pt-4">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => setShowAddPitch(false)}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button 
+                type="submit"
+                className="flex-1 bg-brand-primary hover:bg-blue-700"
+                disabled={createPitchMutation.isPending}
+              >
+                {createPitchMutation.isPending ? "Creating..." : "Create Pitch"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
