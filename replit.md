@@ -177,6 +177,10 @@ Changelog:
   * Fixed comprehensive status display and filtering across Deal Pipeline, forms, and detail views
   * Updated Add New Deal form to default to "New Request" status
   * Changed "Pitch Date" labels to "New Request Date" in Additional Information section
+  * Fixed apiRequest function parameter format in comprehensive add deal form
+  * Resolved deal creation errors by correcting API call structure
+  * Updated Deal Pipeline tabs: changed "Under Review" to "Pending Approval" and added "Quoted" tab
+  * Removed duplicate "New Request Date" field from Additional Information section
 ```
 
 ## User Preferences

@@ -90,7 +90,8 @@ export default function Deals() {
           <TabsList>
             <TabsTrigger value="all">All Deals</TabsTrigger>
             <TabsTrigger value="new request">New Request</TabsTrigger>
-            <TabsTrigger value="under_review">Under Review</TabsTrigger>
+            <TabsTrigger value="pending approval">Pending Approval</TabsTrigger>
+            <TabsTrigger value="quoted">Quoted</TabsTrigger>
             <TabsTrigger value="confirmed">Confirmed</TabsTrigger>
             <TabsTrigger value="completed">Completed</TabsTrigger>
             <TabsTrigger value="paid">Paid</TabsTrigger>
