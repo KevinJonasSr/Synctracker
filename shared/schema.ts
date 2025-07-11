@@ -473,6 +473,11 @@ export const insertSongSchema = createInsertSchema(songs).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+}).extend({
+  // Handle numeric fields that might come as strings from forms
+  tempo: z.union([z.number(), z.string().transform(val => val === '' ? undefined : parseInt(val))]).optional().nullable(),
+  duration: z.union([z.number(), z.string().transform(val => val === '' ? undefined : parseInt(val))]).optional().nullable(),
+  bpm: z.union([z.number(), z.string().transform(val => val === '' ? undefined : parseInt(val))]).optional().nullable(),
 });
 
 export const insertContactSchema = createInsertSchema(contacts).omit({

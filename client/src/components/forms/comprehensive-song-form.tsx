@@ -94,7 +94,12 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
   });
 
   const onSubmit = (data: InsertSong) => {
-    createSongMutation.mutate(data);
+    // Convert tags string to array if provided
+    const processedData = {
+      ...data,
+      tags: data.tags?.length && data.tags[0] ? data.tags[0].split(",").map(tag => tag.trim()) : [],
+    };
+    createSongMutation.mutate(processedData);
   };
 
   return (
@@ -342,6 +347,65 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
                           placeholder="File format and sample rate"
                         />
                       </div>
+                    </div>
+                    
+                    {/* Legacy numeric fields for compatibility */}
+                    <div className="grid grid-cols-3 gap-4 pt-4 border-t">
+                      <div>
+                        <Label htmlFor="tempo">Tempo</Label>
+                        <Input
+                          id="tempo"
+                          type="number"
+                          {...form.register("tempo", { valueAsNumber: true })}
+                          placeholder="e.g., 120"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="duration">Duration (seconds)</Label>
+                        <Input
+                          id="duration"
+                          type="number"
+                          {...form.register("duration", { valueAsNumber: true })}
+                          placeholder="e.g., 180"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="bpm">BPM</Label>
+                        <Input
+                          id="bpm"
+                          type="number"
+                          {...form.register("bpm", { valueAsNumber: true })}
+                          placeholder="e.g., 120"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4 pt-4">
+                      <div>
+                        <Label htmlFor="key">Key</Label>
+                        <Input
+                          id="key"
+                          {...form.register("key")}
+                          placeholder="e.g., C Major, A Minor"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="tags">Tags</Label>
+                        <Input
+                          id="tags"
+                          {...form.register("tags.0")}
+                          placeholder="Comma-separated tags"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="filePath">File Path</Label>
+                      <Input
+                        id="filePath"
+                        {...form.register("filePath")}
+                        placeholder="File path or URL"
+                      />
                     </div>
                     <div className="flex items-center space-x-2">
                       <Switch
