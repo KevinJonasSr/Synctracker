@@ -94,11 +94,16 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
   });
 
   const onSubmit = (data: InsertSong) => {
+    console.log('Form submitted with data:', data);
+    console.log('Form errors:', form.formState.errors);
+    
     // Convert tags string to array if provided
     const processedData = {
       ...data,
       tags: data.tags?.length && data.tags[0] ? data.tags[0].split(",").map(tag => tag.trim()) : [],
     };
+    
+    console.log('Processed data for submission:', processedData);
     createSongMutation.mutate(processedData);
   };
 
@@ -109,7 +114,14 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
           <DialogTitle>{isEditing ? "Edit Song" : "Add New Song"}</DialogTitle>
         </DialogHeader>
         
-        <form onSubmit={form.handleSubmit(onSubmit)} className="h-full overflow-hidden">
+        <form onSubmit={form.handleSubmit(onSubmit, (errors) => {
+          console.log('Form validation failed:', errors);
+          toast({
+            title: "Validation Error",
+            description: "Please check the form for errors",
+            variant: "destructive",
+          });
+        })} className="h-full overflow-hidden">
           <Tabs defaultValue="basic" className="h-full flex flex-col">
             <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="basic">Basic Info</TabsTrigger>
@@ -134,6 +146,9 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
                           {...form.register("title")}
                           placeholder="Song title"
                         />
+                        {form.formState.errors.title && (
+                          <p className="text-sm text-red-600">{form.formState.errors.title.message}</p>
+                        )}
                       </div>
                       <div>
                         <Label htmlFor="artist">Artist *</Label>
@@ -142,6 +157,9 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
                           {...form.register("artist")}
                           placeholder="Artist name"
                         />
+                        {form.formState.errors.artist && (
+                          <p className="text-sm text-red-600">{form.formState.errors.artist.message}</p>
+                        )}
                       </div>
                       <div>
                         <Label htmlFor="album">Album</Label>
