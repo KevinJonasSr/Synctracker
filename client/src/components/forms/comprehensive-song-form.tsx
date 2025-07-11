@@ -70,12 +70,27 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
 
   const createSongMutation = useMutation({
     mutationFn: async (data: InsertSong) => {
+      console.log('Mutation starting with data:', data);
       const endpoint = isEditing ? `/api/songs/${song.id}` : "/api/songs";
       const method = isEditing ? "PUT" : "POST";
-      const response = await apiRequest(method, endpoint, data);
-      return response.json();
+      console.log('Making API call:', method, endpoint);
+      
+      try {
+        const response = await apiRequest(endpoint, {
+          method,
+          body: data,
+        });
+        console.log('API response received:', response);
+        const result = await response.json();
+        console.log('Parsed response:', result);
+        return result;
+      } catch (error) {
+        console.error('API call failed:', error);
+        throw error;
+      }
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log('Mutation succeeded:', data);
       toast({
         title: "Success",
         description: isEditing ? "Song updated successfully" : "Song added successfully",
@@ -85,6 +100,7 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
       form.reset();
     },
     onError: (error: any) => {
+      console.error('Mutation failed:', error);
       toast({
         title: "Error",
         description: error.message || "Failed to save song",
@@ -97,10 +113,15 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
     console.log('Form submitted with data:', data);
     console.log('Form errors:', form.formState.errors);
     
-    // Convert tags string to array if provided
+    // Convert tags string to array if provided, handle undefined/empty values
+    let processedTags: string[] = [];
+    if (data.tags && Array.isArray(data.tags) && data.tags[0] && data.tags[0] !== "undefined") {
+      processedTags = data.tags[0].split(",").map(tag => tag.trim()).filter(tag => tag.length > 0);
+    }
+    
     const processedData = {
       ...data,
-      tags: data.tags?.length && data.tags[0] ? data.tags[0].split(",").map(tag => tag.trim()) : [],
+      tags: processedTags,
     };
     
     console.log('Processed data for submission:', processedData);
