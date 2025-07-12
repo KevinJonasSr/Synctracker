@@ -171,7 +171,14 @@ export default function DealPipeline({ deals, dealsByStatus }: DealPipelineProps
                       </Badge>
                     </td>
                     <td className="py-3 px-4 font-medium text-gray-900">
-                      {deal.dealValue ? `$${Number(deal.dealValue).toLocaleString()}` : "TBD"}
+                      {deal.ourFee && deal.ourRecordingFee 
+                        ? `$${Number(deal.ourFee).toLocaleString()} / $${Number(deal.ourRecordingFee).toLocaleString()}`
+                        : deal.ourFee 
+                          ? `$${Number(deal.ourFee).toLocaleString()}`
+                          : deal.ourRecordingFee
+                            ? `$${Number(deal.ourRecordingFee).toLocaleString()}`
+                            : "TBD"
+                      }
                     </td>
                     <td className="py-3 px-4 text-sm text-gray-500">
                       {formatDate(deal.updatedAt)}
