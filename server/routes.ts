@@ -344,6 +344,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.put("/api/pitches/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      console.log("PUT /api/pitches/:id - Updating pitch:", id);
+      console.log("Request body:", req.body);
+      
+      const { status, notes, followUpDate } = req.body;
+      
+      const processedData = {
+        status: status || undefined,
+        notes: notes || undefined,
+        followUpDate: followUpDate ? new Date(followUpDate) : undefined,
+      };
+      
+      // Remove undefined fields
+      const updateData = Object.fromEntries(
+        Object.entries(processedData).filter(([_, value]) => value !== undefined)
+      );
+      
+      console.log("Processed update data:", updateData);
+      const pitch = await dbStorage.updatePitch(id, updateData);
+      console.log("Updated pitch:", pitch);
+      res.json(pitch);
+    } catch (error) {
+      console.error("Error updating pitch:", error);
+      res.status(500).json({ error: "Failed to update pitch", details: error.message });
+    }
+  });
+
   // Payments endpoints
   app.get("/api/payments", async (req, res) => {
     try {

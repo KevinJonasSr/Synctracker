@@ -20,6 +20,9 @@ export default function Pitches() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showAddPitch, setShowAddPitch] = useState(false);
   const [useCustomDeal, setUseCustomDeal] = useState(false);
+  const [selectedPitch, setSelectedPitch] = useState<Pitch | null>(null);
+  const [showUpdateStatus, setShowUpdateStatus] = useState(false);
+  const [showFollowUp, setShowFollowUp] = useState(false);
   const { toast } = useToast();
 
   const { data: pitches = [], isLoading } = useQuery<Pitch[]>({
@@ -75,6 +78,32 @@ export default function Pitches() {
       toast({
         title: "Error creating pitch",
         description: error.message || "Failed to create pitch",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const updatePitchMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: Partial<InsertPitch> }) => {
+      return apiRequest(`/api/pitches/${id}`, {
+        method: "PUT",
+        body: data,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/pitches"] });
+      toast({
+        title: "Pitch updated",
+        description: "The pitch has been updated successfully.",
+      });
+      setShowUpdateStatus(false);
+      setShowFollowUp(false);
+      setSelectedPitch(null);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error updating pitch",
+        description: error.message || "Failed to update pitch",
         variant: "destructive",
       });
     },
@@ -299,11 +328,25 @@ export default function Pitches() {
                     </div>
                     
                     <div className="flex space-x-2">
-                      <Button size="sm" variant="outline">
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => {
+                          setSelectedPitch(pitch);
+                          setShowUpdateStatus(true);
+                        }}
+                      >
                         Update Status
                       </Button>
                       {pitch.status === "pending" && (
-                        <Button size="sm" className="bg-brand-secondary hover:bg-emerald-700">
+                        <Button 
+                          size="sm" 
+                          className="bg-brand-secondary hover:bg-emerald-700"
+                          onClick={() => {
+                            setSelectedPitch(pitch);
+                            setShowFollowUp(true);
+                          }}
+                        >
                           Follow Up
                         </Button>
                       )}
@@ -477,6 +520,71 @@ export default function Pitches() {
               </Button>
             </div>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Update Status Dialog */}
+      <Dialog open={showUpdateStatus} onOpenChange={setShowUpdateStatus}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Update Pitch Status</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="status">Status</Label>
+              <Select 
+                defaultValue={selectedPitch?.status}
+                onValueChange={(value) => {
+                  if (selectedPitch) {
+                    updatePitchMutation.mutate({
+                      id: selectedPitch.id,
+                      data: { status: value }
+                    });
+                  }
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="responded">Responded</SelectItem>
+                  <SelectItem value="no_response">No Response</SelectItem>
+                  <SelectItem value="accepted">Accepted</SelectItem>
+                  <SelectItem value="rejected">Rejected</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Follow Up Dialog */}
+      <Dialog open={showFollowUp} onOpenChange={setShowFollowUp}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Schedule Follow Up</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="followUpDate">Follow-up Date</Label>
+              <Input
+                id="followUpDate"
+                type="datetime-local"
+                defaultValue={selectedPitch?.followUpDate ? 
+                  new Date(selectedPitch.followUpDate).toISOString().slice(0, 16) : ""
+                }
+                onChange={(e) => {
+                  if (selectedPitch && e.target.value) {
+                    updatePitchMutation.mutate({
+                      id: selectedPitch.id,
+                      data: { followUpDate: e.target.value }
+                    });
+                  }
+                }}
+              />
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
