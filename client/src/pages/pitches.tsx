@@ -194,7 +194,7 @@ export default function Pitches() {
                       <div className="flex-1">
                         <div className="flex items-center space-x-2 mb-2">
                           <h3 className="text-lg font-semibold text-gray-900">
-                            Pitch #{pitch.id}
+                            Pitch: {getDealName(pitch)}
                           </h3>
                           <Badge className={getStatusColor(pitch.status)}>
                             {getStatusLabel(pitch.status)}
@@ -204,13 +204,6 @@ export default function Pitches() {
                               Follow-up Due
                             </Badge>
                           )}
-                        </div>
-                        
-                        {/* Display deal name */}
-                        <div className="mb-3">
-                          <p className="text-sm font-medium text-gray-700">
-                            Deal: <span className="text-brand-primary">{getDealName(pitch)}</span>
-                          </p>
                         </div>
                         
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600 mb-4">

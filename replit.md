@@ -193,6 +193,14 @@ Changelog:
   * Enhanced dashboard Deal Pipeline to display actual fee amounts instead of "TBD"
   * Added professional currency formatting with dollar signs and comma separators for all fee input fields
   * Implemented auto-calculation preservation when switching between formatted and numeric values
+- July 12, 2025. Enhanced pitch creation system with custom deal name functionality:
+  * Added toggle option to enter custom deal names instead of only selecting existing deals
+  * Updated database schema to make dealId optional and added customDealName field
+  * Enhanced server-side validation to accept either dealId or customDealName
+  * Improved pitch display to show "Pitch: [Deal Name]" as header instead of "Pitch #x"
+  * Removed redundant deal information line for cleaner pitch card layout
+  * Added proper form validation and reset behavior for custom deal name functionality
+  * Successfully tested pitch creation with both existing deals and custom deal names
 ```
 
 ## User Preferences
