@@ -43,7 +43,7 @@ export default function Pitches() {
     defaultValues: {
       dealId: "",
       customDealName: "",
-      status: "pending",
+      status: "pitched",
       selectedSongs: [],
       notes: "",
       followUpDate: "",
@@ -68,7 +68,7 @@ export default function Pitches() {
       form.reset({
         dealId: "",
         customDealName: "",
-        status: "pending",
+        status: "pitched",
         selectedSongs: [],
         notes: "",
         followUpDate: "",
@@ -147,7 +147,7 @@ export default function Pitches() {
     const processedData = {
       dealId: useCustomDeal ? null : parseInt(data.dealId),
       customDealName: useCustomDeal ? data.customDealName.trim() : null,
-      status: data.status || "pending",
+      status: data.status || "pitched",
       notes: selectedSongTitles + (data.notes ? '\n\nAdditional Notes:\n' + data.notes : ''),
       followUpDate: data.followUpDate && data.followUpDate !== "" ? data.followUpDate : undefined,
     };
@@ -158,19 +158,28 @@ export default function Pitches() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "pending":
+      case "pitched":
+        return "bg-blue-100 text-blue-800";
+      case "follow_up":
         return "bg-yellow-100 text-yellow-800";
-      case "responded":
+      case "completed":
         return "bg-green-100 text-green-800";
-      case "no_response":
-        return "bg-red-100 text-red-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
   };
 
   const getStatusLabel = (status: string) => {
-    return status.replace("_", " ").replace(/\b\w/g, l => l.toUpperCase());
+    switch (status) {
+      case "pitched":
+        return "Pitched";
+      case "follow_up":
+        return "Follow Up";
+      case "completed":
+        return "Completed";
+      default:
+        return status.replace("_", " ").replace(/\b\w/g, l => l.toUpperCase());
+    }
   };
 
   const formatDate = (date: Date | null) => {
@@ -338,7 +347,7 @@ export default function Pitches() {
                       >
                         Update Status
                       </Button>
-                      {pitch.status === "pending" && (
+                      {(pitch.status === "pitched" || pitch.status === "follow_up") && (
                         <Button 
                           size="sm" 
                           className="bg-brand-secondary hover:bg-emerald-700"
@@ -417,15 +426,15 @@ export default function Pitches() {
                 <Label htmlFor="status">Status</Label>
                 <Select
                   value={form.watch("status")}
-                  onValueChange={(value) => form.setValue("status", value as "pending" | "responded" | "no_response")}
+                  onValueChange={(value) => form.setValue("status", value as "pitched" | "follow_up" | "completed")}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="responded">Responded</SelectItem>
-                    <SelectItem value="no_response">No Response</SelectItem>
+                    <SelectItem value="pitched">Pitched</SelectItem>
+                    <SelectItem value="follow_up">Follow Up</SelectItem>
+                    <SelectItem value="completed">Completed</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -547,11 +556,9 @@ export default function Pitches() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="responded">Responded</SelectItem>
-                  <SelectItem value="no_response">No Response</SelectItem>
-                  <SelectItem value="accepted">Accepted</SelectItem>
-                  <SelectItem value="rejected">Rejected</SelectItem>
+                  <SelectItem value="pitched">Pitched</SelectItem>
+                  <SelectItem value="follow_up">Follow Up</SelectItem>
+                  <SelectItem value="completed">Completed</SelectItem>
                 </SelectContent>
               </Select>
             </div>
