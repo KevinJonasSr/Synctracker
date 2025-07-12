@@ -19,6 +19,7 @@ import { insertPitchSchema, type Pitch, type InsertPitch, type Deal, type Song }
 export default function Pitches() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showAddPitch, setShowAddPitch] = useState(false);
+  const [useCustomDeal, setUseCustomDeal] = useState(false);
   const { toast } = useToast();
 
   const { data: pitches = [], isLoading } = useQuery<Pitch[]>({
@@ -38,6 +39,7 @@ export default function Pitches() {
     // resolver: zodResolver(insertPitchSchema),
     defaultValues: {
       dealId: "",
+      customDealName: "",
       status: "pending",
       notes: "",
       followUpDate: "",
@@ -58,6 +60,7 @@ export default function Pitches() {
         description: "Your new pitch has been added successfully.",
       });
       setShowAddPitch(false);
+      setUseCustomDeal(false);
       form.reset();
     },
     onError: (error: any) => {
@@ -71,7 +74,7 @@ export default function Pitches() {
 
   const onSubmit = (data: any) => {
     // Validate required fields
-    if (!data.dealId) {
+    if (!useCustomDeal && !data.dealId) {
       toast({
         title: "Validation Error",
         description: "Please select a deal for this pitch.",
@@ -80,9 +83,19 @@ export default function Pitches() {
       return;
     }
 
+    if (useCustomDeal && !data.customDealName?.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Please enter a deal name for this pitch.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     // Convert and validate data - send strings to server, not Date objects
     const processedData = {
-      dealId: parseInt(data.dealId),
+      dealId: useCustomDeal ? null : parseInt(data.dealId),
+      customDealName: useCustomDeal ? data.customDealName.trim() : null,
       status: data.status || "pending",
       notes: data.notes || "",
       followUpDate: data.followUpDate && data.followUpDate !== "" ? data.followUpDate : undefined,
@@ -117,6 +130,19 @@ export default function Pitches() {
   const isFollowUpDue = (pitch: Pitch) => {
     if (!pitch.followUpDate) return false;
     return new Date(pitch.followUpDate) <= new Date();
+  };
+
+  const getDealName = (pitch: Pitch) => {
+    if (pitch.customDealName) {
+      return pitch.customDealName;
+    }
+    if (pitch.dealId) {
+      const deal = deals.find(d => d.id === pitch.dealId);
+      if (deal) {
+        return `${deal.projectName}${deal.episodeNumber ? ` - Episode ${deal.episodeNumber}` : ''}`;
+      }
+    }
+    return "Unknown Deal";
   };
 
   if (isLoading) {
@@ -178,6 +204,13 @@ export default function Pitches() {
                               Follow-up Due
                             </Badge>
                           )}
+                        </div>
+                        
+                        {/* Display deal name */}
+                        <div className="mb-3">
+                          <p className="text-sm font-medium text-gray-700">
+                            Deal: <span className="text-brand-primary">{getDealName(pitch)}</span>
+                          </p>
                         </div>
                         
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600 mb-4">
@@ -243,22 +276,49 @@ export default function Pitches() {
           </DialogHeader>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <div>
-              <Label htmlFor="dealId">Associated Deal</Label>
-              <Select
-                value={form.watch("dealId")?.toString() || ""}
-                onValueChange={(value) => form.setValue("dealId", value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a deal" />
-                </SelectTrigger>
-                <SelectContent>
-                  {deals.map((deal) => (
-                    <SelectItem key={deal.id} value={deal.id.toString()}>
-                      {deal.projectName} {deal.episodeNumber && `- Episode ${deal.episodeNumber}`}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="flex items-center justify-between mb-3">
+                <Label>Associated Deal</Label>
+                <div className="flex items-center space-x-2">
+                  <label className="text-sm text-gray-600">
+                    <input
+                      type="checkbox"
+                      checked={useCustomDeal}
+                      onChange={(e) => {
+                        setUseCustomDeal(e.target.checked);
+                        // Clear both fields when switching
+                        form.setValue("dealId", "");
+                        form.setValue("customDealName", "");
+                      }}
+                      className="mr-2"
+                    />
+                    Enter new deal name
+                  </label>
+                </div>
+              </div>
+              
+              {useCustomDeal ? (
+                <Input
+                  {...form.register("customDealName")}
+                  placeholder="Enter new deal name (e.g. 'Netflix Series - Season 2')"
+                  className="w-full"
+                />
+              ) : (
+                <Select
+                  value={form.watch("dealId")?.toString() || ""}
+                  onValueChange={(value) => form.setValue("dealId", value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a deal" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {deals.map((deal) => (
+                      <SelectItem key={deal.id} value={deal.id.toString()}>
+                        {deal.projectName} {deal.episodeNumber && `- Episode ${deal.episodeNumber}`}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-4">

@@ -131,7 +131,8 @@ export const deals = pgTable("deals", {
 
 export const pitches = pgTable("pitches", {
   id: serial("id").primaryKey(),
-  dealId: integer("deal_id").references(() => deals.id).notNull(),
+  dealId: integer("deal_id").references(() => deals.id),
+  customDealName: text("custom_deal_name"),
   submissionDate: timestamp("submission_date").defaultNow().notNull(),
   followUpDate: timestamp("follow_up_date"),
   status: text("status").notNull().default("pending"), // pending, responded, no_response
