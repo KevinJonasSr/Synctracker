@@ -13,6 +13,7 @@ interface DealPipelineProps {
 export default function DealPipeline({ deals, dealsByStatus }: DealPipelineProps) {
   const [selectedDeal, setSelectedDeal] = useState<DealWithRelations | null>(null);
   const [showDealDetails, setShowDealDetails] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
 
   const handleDealClick = (deal: DealWithRelations) => {
     setSelectedDeal(deal);
@@ -72,11 +73,41 @@ export default function DealPipeline({ deals, dealsByStatus }: DealPipelineProps
     return new Date(date).toLocaleDateString();
   };
 
+  const handleStatusFilter = (status: string) => {
+    if (selectedStatus === status) {
+      setSelectedStatus(null); // Clear filter if same status clicked
+    } else {
+      setSelectedStatus(status);
+    }
+  };
+
+  const filteredDeals = selectedStatus 
+    ? deals.filter(deal => deal.status === selectedStatus)
+    : deals;
+
   return (
     <Card className="lg:col-span-2">
       <CardHeader className="border-b border-gray-200">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-900">Deal Pipeline</h3>
+          <div className="flex items-center gap-4">
+            <h3 className="text-lg font-semibold text-gray-900">Deal Pipeline</h3>
+            {selectedStatus && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-500">Filtered by:</span>
+                <Badge className={getStatusColor(selectedStatus)}>
+                  {getStatusLabel(selectedStatus)}
+                </Badge>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => setSelectedStatus(null)}
+                  className="text-gray-500 hover:text-gray-700 h-6 w-6 p-0"
+                >
+                  ×
+                </Button>
+              </div>
+            )}
+          </div>
           <Button variant="ghost" size="sm" className="text-brand-primary hover:text-blue-700">
             View All
           </Button>
@@ -85,28 +116,84 @@ export default function DealPipeline({ deals, dealsByStatus }: DealPipelineProps
       <CardContent className="p-6">
         {/* Pipeline Stages */}
         <div className="flex flex-wrap gap-3 mb-6">
-          <Badge className="bg-red-100 text-red-800 border-red-200">
+          <Badge 
+            className={`cursor-pointer transition-all hover:shadow-md ${
+              selectedStatus === "new request" 
+                ? "bg-red-200 text-red-900 border-red-300 shadow-md" 
+                : "bg-red-100 text-red-800 border-red-200 hover:bg-red-150"
+            }`}
+            onClick={() => handleStatusFilter("new request")}
+          >
             New Request ({dealsByStatus["new request"] || 0})
           </Badge>
-          <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
+          <Badge 
+            className={`cursor-pointer transition-all hover:shadow-md ${
+              selectedStatus === "pending approval" 
+                ? "bg-yellow-200 text-yellow-900 border-yellow-300 shadow-md" 
+                : "bg-yellow-100 text-yellow-800 border-yellow-200 hover:bg-yellow-150"
+            }`}
+            onClick={() => handleStatusFilter("pending approval")}
+          >
             Pending Approval ({dealsByStatus["pending approval"] || 0})
           </Badge>
-          <Badge className="bg-blue-100 text-blue-800 border-blue-200">
+          <Badge 
+            className={`cursor-pointer transition-all hover:shadow-md ${
+              selectedStatus === "quoted" 
+                ? "bg-blue-200 text-blue-900 border-blue-300 shadow-md" 
+                : "bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-150"
+            }`}
+            onClick={() => handleStatusFilter("quoted")}
+          >
             Quoted ({dealsByStatus.quoted || 0})
           </Badge>
-          <Badge className="bg-green-100 text-green-800 border-green-200">
+          <Badge 
+            className={`cursor-pointer transition-all hover:shadow-md ${
+              selectedStatus === "use confirmed" 
+                ? "bg-green-200 text-green-900 border-green-300 shadow-md" 
+                : "bg-green-100 text-green-800 border-green-200 hover:bg-green-150"
+            }`}
+            onClick={() => handleStatusFilter("use confirmed")}
+          >
             Use Confirmed ({dealsByStatus["use confirmed"] || 0})
           </Badge>
-          <Badge className="bg-purple-100 text-purple-800 border-purple-200">
+          <Badge 
+            className={`cursor-pointer transition-all hover:shadow-md ${
+              selectedStatus === "being drafted" 
+                ? "bg-purple-200 text-purple-900 border-purple-300 shadow-md" 
+                : "bg-purple-100 text-purple-800 border-purple-200 hover:bg-purple-150"
+            }`}
+            onClick={() => handleStatusFilter("being drafted")}
+          >
             Being Drafted ({dealsByStatus["being drafted"] || 0})
           </Badge>
-          <Badge className="bg-orange-100 text-orange-800 border-orange-200">
+          <Badge 
+            className={`cursor-pointer transition-all hover:shadow-md ${
+              selectedStatus === "out for signature" 
+                ? "bg-orange-200 text-orange-900 border-orange-300 shadow-md" 
+                : "bg-orange-100 text-orange-800 border-orange-200 hover:bg-orange-150"
+            }`}
+            onClick={() => handleStatusFilter("out for signature")}
+          >
             Out for Signature ({dealsByStatus["out for signature"] || 0})
           </Badge>
-          <Badge className="bg-emerald-100 text-emerald-800 border-emerald-200">
+          <Badge 
+            className={`cursor-pointer transition-all hover:shadow-md ${
+              selectedStatus === "payment received" 
+                ? "bg-emerald-200 text-emerald-900 border-emerald-300 shadow-md" 
+                : "bg-emerald-100 text-emerald-800 border-emerald-200 hover:bg-emerald-150"
+            }`}
+            onClick={() => handleStatusFilter("payment received")}
+          >
             Payment Received ({dealsByStatus["payment received"] || 0})
           </Badge>
-          <Badge className="bg-green-100 text-green-800 border-green-200">
+          <Badge 
+            className={`cursor-pointer transition-all hover:shadow-md ${
+              selectedStatus === "completed" 
+                ? "bg-green-200 text-green-900 border-green-300 shadow-md" 
+                : "bg-green-100 text-green-800 border-green-200 hover:bg-green-150"
+            }`}
+            onClick={() => handleStatusFilter("completed")}
+          >
             Completed ({dealsByStatus.completed || 0})
           </Badge>
         </div>
@@ -124,14 +211,17 @@ export default function DealPipeline({ deals, dealsByStatus }: DealPipelineProps
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {deals.length === 0 ? (
+              {filteredDeals.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="py-8 text-center text-gray-500">
-                    No deals found. Create your first deal to get started.
+                    {selectedStatus 
+                      ? `No deals found with status "${getStatusLabel(selectedStatus)}". Click the status badge again to clear the filter.`
+                      : "No deals found. Create your first deal to get started."
+                    }
                   </td>
                 </tr>
               ) : (
-                deals.map((deal) => (
+                filteredDeals.map((deal) => (
                   <tr 
                     key={deal.id} 
                     className="hover:bg-gray-50 cursor-pointer"
