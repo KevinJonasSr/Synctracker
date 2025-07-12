@@ -189,6 +189,10 @@ Changelog:
   * Corrected calendar event creation for air dates with proper startDate field mapping
   * Added visual guidance for document types (contracts, emails, demos, receipts)
   * Implemented robust error handling for file operations and empty states
+  * Updated Financial Details dialog to show specific publishing and recording fee breakdown
+  * Enhanced dashboard Deal Pipeline to display actual fee amounts instead of "TBD"
+  * Added professional currency formatting with dollar signs and comma separators for all fee input fields
+  * Implemented auto-calculation preservation when switching between formatted and numeric values
 ```
 
 ## User Preferences

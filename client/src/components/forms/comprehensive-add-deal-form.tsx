@@ -35,6 +35,22 @@ const formatPhoneNumber = (value: string) => {
   }
 };
 
+// Currency formatting functions
+const formatCurrency = (value: string | number) => {
+  if (!value) return '';
+  const numValue = typeof value === 'string' ? parseFloat(value.replace(/[^0-9.-]+/g, '')) : value;
+  if (isNaN(numValue)) return '';
+  return numValue.toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+};
+
+const parseCurrency = (value: string) => {
+  const numValue = parseFloat(value.replace(/[^0-9.-]+/g, ''));
+  return isNaN(numValue) ? 0 : numValue;
+};
+
 interface ComprehensiveAddDealFormProps {
   open: boolean;
   onClose: () => void;
@@ -1055,66 +1071,84 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="fullSongValue">100% Publishing Fee ($)</Label>
-                  <Input
-                    id="fullSongValue"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    {...form.register("fullSongValue", { 
-                      valueAsNumber: true,
-                      onChange: (e) => {
-                        const fullFee = parseFloat(e.target.value) || 0;
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+                    <Input
+                      id="fullSongValue"
+                      type="text"
+                      className="pl-8"
+                      value={formatCurrency(form.watch("fullSongValue") || "")}
+                      onChange={(e) => {
+                        const numValue = parseCurrency(e.target.value);
+                        form.setValue("fullSongValue", numValue);
+                        
+                        // Auto-calculate our fee based on splits
                         const splitsText = form.watch("splits") || "";
-                        const ourFee = calculateOurFee(fullFee, splitsText);
-                        form.setValue("ourFee", Math.round(ourFee * 100) / 100); // Round to 2 decimal places
-                      }
-                    })}
-                    placeholder="0.00"
-                  />
+                        const ourFee = calculateOurFee(numValue, splitsText);
+                        form.setValue("ourFee", Math.round(ourFee * 100) / 100);
+                      }}
+                      placeholder="25,000.00"
+                    />
+                  </div>
                 </div>
                 <div>
                   <Label htmlFor="ourFee">Our Fee Based on Splits ($)</Label>
-                  <Input
-                    id="ourFee"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    {...form.register("ourFee", { valueAsNumber: true })}
-                    placeholder="0.00"
-                  />
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+                    <Input
+                      id="ourFee"
+                      type="text"
+                      className="pl-8"
+                      value={formatCurrency(form.watch("ourFee") || "")}
+                      onChange={(e) => {
+                        const numValue = parseCurrency(e.target.value);
+                        form.setValue("ourFee", numValue);
+                      }}
+                      placeholder="12,500.00"
+                    />
+                  </div>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="fullRecordingFee">100% Recording Fee ($)</Label>
-                  <Input
-                    id="fullRecordingFee"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    {...form.register("fullRecordingFee", { 
-                      valueAsNumber: true,
-                      onChange: (e) => {
-                        const fullFee = parseFloat(e.target.value) || 0;
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+                    <Input
+                      id="fullRecordingFee"
+                      type="text"
+                      className="pl-8"
+                      value={formatCurrency(form.watch("fullRecordingFee") || "")}
+                      onChange={(e) => {
+                        const numValue = parseCurrency(e.target.value);
+                        form.setValue("fullRecordingFee", numValue);
+                        
+                        // Auto-calculate our fee based on splits
                         const splitsText = form.watch("splits") || "";
-                        const ourFee = calculateOurFee(fullFee, splitsText);
+                        const ourFee = calculateOurFee(numValue, splitsText);
                         form.setValue("ourRecordingFee", Math.round(ourFee * 100) / 100);
-                      }
-                    })}
-                    placeholder="0.00"
-                  />
+                      }}
+                      placeholder="25,000.00"
+                    />
+                  </div>
                 </div>
                 <div>
                   <Label htmlFor="ourRecordingFee">Our Fee Based on Splits ($)</Label>
-                  <Input
-                    id="ourRecordingFee"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    {...form.register("ourRecordingFee", { valueAsNumber: true })}
-                    placeholder="0.00"
-                  />
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+                    <Input
+                      id="ourRecordingFee"
+                      type="text"
+                      className="pl-8"
+                      value={formatCurrency(form.watch("ourRecordingFee") || "")}
+                      onChange={(e) => {
+                        const numValue = parseCurrency(e.target.value);
+                        form.setValue("ourRecordingFee", numValue);
+                      }}
+                      placeholder="12,500.00"
+                    />
+                  </div>
                 </div>
               </div>
             </CardContent>
