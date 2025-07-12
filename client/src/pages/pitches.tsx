@@ -41,6 +41,7 @@ export default function Pitches() {
       dealId: "",
       customDealName: "",
       status: "pending",
+      selectedSongs: [],
       notes: "",
       followUpDate: "",
     },
@@ -61,7 +62,14 @@ export default function Pitches() {
       });
       setShowAddPitch(false);
       setUseCustomDeal(false);
-      form.reset();
+      form.reset({
+        dealId: "",
+        customDealName: "",
+        status: "pending",
+        selectedSongs: [],
+        notes: "",
+        followUpDate: "",
+      });
     },
     onError: (error: any) => {
       toast({
@@ -92,12 +100,26 @@ export default function Pitches() {
       return;
     }
 
+    if (!data.selectedSongs || data.selectedSongs.length === 0) {
+      toast({
+        title: "Validation Error",
+        description: "Please select at least one song for this pitch.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     // Convert and validate data - send strings to server, not Date objects
+    const selectedSongTitles = data.selectedSongs?.map(songId => {
+      const song = songs.find(s => s.id === parseInt(songId));
+      return song ? `${song.title} by ${song.artist}` : '';
+    }).filter(title => title).join('\n') || '';
+
     const processedData = {
       dealId: useCustomDeal ? null : parseInt(data.dealId),
       customDealName: useCustomDeal ? data.customDealName.trim() : null,
       status: data.status || "pending",
-      notes: data.notes || "",
+      notes: selectedSongTitles + (data.notes ? '\n\nAdditional Notes:\n' + data.notes : ''),
       followUpDate: data.followUpDate && data.followUpDate !== "" ? data.followUpDate : undefined,
     };
     
@@ -343,12 +365,64 @@ export default function Pitches() {
             </div>
 
             <div>
-              <Label htmlFor="notes">Notes</Label>
+              <Label htmlFor="selectedSongs">Songs to Pitch</Label>
+              <Select
+                value=""
+                onValueChange={(value) => {
+                  const currentSongs = form.watch("selectedSongs") || [];
+                  if (!currentSongs.includes(value)) {
+                    form.setValue("selectedSongs", [...currentSongs, value]);
+                  }
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select songs to add to this pitch" />
+                </SelectTrigger>
+                <SelectContent>
+                  {songs.map((song) => (
+                    <SelectItem key={song.id} value={song.id.toString()}>
+                      {song.title} by {song.artist}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              
+              {/* Display selected songs */}
+              {form.watch("selectedSongs")?.length > 0 && (
+                <div className="mt-3">
+                  <p className="text-sm font-medium text-gray-700 mb-2">Selected Songs:</p>
+                  <div className="space-y-2">
+                    {form.watch("selectedSongs").map((songId) => {
+                      const song = songs.find(s => s.id === parseInt(songId));
+                      return song ? (
+                        <div key={songId} className="flex items-center justify-between bg-gray-50 p-2 rounded">
+                          <span className="text-sm">{song.title} by {song.artist}</span>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              const currentSongs = form.watch("selectedSongs") || [];
+                              form.setValue("selectedSongs", currentSongs.filter(id => id !== songId));
+                            }}
+                          >
+                            Remove
+                          </Button>
+                        </div>
+                      ) : null;
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div>
+              <Label htmlFor="notes">Additional Notes (Optional)</Label>
               <Textarea
                 id="notes"
                 {...form.register("notes")}
-                placeholder="Add notes about this pitch..."
-                rows={4}
+                placeholder="Add any additional notes about this pitch..."
+                rows={3}
               />
             </div>
 
