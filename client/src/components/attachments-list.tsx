@@ -16,9 +16,16 @@ interface AttachmentsListProps {
 export default function AttachmentsList({ entityType, entityId, title = "Attachments" }: AttachmentsListProps) {
   const [isUploadOpen, setIsUploadOpen] = useState(false);
 
-  const { data: attachments = [], isLoading } = useQuery<Attachment[]>({
+  const { data: attachments = [], isLoading, error } = useQuery<Attachment[]>({
     queryKey: ["/api/attachments", { entityType, entityId }],
-    queryFn: () => `/api/attachments?entityType=${entityType}&entityId=${entityId}`,
+    queryFn: async () => {
+      const response = await fetch(`/api/attachments?entityType=${entityType}&entityId=${entityId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch attachments');
+      }
+      const data = await response.json();
+      return Array.isArray(data) ? data : [];
+    },
   });
 
   const getFileIcon = (mimeType: string) => {
