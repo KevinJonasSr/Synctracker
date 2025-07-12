@@ -319,14 +319,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("POST /api/pitches - Request body:", req.body);
       
       // Manual validation and processing since submissionDate is auto-generated
-      const { dealId, status, notes, followUpDate } = req.body;
+      const { dealId, customDealName, status, notes, followUpDate } = req.body;
       
-      if (!dealId) {
-        return res.status(400).json({ error: "dealId is required" });
+      // Either dealId or customDealName must be provided
+      if (!dealId && !customDealName) {
+        return res.status(400).json({ error: "Either dealId or customDealName is required" });
       }
       
       const processedData = {
-        dealId: parseInt(dealId),
+        dealId: dealId ? parseInt(dealId) : null,
+        customDealName: customDealName || null,
         status: status || "pending",
         notes: notes || "",
         followUpDate: followUpDate ? new Date(followUpDate) : null,
