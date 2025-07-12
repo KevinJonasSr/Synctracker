@@ -84,47 +84,31 @@ export default function DealPipeline({ deals, dealsByStatus }: DealPipelineProps
       </CardHeader>
       <CardContent className="p-6">
         {/* Pipeline Stages */}
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-8 gap-4 mb-6">
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-red-300 rounded-full flex-shrink-0"></div>
-            <span className="text-xs font-medium text-gray-600 truncate">New Request</span>
-            <span className="text-xs text-gray-500">({dealsByStatus["new request"] || 0})</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-yellow-500 rounded-full flex-shrink-0"></div>
-            <span className="text-xs font-medium text-gray-600 truncate">Pending</span>
-            <span className="text-xs text-gray-500">({dealsByStatus["pending approval"] || 0})</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-blue-500 rounded-full flex-shrink-0"></div>
-            <span className="text-xs font-medium text-gray-600 truncate">Quoted</span>
-            <span className="text-xs text-gray-500">({dealsByStatus.quoted || 0})</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-green-500 rounded-full flex-shrink-0"></div>
-            <span className="text-xs font-medium text-gray-600 truncate">Use Confirmed</span>
-            <span className="text-xs text-gray-500">({dealsByStatus["use confirmed"] || 0})</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-purple-500 rounded-full flex-shrink-0"></div>
-            <span className="text-xs font-medium text-gray-600 truncate">Being Drafted</span>
-            <span className="text-xs text-gray-500">({dealsByStatus["being drafted"] || 0})</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-orange-500 rounded-full flex-shrink-0"></div>
-            <span className="text-xs font-medium text-gray-600 truncate">Out for Signature</span>
-            <span className="text-xs text-gray-500">({dealsByStatus["out for signature"] || 0})</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-emerald-500 rounded-full flex-shrink-0"></div>
-            <span className="text-xs font-medium text-gray-600 truncate">Payment Received</span>
-            <span className="text-xs text-gray-500">({dealsByStatus["payment received"] || 0})</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-green-600 rounded-full flex-shrink-0"></div>
-            <span className="text-xs font-medium text-gray-600 truncate">Completed</span>
-            <span className="text-xs text-gray-500">({dealsByStatus.completed || 0})</span>
-          </div>
+        <div className="flex flex-wrap gap-3 mb-6">
+          <Badge className="bg-red-100 text-red-800 border-red-200">
+            New Request ({dealsByStatus["new request"] || 0})
+          </Badge>
+          <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
+            Pending Approval ({dealsByStatus["pending approval"] || 0})
+          </Badge>
+          <Badge className="bg-blue-100 text-blue-800 border-blue-200">
+            Quoted ({dealsByStatus.quoted || 0})
+          </Badge>
+          <Badge className="bg-green-100 text-green-800 border-green-200">
+            Use Confirmed ({dealsByStatus["use confirmed"] || 0})
+          </Badge>
+          <Badge className="bg-purple-100 text-purple-800 border-purple-200">
+            Being Drafted ({dealsByStatus["being drafted"] || 0})
+          </Badge>
+          <Badge className="bg-orange-100 text-orange-800 border-orange-200">
+            Out for Signature ({dealsByStatus["out for signature"] || 0})
+          </Badge>
+          <Badge className="bg-emerald-100 text-emerald-800 border-emerald-200">
+            Payment Received ({dealsByStatus["payment received"] || 0})
+          </Badge>
+          <Badge className="bg-green-100 text-green-800 border-green-200">
+            Completed ({dealsByStatus.completed || 0})
+          </Badge>
         </div>
 
         {/* Deals Table */}
