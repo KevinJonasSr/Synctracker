@@ -258,8 +258,41 @@ export default function Pitches() {
                         
                         {pitch.notes && (
                           <div className="mt-3">
-                            <p className="text-sm font-medium text-gray-700 mb-1">Notes:</p>
-                            <p className="text-sm text-gray-600">{pitch.notes}</p>
+                            <div className="text-sm text-gray-600">
+                              {pitch.notes.split('\n').map((line, index) => {
+                                const trimmedLine = line.trim();
+                                if (!trimmedLine) return null;
+                                
+                                if (trimmedLine === 'Additional Notes:') {
+                                  return (
+                                    <div key={index} className="mt-3 mb-1">
+                                      <p className="text-sm font-medium text-gray-700">Additional Notes:</p>
+                                    </div>
+                                  );
+                                }
+                                
+                                // Check if this line appears after "Additional Notes:"
+                                const noteLines = pitch.notes.split('\n');
+                                const additionalNotesIndex = noteLines.findIndex(l => l.trim() === 'Additional Notes:');
+                                const isAdditionalNote = additionalNotesIndex >= 0 && index > additionalNotesIndex;
+                                
+                                if (isAdditionalNote) {
+                                  return (
+                                    <div key={index} className="text-sm text-gray-600 ml-2">
+                                      {trimmedLine}
+                                    </div>
+                                  );
+                                } else {
+                                  // This is a song
+                                  return (
+                                    <div key={index} className="mb-1">
+                                      <span className="text-sm font-medium text-gray-700">♪</span>
+                                      <span className="text-sm text-gray-600 ml-2">{trimmedLine}</span>
+                                    </div>
+                                  );
+                                }
+                              })}
+                            </div>
                           </div>
                         )}
                       </div>
