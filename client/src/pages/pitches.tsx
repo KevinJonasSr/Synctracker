@@ -25,8 +25,34 @@ export default function Pitches() {
   const [showFollowUp, setShowFollowUp] = useState(false);
   const { toast } = useToast();
 
-  const { data: pitches = [], isLoading } = useQuery<Pitch[]>({
+  const { data: rawPitches = [], isLoading } = useQuery<Pitch[]>({
     queryKey: ["/api/pitches"],
+  });
+
+  // Sort pitches by priority: overdue follow-ups first, then upcoming follow-ups, then others
+  const pitches = rawPitches.sort((a, b) => {
+    const now = new Date();
+    const aOverdue = a.followUpDate && new Date(a.followUpDate) <= now;
+    const bOverdue = b.followUpDate && new Date(b.followUpDate) <= now;
+    const aHasFollowUp = !!a.followUpDate;
+    const bHasFollowUp = !!b.followUpDate;
+    
+    // Priority 1: Overdue follow-ups first (earliest overdue first)
+    if (aOverdue && !bOverdue) return -1;
+    if (!aOverdue && bOverdue) return 1;
+    if (aOverdue && bOverdue) {
+      return new Date(a.followUpDate!).getTime() - new Date(b.followUpDate!).getTime();
+    }
+    
+    // Priority 2: Upcoming follow-ups (earliest first)
+    if (aHasFollowUp && !bHasFollowUp) return -1;
+    if (!aHasFollowUp && bHasFollowUp) return 1;
+    if (aHasFollowUp && bHasFollowUp) {
+      return new Date(a.followUpDate!).getTime() - new Date(b.followUpDate!).getTime();
+    }
+    
+    // Priority 3: Others by submission date (most recent first)
+    return new Date(b.submissionDate).getTime() - new Date(a.submissionDate).getTime();
   });
 
   const { data: deals = [] } = useQuery<Deal[]>({
@@ -192,6 +218,14 @@ export default function Pitches() {
     return new Date(pitch.followUpDate) <= new Date();
   };
 
+  const isFollowUpOverdue = (pitch: Pitch) => {
+    if (!pitch.followUpDate) return false;
+    const followUpDate = new Date(pitch.followUpDate);
+    const now = new Date();
+    const daysDiff = Math.floor((now.getTime() - followUpDate.getTime()) / (1000 * 60 * 60 * 24));
+    return daysDiff > 0;
+  };
+
   const getDealName = (pitch: Pitch) => {
     if (pitch.customDealName) {
       return pitch.customDealName;
@@ -259,9 +293,14 @@ export default function Pitches() {
                           <Badge className={getStatusColor(pitch.status)}>
                             {getStatusLabel(pitch.status)}
                           </Badge>
-                          {isFollowUpDue(pitch) && (
-                            <Badge variant="outline" className="text-yellow-600 border-yellow-600">
-                              Follow-up Due
+                          {isFollowUpOverdue(pitch) && (
+                            <Badge variant="outline" className="text-red-600 border-red-600 bg-red-50">
+                              Overdue
+                            </Badge>
+                          )}
+                          {isFollowUpDue(pitch) && !isFollowUpOverdue(pitch) && (
+                            <Badge variant="outline" className="text-yellow-600 border-yellow-600 bg-yellow-50">
+                              Due Today
                             </Badge>
                           )}
                         </div>
