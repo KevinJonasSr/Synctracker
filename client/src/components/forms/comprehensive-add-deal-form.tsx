@@ -295,9 +295,11 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
             body: {
               title: `Air Date: ${newDeal.projectName}`,
               description: `Air date for ${newDeal.projectName}`,
-              eventDate: newDeal.airDate,
+              startDate: newDeal.airDate,
+              endDate: newDeal.airDate,
               entityType: "deal",
-              entityId: newDeal.id
+              entityId: newDeal.id,
+              status: "scheduled"
             }
           });
           queryClient.invalidateQueries({ queryKey: ["/api/calendar-events"] });

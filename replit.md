@@ -181,6 +181,14 @@ Changelog:
   * Resolved deal creation errors by correcting API call structure
   * Updated Deal Pipeline tabs: changed "Under Review" to "Pending Approval" and added "Quoted" tab
   * Removed duplicate "New Request Date" field from Additional Information section
+- July 12, 2025. Enhanced deal document management and fee display improvements:
+  * Added comprehensive file attachment system to Deal Pipeline with Documents tab
+  * Integrated AttachmentsList component with drag-and-drop file uploads for deals
+  * Enhanced deal cards to display actual publishing and recording fees instead of total deal value
+  * Fixed attachment query system with proper parameterized request handling
+  * Corrected calendar event creation for air dates with proper startDate field mapping
+  * Added visual guidance for document types (contracts, emails, demos, receipts)
+  * Implemented robust error handling for file operations and empty states
 ```
 
 ## User Preferences

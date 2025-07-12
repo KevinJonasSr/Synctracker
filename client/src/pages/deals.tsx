@@ -195,9 +195,25 @@ export default function Deals() {
                                 <DollarSign className="h-4 w-4 text-gray-400" />
                                 <div>
                                   <p className="font-medium">
-                                    {deal.dealValue ? `$${Number(deal.dealValue).toLocaleString()}` : "TBD"}
+                                    {deal.ourFee && deal.ourRecordingFee 
+                                      ? `$${Number(deal.ourFee).toLocaleString()} / $${Number(deal.ourRecordingFee).toLocaleString()}`
+                                      : deal.ourFee 
+                                        ? `$${Number(deal.ourFee).toLocaleString()} Pub`
+                                        : deal.ourRecordingFee
+                                          ? `$${Number(deal.ourRecordingFee).toLocaleString()} Rec`
+                                          : "TBD"
+                                    }
                                   </p>
-                                  <p className="text-xs">Deal Value</p>
+                                  <p className="text-xs">
+                                    {deal.ourFee && deal.ourRecordingFee 
+                                      ? "Publishing / Recording"
+                                      : deal.ourFee 
+                                        ? "Publishing Fee"
+                                        : deal.ourRecordingFee
+                                          ? "Recording Fee"
+                                          : "Fees TBD"
+                                    }
+                                  </p>
                                 </div>
                               </div>
                             </div>
