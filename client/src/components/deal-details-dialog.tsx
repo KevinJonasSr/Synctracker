@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import EditDealForm from "@/components/forms/edit-deal-form";
+import AttachmentsList from "@/components/attachments-list";
 import { 
   Calendar, 
   DollarSign, 
@@ -156,11 +157,12 @@ export default function DealDetailsDialog({ deal, open, onClose }: DealDetailsDi
         </DialogHeader>
 
         <Tabs defaultValue="overview" className="mt-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="timeline">Timeline</TabsTrigger>
             <TabsTrigger value="pitches">Pitches</TabsTrigger>
             <TabsTrigger value="payments">Payments</TabsTrigger>
+            <TabsTrigger value="documents">Documents</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
@@ -477,6 +479,24 @@ export default function DealDetailsDialog({ deal, open, onClose }: DealDetailsDi
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="documents" className="space-y-4">
+            <AttachmentsList 
+              entityType="deal" 
+              entityId={deal.id} 
+              title="Deal Documents"
+            />
+            <div className="text-sm text-gray-600 bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <p className="font-medium text-blue-800 mb-2">Upload Files for This Deal:</p>
+              <ul className="list-disc list-inside space-y-1 text-blue-700">
+                <li>Contracts, agreements, and licensing documents</li>
+                <li>Email communications with clients and supervisors</li>
+                <li>Project briefs and creative materials</li>
+                <li>Demo tracks, stems, and alternative versions</li>
+                <li>Payment receipts and invoices</li>
+              </ul>
+            </div>
           </TabsContent>
         </Tabs>
       </DialogContent>
