@@ -37,9 +37,9 @@ const formatPhoneNumber = (value: string) => {
 
 // Currency formatting functions
 const formatCurrency = (value: string | number) => {
-  if (!value) return '';
+  if (!value || value === 0) return '';
   const numValue = typeof value === 'string' ? parseFloat(value.replace(/[^0-9.-]+/g, '')) : value;
-  if (isNaN(numValue)) return '';
+  if (isNaN(numValue) || numValue === 0) return '';
   return numValue.toLocaleString('en-US', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
@@ -1087,7 +1087,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                         const ourFee = calculateOurFee(numValue, splitsText);
                         form.setValue("ourFee", Math.round(ourFee * 100) / 100);
                       }}
-                      placeholder="25,000.00"
+                      placeholder="0.00"
                     />
                   </div>
                 </div>
@@ -1104,7 +1104,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                         const numValue = parseCurrency(e.target.value);
                         form.setValue("ourFee", numValue);
                       }}
-                      placeholder="12,500.00"
+                      placeholder="0.00"
                     />
                   </div>
                 </div>
@@ -1129,7 +1129,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                         const ourFee = calculateOurFee(numValue, splitsText);
                         form.setValue("ourRecordingFee", Math.round(ourFee * 100) / 100);
                       }}
-                      placeholder="25,000.00"
+                      placeholder="0.00"
                     />
                   </div>
                 </div>
@@ -1146,7 +1146,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                         const numValue = parseCurrency(e.target.value);
                         form.setValue("ourRecordingFee", numValue);
                       }}
-                      placeholder="12,500.00"
+                      placeholder="0.00"
                     />
                   </div>
                 </div>
