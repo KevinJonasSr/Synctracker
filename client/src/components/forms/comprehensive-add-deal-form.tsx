@@ -47,8 +47,9 @@ const formatCurrency = (value: string | number) => {
 };
 
 const parseCurrency = (value: string) => {
+  if (!value || value.trim() === '') return null;
   const numValue = parseFloat(value.replace(/[^0-9.-]+/g, ''));
-  return isNaN(numValue) ? 0 : numValue;
+  return isNaN(numValue) ? null : numValue;
 };
 
 interface ComprehensiveAddDealFormProps {
@@ -274,11 +275,11 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
         ...data,
         songId: data.songId ? parseInt(data.songId.toString()) : null,
         contactId: data.contactId ? parseInt(data.contactId.toString()) : null,
-        dealValue: data.dealValue ? parseFloat(data.dealValue.toString()) : null,
-        fullSongValue: data.fullSongValue ? parseFloat(data.fullSongValue.toString()) : null,
-        ourFee: data.ourFee ? parseFloat(data.ourFee.toString()) : null,
-        fullRecordingFee: data.fullRecordingFee ? parseFloat(data.fullRecordingFee.toString()) : null,
-        ourRecordingFee: data.ourRecordingFee ? parseFloat(data.ourRecordingFee.toString()) : null,
+        dealValue: data.dealValue !== null && data.dealValue !== undefined ? parseFloat(data.dealValue.toString()) : null,
+        fullSongValue: data.fullSongValue !== null && data.fullSongValue !== undefined ? parseFloat(data.fullSongValue.toString()) : null,
+        ourFee: data.ourFee !== null && data.ourFee !== undefined ? parseFloat(data.ourFee.toString()) : null,
+        fullRecordingFee: data.fullRecordingFee !== null && data.fullRecordingFee !== undefined ? parseFloat(data.fullRecordingFee.toString()) : null,
+        ourRecordingFee: data.ourRecordingFee !== null && data.ourRecordingFee !== undefined ? parseFloat(data.ourRecordingFee.toString()) : null,
         pitchDate: data.pitchDate ? new Date(data.pitchDate).toISOString() : null,
         
         // Status dates
@@ -406,6 +407,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
 
   // Function to calculate our fee based on splits
   const calculateOurFee = (fullFee: number, splitsText: string): number => {
+    if (!fullFee || fullFee === 0) return 0;
     const ourPercentage = parseOurSplitPercentage(splitsText);
     return (fullFee * ourPercentage) / 100;
   };
@@ -1082,10 +1084,12 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                         const numValue = parseCurrency(e.target.value);
                         form.setValue("fullSongValue", numValue);
                         
-                        // Auto-calculate our fee based on splits
+                        // Auto-calculate our fee based on splits only if splits exist
                         const splitsText = form.watch("splits") || "";
-                        const ourFee = calculateOurFee(numValue, splitsText);
-                        form.setValue("ourFee", Math.round(ourFee * 100) / 100);
+                        if (splitsText && splitsText.trim()) {
+                          const ourFee = calculateOurFee(numValue, splitsText);
+                          form.setValue("ourFee", Math.round(ourFee * 100) / 100);
+                        }
                       }}
                       placeholder="0.00"
                     />
@@ -1124,10 +1128,12 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                         const numValue = parseCurrency(e.target.value);
                         form.setValue("fullRecordingFee", numValue);
                         
-                        // Auto-calculate our fee based on splits
+                        // Auto-calculate our fee based on splits only if splits exist
                         const splitsText = form.watch("splits") || "";
-                        const ourFee = calculateOurFee(numValue, splitsText);
-                        form.setValue("ourRecordingFee", Math.round(ourFee * 100) / 100);
+                        if (splitsText && splitsText.trim()) {
+                          const ourFee = calculateOurFee(numValue, splitsText);
+                          form.setValue("ourRecordingFee", Math.round(ourFee * 100) / 100);
+                        }
                       }}
                       placeholder="0.00"
                     />
