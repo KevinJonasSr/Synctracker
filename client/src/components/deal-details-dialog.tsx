@@ -297,12 +297,38 @@ export default function DealDetailsDialog({ deal, open, onClose }: DealDetailsDi
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div>
-                    <label className="text-sm font-medium text-gray-600">Deal Value</label>
-                    <p className="text-gray-900 font-medium">
-                      {deal.dealValue ? `$${Number(deal.dealValue).toLocaleString()}` : "TBD"}
-                    </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Publishing Fee</label>
+                      <p className="text-gray-900 font-medium">
+                        {deal.ourFee ? `$${Number(deal.ourFee).toLocaleString()}` : "TBD"}
+                      </p>
+                      {deal.fullSongValue && (
+                        <p className="text-xs text-gray-500">
+                          of ${Number(deal.fullSongValue).toLocaleString()} total
+                        </p>
+                      )}
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Recording Fee</label>
+                      <p className="text-gray-900 font-medium">
+                        {deal.ourRecordingFee ? `$${Number(deal.ourRecordingFee).toLocaleString()}` : "TBD"}
+                      </p>
+                      {deal.fullRecordingFee && (
+                        <p className="text-xs text-gray-500">
+                          of ${Number(deal.fullRecordingFee).toLocaleString()} total
+                        </p>
+                      )}
+                    </div>
                   </div>
+                  {(deal.ourFee && deal.ourRecordingFee) && (
+                    <div className="pt-2 border-t">
+                      <label className="text-sm font-medium text-gray-600">Total Our Fees</label>
+                      <p className="text-gray-900 font-medium text-lg">
+                        ${(Number(deal.ourFee) + Number(deal.ourRecordingFee)).toLocaleString()}
+                      </p>
+                    </div>
+                  )}
                   {deal.usage && (
                     <div>
                       <label className="text-sm font-medium text-gray-600">Usage</label>
