@@ -107,6 +107,7 @@ export const deals = pgTable("deals", {
   fullRecordingFee: decimal("full_recording_fee", { precision: 10, scale: 2 }),
   ourRecordingFee: decimal("our_recording_fee", { precision: 10, scale: 2 }),
   usage: text("usage"), // background, featured, opening, etc.
+  sceneDescription: text("scene_description"), // how music is used in the scene
   media: text("media"), // TV, Film, Commercial, etc.
   territory: text("territory").default("worldwide"),
   term: text("term"), // perpetual, 1 year, etc.

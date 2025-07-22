@@ -527,7 +527,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
               {/* Deal Terms */}
               <div className="border-t pt-4">
                 <h4 className="font-medium mb-3">Deal Terms</h4>
-                <div className="grid grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="usage">Usage</Label>
                     <Input
@@ -536,6 +536,16 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                       placeholder="e.g., Background music"
                     />
                   </div>
+                  <div>
+                    <Label htmlFor="sceneDescription">Scene Description</Label>
+                    <Input
+                      id="sceneDescription"
+                      {...form.register("sceneDescription")}
+                      placeholder="Describe how music is used in scene"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-4 mt-4">
                   <div>
                     <Label htmlFor="media">Media</Label>
                     <Input
