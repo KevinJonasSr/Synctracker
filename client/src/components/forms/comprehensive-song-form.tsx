@@ -158,11 +158,13 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
 
             <div className="flex-1 overflow-y-auto p-1">
               <TabsContent value="basic" className="space-y-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Basic Information</CardTitle>
+                {/* Part 1: Basic Song Details - Light Purple */}
+                <Card className="bg-purple-50 border-purple-200">
+                  <CardHeader className="bg-purple-100 border-b border-purple-200">
+                    <CardTitle className="text-purple-800">Basic Song Information</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
+                  <CardContent className="space-y-4 bg-purple-50">
+                    {/* First line: Title, Album */}
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="title">Title *</Label>
@@ -176,6 +178,18 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
                         )}
                       </div>
                       <div>
+                        <Label htmlFor="album">Album</Label>
+                        <Input
+                          id="album"
+                          {...form.register("album")}
+                          placeholder="Album name"
+                        />
+                      </div>
+                    </div>
+                    
+                    {/* Second line: Artist, Label */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
                         <Label htmlFor="artist">Artist *</Label>
                         <Input
                           id="artist"
@@ -187,27 +201,47 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
                         )}
                       </div>
                       <div>
-                        <Label htmlFor="album">Album</Label>
+                        <Label htmlFor="producer">Label</Label>
                         <Input
-                          id="album"
-                          {...form.register("album")}
-                          placeholder="Album name"
+                          id="producer"
+                          {...form.register("producer")}
+                          placeholder="Record label"
                         />
                       </div>
+                    </div>
+                    
+                    {/* Third line: Master Recording Ownership */}
+                    <div className="grid grid-cols-1 gap-4">
+                      <div>
+                        <Label htmlFor="masterOwnership">Master Recording Ownership (%)</Label>
+                        <Input
+                          id="masterOwnership"
+                          type="number"
+                          min="0"
+                          max="100"
+                          step="0.01"
+                          {...form.register("masterOwnership")}
+                          placeholder="e.g., 50.00"
+                        />
+                        <p className="text-xs text-purple-600 mt-1">Your master recording ownership percentage (0-100%)</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                {/* Part 2: Publishing Information - Green */}
+                <Card className="bg-green-50 border-green-200">
+                  <CardHeader className="bg-green-100 border-b border-green-200">
+                    <CardTitle className="text-green-800">Publishing Information</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4 bg-green-50">
+                    <div className="grid grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="composer">Composer(s)</Label>
                         <Input
                           id="composer"
                           {...form.register("composer")}
                           placeholder="Composer name(s)"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="producer">Producer</Label>
-                        <Input
-                          id="producer"
-                          {...form.register("producer")}
-                          placeholder="Producer name"
                         />
                       </div>
                       <div>
@@ -220,46 +254,31 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
                       </div>
                     </div>
                     
-                    <div className="border-t pt-4">
-                      <h4 className="font-semibold text-lg mb-4">Ownership Information</h4>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="publishingOwnership">Publishing Ownership (%)</Label>
-                          <Input
-                            id="publishingOwnership"
-                            type="number"
-                            min="0"
-                            max="100"
-                            step="0.01"
-                            {...form.register("publishingOwnership")}
-                            placeholder="e.g., 50.00"
-                          />
-                          <p className="text-xs text-gray-600 mt-1">Your publishing ownership percentage (0-100%)</p>
-                        </div>
-                        <div>
-                          <Label htmlFor="masterOwnership">Master Recording Ownership (%)</Label>
-                          <Input
-                            id="masterOwnership"
-                            type="number"
-                            min="0"
-                            max="100"
-                            step="0.01"
-                            {...form.register("masterOwnership")}
-                            placeholder="e.g., 50.00"
-                          />
-                          <p className="text-xs text-gray-600 mt-1">Your master recording ownership percentage (0-100%)</p>
-                        </div>
-                      </div>
-                      <div className="mt-4">
-                        <Label htmlFor="splitDetails">Split Details</Label>
-                        <Textarea
-                          id="splitDetails"
-                          {...form.register("splitDetails")}
-                          placeholder="Detailed breakdown of all ownership splits and agreements"
-                          rows={3}
+                    <div className="grid grid-cols-1 gap-4">
+                      <div>
+                        <Label htmlFor="publishingOwnership">Publishing Ownership (%)</Label>
+                        <Input
+                          id="publishingOwnership"
+                          type="number"
+                          min="0"
+                          max="100"
+                          step="0.01"
+                          {...form.register("publishingOwnership")}
+                          placeholder="e.g., 50.00"
                         />
-                        <p className="text-xs text-gray-600 mt-1">Include detailed information about all parties' ownership shares and agreements</p>
+                        <p className="text-xs text-green-600 mt-1">Your publishing ownership percentage (0-100%)</p>
                       </div>
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="splitDetails">Split Details</Label>
+                      <Textarea
+                        id="splitDetails"
+                        {...form.register("splitDetails")}
+                        placeholder="Detailed breakdown of all ownership splits and agreements"
+                        rows={3}
+                      />
+                      <p className="text-xs text-green-600 mt-1">Include detailed information about all parties' ownership shares and agreements</p>
                     </div>
                   </CardContent>
                 </Card>
