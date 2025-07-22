@@ -58,6 +58,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
       licenseeContactPhone: deal?.licenseeContactPhone || "",
       
       musicSupervisorName: deal?.musicSupervisorName || "",
+      musicSupervisorAddress: deal?.musicSupervisorAddress || "",
       musicSupervisorContactName: deal?.musicSupervisorContactName || "",
       musicSupervisorContactEmail: deal?.musicSupervisorContactEmail || "",
       musicSupervisorContactPhone: deal?.musicSupervisorContactPhone || "",
@@ -86,16 +87,18 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
       completedDate: deal?.completedDate ? new Date(deal.completedDate).toISOString().slice(0, 16) : undefined,
       
       usage: deal?.usage || "",
+      sceneDescription: deal?.sceneDescription || "",
       media: deal?.media || "",
       territory: deal?.territory || "worldwide",
       term: deal?.term || "",
+      options: deal?.options || "",
       writers: deal?.writers || "",
       publishingInfo: deal?.publishingInfo || "",
       splits: deal?.splits || "",
       artist: deal?.artist || "",
       label: deal?.label || "",
       artistLabelSplits: deal?.artistLabelSplits || "",
-      exclusivity: deal?.exclusivity || false,
+      exclusivity: deal?.exclusivity ?? false,
       exclusivityRestrictions: deal?.exclusivityRestrictions || "",
       notes: deal?.notes || "",
       airDate: deal?.airDate || "",
@@ -110,32 +113,95 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
     queryKey: ['/api/contacts'],
   });
 
+  // Reset form when deal prop changes (for editing)
+  useEffect(() => {
+    if (deal) {
+      form.reset({
+        projectName: deal.projectName || "",
+        episodeNumber: deal.episodeNumber || "",
+        projectType: deal.projectType || "",
+        projectDescription: deal.projectDescription || "",
+        songId: deal.songId || undefined,
+        contactId: deal.contactId || undefined,
+        
+        // Contact Information
+        licenseeCompanyName: deal.licenseeCompanyName || "",
+        licenseeAddress: deal.licenseeAddress || "",
+        licenseeContactName: deal.licenseeContactName || "",
+        licenseeContactEmail: deal.licenseeContactEmail || "",
+        licenseeContactPhone: deal.licenseeContactPhone || "",
+        
+        musicSupervisorName: deal.musicSupervisorName || "",
+        musicSupervisorAddress: deal.musicSupervisorAddress || "",
+        musicSupervisorContactName: deal.musicSupervisorContactName || "",
+        musicSupervisorContactEmail: deal.musicSupervisorContactEmail || "",
+        musicSupervisorContactPhone: deal.musicSupervisorContactPhone || "",
+        
+        clearanceCompanyName: deal.clearanceCompanyName || "",
+        clearanceCompanyContactName: deal.clearanceCompanyContactName || "",
+        clearanceCompanyContactEmail: deal.clearanceCompanyContactEmail || "",
+        clearanceCompanyContactPhone: deal.clearanceCompanyContactPhone || "",
+        clearanceCompanyAddress: deal.clearanceCompanyAddress || "",
+        
+        status: deal.status || "new request",
+        dealValue: deal.dealValue || undefined,
+        fullSongValue: deal.fullSongValue || undefined,
+        ourFee: deal.ourFee || undefined,
+        fullRecordingFee: deal.fullRecordingFee || undefined,
+        ourRecordingFee: deal.ourRecordingFee || undefined,
+        
+        // Status dates
+        pitchedDate: deal.pitchedDate ? new Date(deal.pitchedDate).toISOString().slice(0, 16) : undefined,
+        pendingApprovalDate: deal.pendingApprovalDate ? new Date(deal.pendingApprovalDate).toISOString().slice(0, 16) : undefined,
+        quotedDate: deal.quotedDate ? new Date(deal.quotedDate).toISOString().slice(0, 16) : undefined,
+        useConfirmedDate: deal.useConfirmedDate ? new Date(deal.useConfirmedDate).toISOString().slice(0, 16) : undefined,
+        beingDraftedDate: deal.beingDraftedDate ? new Date(deal.beingDraftedDate).toISOString().slice(0, 16) : undefined,
+        outForSignatureDate: deal.outForSignatureDate ? new Date(deal.outForSignatureDate).toISOString().slice(0, 16) : undefined,
+        paymentReceivedDate: deal.paymentReceivedDate ? new Date(deal.paymentReceivedDate).toISOString().slice(0, 16) : undefined,
+        completedDate: deal.completedDate ? new Date(deal.completedDate).toISOString().slice(0, 16) : undefined,
+        
+        usage: deal.usage || "",
+        sceneDescription: deal.sceneDescription || "",
+        media: deal.media || "",
+        territory: deal.territory || "worldwide",
+        term: deal.term || "",
+        options: deal.options || "",
+        writers: deal.writers || "",
+        publishingInfo: deal.publishingInfo || "",
+        splits: deal.splits || "",
+        artist: deal.artist || "",
+        label: deal.label || "",
+        artistLabelSplits: deal.artistLabelSplits || "",
+        exclusivity: deal.exclusivity ?? false,
+        exclusivityRestrictions: deal.exclusivityRestrictions || "",
+        notes: deal.notes || "",
+        airDate: deal.airDate || "",
+      });
+    }
+  }, [deal, form]);
+
   const createDealMutation = useMutation({
     mutationFn: (data: InsertDeal) => 
-      apiRequest(isEditing ? `/api/deals/${deal.id}` : '/api/deals', {
-        method: isEditing ? 'PATCH' : 'POST',
-        body: data,
-      }),
-    onSuccess: async (newDeal) => {
+      apiRequest(isEditing ? 'PATCH' : 'POST', isEditing ? `/api/deals/${deal.id}` : '/api/deals', data),
+    onSuccess: async (response) => {
       queryClient.invalidateQueries({ queryKey: ['/api/deals'] });
       queryClient.invalidateQueries({ queryKey: ['/api/dashboard'] });
+      
+      const newDeal = response;
       
       // Auto-create calendar event if air date is provided
       if (newDeal.airDate && !isEditing) {
         try {
-          await apiRequest('/api/calendar-events', {
-            method: 'POST',
-            body: {
-              title: `${newDeal.projectName} - Air Date`,
-              description: `Air date for ${newDeal.projectName}`,
-              startDate: newDeal.airDate,
-              endDate: newDeal.airDate,
-              allDay: true,
-              entityType: "deal",
-              entityId: newDeal.id,
-              status: 'scheduled',
-              reminderMinutes: 1440 // 24 hours before
-            }
+          await apiRequest('POST', '/api/calendar-events', {
+            title: `${newDeal.projectName} - Air Date`,
+            description: `Air date for ${newDeal.projectName}`,
+            startDate: newDeal.airDate,
+            endDate: newDeal.airDate,
+            allDay: true,
+            entityType: "deal",
+            entityId: newDeal.id,
+            status: 'scheduled',
+            reminderMinutes: 1440 // 24 hours before
           });
           queryClient.invalidateQueries({ queryKey: ["/api/calendar-events"] });
         } catch (error) {
