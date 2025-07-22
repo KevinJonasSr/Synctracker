@@ -67,6 +67,16 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
       fullRecordingFee: deal?.fullRecordingFee || undefined,
       ourRecordingFee: deal?.ourRecordingFee || undefined,
       
+      // Status dates
+      pitchedDate: deal?.pitchedDate ? new Date(deal.pitchedDate).toISOString().slice(0, 16) : undefined,
+      pendingApprovalDate: deal?.pendingApprovalDate ? new Date(deal.pendingApprovalDate).toISOString().slice(0, 16) : undefined,
+      quotedDate: deal?.quotedDate ? new Date(deal.quotedDate).toISOString().slice(0, 16) : undefined,
+      useConfirmedDate: deal?.useConfirmedDate ? new Date(deal.useConfirmedDate).toISOString().slice(0, 16) : undefined,
+      beingDraftedDate: deal?.beingDraftedDate ? new Date(deal.beingDraftedDate).toISOString().slice(0, 16) : undefined,
+      outForSignatureDate: deal?.outForSignatureDate ? new Date(deal.outForSignatureDate).toISOString().slice(0, 16) : undefined,
+      paymentReceivedDate: deal?.paymentReceivedDate ? new Date(deal.paymentReceivedDate).toISOString().slice(0, 16) : undefined,
+      completedDate: deal?.completedDate ? new Date(deal.completedDate).toISOString().slice(0, 16) : undefined,
+      
       usage: deal?.usage || "",
       media: deal?.media || "",
       territory: deal?.territory || "worldwide",
@@ -683,6 +693,86 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                   placeholder="Additional notes about the deal"
                   rows={3}
                 />
+              </div>
+
+              {/* Status Date Fields */}
+              <div className="border-t pt-4">
+                <h4 className="font-medium mb-3">Status Dates</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="pitchedDate">New Request Date</Label>
+                    <Input
+                      id="pitchedDate"
+                      type="datetime-local"
+                      {...form.register("pitchedDate")}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="pendingApprovalDate">Pending Approval Date</Label>
+                    <Input
+                      id="pendingApprovalDate"
+                      type="datetime-local"
+                      {...form.register("pendingApprovalDate")}
+                    />
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4 mt-4">
+                  <div>
+                    <Label htmlFor="quotedDate">Quoted Date</Label>
+                    <Input
+                      id="quotedDate"
+                      type="datetime-local"
+                      {...form.register("quotedDate")}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="useConfirmedDate">Use Confirmed Date</Label>
+                    <Input
+                      id="useConfirmedDate"
+                      type="datetime-local"
+                      {...form.register("useConfirmedDate")}
+                    />
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4 mt-4">
+                  <div>
+                    <Label htmlFor="beingDraftedDate">Being Drafted Date</Label>
+                    <Input
+                      id="beingDraftedDate"
+                      type="datetime-local"
+                      {...form.register("beingDraftedDate")}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="outForSignatureDate">Out for Signature Date</Label>
+                    <Input
+                      id="outForSignatureDate"
+                      type="datetime-local"
+                      {...form.register("outForSignatureDate")}
+                    />
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4 mt-4">
+                  <div>
+                    <Label htmlFor="paymentReceivedDate">Payment Received Date</Label>
+                    <Input
+                      id="paymentReceivedDate"
+                      type="datetime-local"
+                      {...form.register("paymentReceivedDate")}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="completedDate">Completed Date</Label>
+                    <Input
+                      id="completedDate"
+                      type="datetime-local"
+                      {...form.register("completedDate")}
+                    />
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
