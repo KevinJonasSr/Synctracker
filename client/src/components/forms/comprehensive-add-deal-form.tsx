@@ -855,54 +855,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                 </div>
               </div>
 
-              <Separator />
 
-              {/* Deal Terms */}
-              <div className="grid grid-cols-4 gap-4">
-                <div>
-                  <Label htmlFor="usage">Usage</Label>
-                  <Input
-                    id="usage"
-                    {...form.register("usage")}
-                    placeholder="e.g., Background music"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="media">Media</Label>
-                  <Input
-                    id="media"
-                    {...form.register("media")}
-                    placeholder="e.g., TV, Film, Streaming"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="term">Term</Label>
-                  <Input
-                    id="term"
-                    {...form.register("term")}
-                    placeholder="e.g., 5 years, In perpetuity"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="territory">Territory</Label>
-                  <Select
-                    value={form.watch("territory")}
-                    onValueChange={(value) => form.setValue("territory", value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="worldwide">Worldwide</SelectItem>
-                      <SelectItem value="us">United States</SelectItem>
-                      <SelectItem value="north_america">North America</SelectItem>
-                      <SelectItem value="europe">Europe</SelectItem>
-                      <SelectItem value="uk">United Kingdom</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
             </CardContent>
           </Card>
 
@@ -973,6 +926,56 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                   {form.formState.errors.songId && (
                     <p className="text-sm text-red-600 mt-1">{form.formState.errors.songId.message}</p>
                   )}
+                </div>
+              </div>
+
+              {/* Deal Terms - moved from Project Information */}
+              <div className="border-t pt-4">
+                <h4 className="font-medium mb-3">Deal Terms</h4>
+                <div className="grid grid-cols-4 gap-4">
+                  <div>
+                    <Label htmlFor="usage">Usage</Label>
+                    <Input
+                      id="usage"
+                      {...form.register("usage")}
+                      placeholder="e.g., Background music"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="media">Media</Label>
+                    <Input
+                      id="media"
+                      {...form.register("media")}
+                      placeholder="e.g., TV, Film, Streaming"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="term">Term</Label>
+                    <Input
+                      id="term"
+                      {...form.register("term")}
+                      placeholder="e.g., 5 years, In perpetuity"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="territory">Territory</Label>
+                    <Select
+                      value={form.watch("territory")}
+                      onValueChange={(value) => form.setValue("territory", value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="worldwide">Worldwide</SelectItem>
+                        <SelectItem value="us">United States</SelectItem>
+                        <SelectItem value="north_america">North America</SelectItem>
+                        <SelectItem value="europe">Europe</SelectItem>
+                        <SelectItem value="uk">United Kingdom</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               </div>
 
