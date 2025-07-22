@@ -16,7 +16,7 @@ import { queryClient } from "@/lib/queryClient";
 import { apiRequest } from "@/lib/queryClient";
 import { insertDealSchema, insertContactSchema, type InsertDeal, type InsertContact, type Song, type Contact } from "@shared/schema";
 import { Plus, Building, User, FileText, DollarSign } from "lucide-react";
-// Import removed for now - will need to create AddContactDialog component if needed
+import AddContactForm from "@/components/forms/add-contact-form";
 
 // Currency formatting functions
 const formatCurrency = (value: string | number) => {
@@ -1073,18 +1073,26 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
             </Button>
           </div>
         </form>
-
-        {/* Add Contact Dialog for Music Supervisor - temporarily disabled */}
-        {/* {showAddContact && (
-          <AddContactDialog
-            open={showAddContact}
-            onClose={() => setShowAddContact(false)}
-            onContactCreated={() => {
-              setShowAddContact(false);
-            }}
-          />
-        )} */}
       </DialogContent>
+      
+      {/* Add Contact Form */}
+      <AddContactForm 
+        open={showAddContact}
+        onClose={() => setShowAddContact(false)}
+        onContactCreated={(newContact) => {
+          // Refresh contacts query
+          queryClient.invalidateQueries({ queryKey: ['/api/contacts'] });
+          
+          // Auto-select the new contact and fill form
+          form.setValue("contactId", newContact.id);
+          form.setValue("musicSupervisorContactName", newContact.company || "");
+          form.setValue("musicSupervisorContactEmail", newContact.email || "");
+          form.setValue("musicSupervisorContactPhone", newContact.phone || "");
+          
+          setShowAddContact(false);
+        }}
+        defaultRole="Music Supervisor"
+      />
     </Dialog>
   );
 }
