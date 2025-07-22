@@ -16,9 +16,11 @@ interface AddContactFormProps {
   open: boolean;
   onClose: () => void;
   contact?: Contact; // For editing existing contacts
+  onContactCreated?: (contact: Contact) => void;
+  defaultRole?: string;
 }
 
-export default function AddContactForm({ open, onClose, contact }: AddContactFormProps) {
+export default function AddContactForm({ open, onClose, contact, onContactCreated, defaultRole }: AddContactFormProps) {
   const { toast } = useToast();
   const isEditing = !!contact;
   
@@ -29,7 +31,7 @@ export default function AddContactForm({ open, onClose, contact }: AddContactFor
       email: contact?.email || "",
       phone: contact?.phone || "",
       company: contact?.company || "",
-      role: contact?.role || "",
+      role: contact?.role || defaultRole || "",
       notes: contact?.notes || "",
     },
   });
@@ -41,7 +43,7 @@ export default function AddContactForm({ open, onClose, contact }: AddContactFor
       email: contact?.email || "",
       phone: contact?.phone || "",
       company: contact?.company || "",
-      role: contact?.role || "",
+      role: contact?.role || defaultRole || "",
       notes: contact?.notes || "",
     });
   }, [contact, form]);
@@ -51,7 +53,7 @@ export default function AddContactForm({ open, onClose, contact }: AddContactFor
       const response = await apiRequest("POST", "/api/contacts", data);
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (newContact) => {
       toast({
         title: "Success",
         description: "Contact added successfully",
@@ -59,6 +61,9 @@ export default function AddContactForm({ open, onClose, contact }: AddContactFor
       queryClient.invalidateQueries({ queryKey: ["/api/contacts"] });
       form.reset();
       onClose();
+      if (onContactCreated) {
+        onContactCreated(newContact);
+      }
     },
     onError: (error) => {
       toast({
