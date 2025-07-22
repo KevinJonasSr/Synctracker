@@ -257,6 +257,16 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                 </div>
               </div>
 
+              <div>
+                <Label htmlFor="projectDescription">Project Description</Label>
+                <Textarea
+                  id="projectDescription"
+                  {...form.register("projectDescription")}
+                  placeholder="Brief description of the project"
+                  rows={2}
+                />
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="status">Status</Label>
@@ -287,16 +297,6 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                     {...form.register("airDate")}
                   />
                 </div>
-              </div>
-
-              <div>
-                <Label htmlFor="projectDescription">Project Description</Label>
-                <Textarea
-                  id="projectDescription"
-                  {...form.register("projectDescription")}
-                  placeholder="Brief description of the project"
-                  rows={2}
-                />
               </div>
 
 
