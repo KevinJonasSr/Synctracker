@@ -358,56 +358,6 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                 </div>
               </div>
 
-              {/* Deal Terms */}
-              <div className="border-t pt-4">
-                <h4 className="font-medium mb-3">Deal Terms</h4>
-                <div className="grid grid-cols-4 gap-4">
-                  <div>
-                    <Label htmlFor="usage">Usage</Label>
-                    <Input
-                      id="usage"
-                      {...form.register("usage")}
-                      placeholder="e.g., Background music"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="media">Media</Label>
-                    <Input
-                      id="media"
-                      {...form.register("media")}
-                      placeholder="e.g., TV, Film, Streaming"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="term">Term</Label>
-                    <Input
-                      id="term"
-                      {...form.register("term")}
-                      placeholder="e.g., 5 years, In perpetuity"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="territory">Territory</Label>
-                    <Select
-                      value={form.watch("territory")}
-                      onValueChange={(value) => form.setValue("territory", value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="worldwide">Worldwide</SelectItem>
-                        <SelectItem value="us">United States</SelectItem>
-                        <SelectItem value="north_america">North America</SelectItem>
-                        <SelectItem value="europe">Europe</SelectItem>
-                        <SelectItem value="uk">United Kingdom</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </div>
-
               <div className="grid grid-cols-3 gap-4">
                 <div>
                   <Label htmlFor="writers">Writers</Label>
@@ -480,6 +430,56 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                     placeholder="Artist and label split details"
                     rows={1}
                   />
+                </div>
+              </div>
+
+              {/* Deal Terms */}
+              <div className="border-t pt-4">
+                <h4 className="font-medium mb-3">Deal Terms</h4>
+                <div className="grid grid-cols-4 gap-4">
+                  <div>
+                    <Label htmlFor="usage">Usage</Label>
+                    <Input
+                      id="usage"
+                      {...form.register("usage")}
+                      placeholder="e.g., Background music"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="media">Media</Label>
+                    <Input
+                      id="media"
+                      {...form.register("media")}
+                      placeholder="e.g., TV, Film, Streaming"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="term">Term</Label>
+                    <Input
+                      id="term"
+                      {...form.register("term")}
+                      placeholder="e.g., 5 years, In perpetuity"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="territory">Territory</Label>
+                    <Select
+                      value={form.watch("territory")}
+                      onValueChange={(value) => form.setValue("territory", value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="worldwide">Worldwide</SelectItem>
+                        <SelectItem value="us">United States</SelectItem>
+                        <SelectItem value="north_america">North America</SelectItem>
+                        <SelectItem value="europe">Europe</SelectItem>
+                        <SelectItem value="uk">United Kingdom</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               </div>
 
