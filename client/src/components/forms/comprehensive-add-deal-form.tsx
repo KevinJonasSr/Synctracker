@@ -16,66 +16,32 @@ import { queryClient } from "@/lib/queryClient";
 import { apiRequest } from "@/lib/queryClient";
 import { insertDealSchema, insertContactSchema, type InsertDeal, type InsertContact, type Song, type Contact } from "@shared/schema";
 import { Plus, Building, User, FileText } from "lucide-react";
-
-// Phone number formatting function
-const formatPhoneNumber = (value: string) => {
-  // Remove all non-numeric characters
-  const phoneNumber = value.replace(/[^\d]/g, '');
-  
-  // Format based on length
-  if (phoneNumber.length <= 3) {
-    return phoneNumber;
-  } else if (phoneNumber.length <= 6) {
-    return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3)}`;
-  } else if (phoneNumber.length <= 10) {
-    return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6)}`;
-  } else {
-    // Handle international numbers or longer formats
-    return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6, 10)}`;
-  }
-};
+// Import removed for now - will need to create AddContactDialog component if needed
 
 // Currency formatting functions
 const formatCurrency = (value: string | number) => {
   if (!value || value === 0) return '';
   const numValue = typeof value === 'string' ? parseFloat(value.replace(/[^0-9.-]+/g, '')) : value;
   if (isNaN(numValue) || numValue === 0) return '';
-  return numValue.toLocaleString('en-US', {
+  return '$' + numValue.toLocaleString('en-US', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
   });
 };
 
-const parseCurrency = (value: string) => {
-  if (!value || value.trim() === '') return null;
-  const numValue = parseFloat(value.replace(/[^0-9.-]+/g, ''));
-  return isNaN(numValue) ? null : numValue;
-};
-
 interface ComprehensiveAddDealFormProps {
   open: boolean;
   onClose: () => void;
-  deal?: any; // For editing existing deals
+  deal?: any;
 }
 
 export default function ComprehensiveAddDealForm({ open, onClose, deal }: ComprehensiveAddDealFormProps) {
   const { toast } = useToast();
   const isEditing = !!deal;
   const [showAddContact, setShowAddContact] = useState(false);
-  const [showAddLicenseeContact, setShowAddLicenseeContact] = useState(false);
-  const [showAddClearanceContact, setShowAddClearanceContact] = useState(false);
-  const [newContactName, setNewContactName] = useState("");
-  const [newContactEmail, setNewContactEmail] = useState("");
-  const [newContactPhone, setNewContactPhone] = useState("");
-  const [newContactCompany, setNewContactCompany] = useState("");
-  const [newContactRole, setNewContactRole] = useState("");
-  const [newContactNotes, setNewContactNotes] = useState("");
-  const [newContactProjects, setNewContactProjects] = useState("");
-  
+
   const form = useForm<InsertDeal>({
-    // Remove strict validation for now
-    // resolver: zodResolver(insertDealSchema),
-    shouldFocusError: false, // Prevent auto-focus on validation errors
+    shouldFocusError: false,
     defaultValues: {
       projectName: deal?.projectName || "",
       episodeNumber: deal?.episodeNumber || "",
@@ -92,300 +58,82 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
       licenseeContactPhone: deal?.licenseeContactPhone || "",
       
       musicSupervisorName: deal?.musicSupervisorName || "",
-      musicSupervisorAddress: deal?.musicSupervisorAddress || "",
       musicSupervisorContactName: deal?.musicSupervisorContactName || "",
-      musicSupervisorContactEmail: deal?.musicSupervisorContactEmail || "",
-      musicSupervisorContactPhone: deal?.musicSupervisorContactPhone || "",
       
-      clearanceCompanyName: deal?.clearanceCompanyName || "",
-      clearanceCompanyAddress: deal?.clearanceCompanyAddress || "",
-      clearanceCompanyContactName: deal?.clearanceCompanyContactName || "",
-      clearanceCompanyContactEmail: deal?.clearanceCompanyContactEmail || "",
-      clearanceCompanyContactPhone: deal?.clearanceCompanyContactPhone || "",
-      
-      status: deal?.status || "new_request",
+      status: deal?.status || "new request",
       dealValue: deal?.dealValue || undefined,
       fullSongValue: deal?.fullSongValue || undefined,
       ourFee: deal?.ourFee || undefined,
       fullRecordingFee: deal?.fullRecordingFee || undefined,
       ourRecordingFee: deal?.ourRecordingFee || undefined,
       
-      // Status dates
-      pitchedDate: deal?.pitchedDate ? new Date(deal.pitchedDate).toISOString().slice(0, 16) : undefined,
-      pendingApprovalDate: deal?.pendingApprovalDate ? new Date(deal.pendingApprovalDate).toISOString().slice(0, 16) : undefined,
-      quotedDate: deal?.quotedDate ? new Date(deal.quotedDate).toISOString().slice(0, 16) : undefined,
-      useConfirmedDate: deal?.useConfirmedDate ? new Date(deal.useConfirmedDate).toISOString().slice(0, 16) : undefined,
-      beingDraftedDate: deal?.beingDraftedDate ? new Date(deal.beingDraftedDate).toISOString().slice(0, 16) : undefined,
-      outForSignatureDate: deal?.outForSignatureDate ? new Date(deal.outForSignatureDate).toISOString().slice(0, 16) : undefined,
-      paymentReceivedDate: deal?.paymentReceivedDate ? new Date(deal.paymentReceivedDate).toISOString().slice(0, 16) : undefined,
-      completedDate: deal?.completedDate ? new Date(deal.completedDate).toISOString().slice(0, 16) : undefined,
       usage: deal?.usage || "",
       media: deal?.media || "",
       territory: deal?.territory || "worldwide",
       term: deal?.term || "",
-      exclusivity: deal?.exclusivity || false,
-      exclusivityRestrictions: deal?.exclusivityRestrictions || "",
-      
-      // Song Information
       writers: deal?.writers || "",
       publishingInfo: deal?.publishingInfo || "",
       splits: deal?.splits || "",
       artist: deal?.artist || "",
       label: deal?.label || "",
       artistLabelSplits: deal?.artistLabelSplits || "",
-      
+      exclusivity: deal?.exclusivity || false,
+      exclusivityRestrictions: deal?.exclusivityRestrictions || "",
       notes: deal?.notes || "",
-      airDate: deal?.airDate ? new Date(deal.airDate).toISOString().split('T')[0] : "",
-      pitchDate: deal?.pitchDate ? new Date(deal.pitchDate).toISOString().split('T')[0] : undefined,
+      airDate: deal?.airDate || "",
     },
   });
 
-  // Reset form when deal prop changes
-  useEffect(() => {
-    form.reset({
-      projectName: deal?.projectName || "",
-      episodeNumber: deal?.episodeNumber || "",
-      projectType: deal?.projectType || "",
-      projectDescription: deal?.projectDescription || "",
-      songId: deal?.songId || undefined,
-      contactId: deal?.contactId || undefined,
-      
-      // Contact Information
-      licenseeCompanyName: deal?.licenseeCompanyName || "",
-      licenseeAddress: deal?.licenseeAddress || "",
-      licenseeContactName: deal?.licenseeContactName || "",
-      licenseeContactEmail: deal?.licenseeContactEmail || "",
-      licenseeContactPhone: deal?.licenseeContactPhone || "",
-      
-      musicSupervisorName: deal?.musicSupervisorName || "",
-      musicSupervisorAddress: deal?.musicSupervisorAddress || "",
-      musicSupervisorContactName: deal?.musicSupervisorContactName || "",
-      musicSupervisorContactEmail: deal?.musicSupervisorContactEmail || "",
-      musicSupervisorContactPhone: deal?.musicSupervisorContactPhone || "",
-      
-      clearanceCompanyName: deal?.clearanceCompanyName || "",
-      clearanceCompanyAddress: deal?.clearanceCompanyAddress || "",
-      clearanceCompanyContactName: deal?.clearanceCompanyContactName || "",
-      clearanceCompanyContactEmail: deal?.clearanceCompanyContactEmail || "",
-      clearanceCompanyContactPhone: deal?.clearanceCompanyContactPhone || "",
-      
-      status: deal?.status || "new_request",
-      dealValue: deal?.dealValue || undefined,
-      fullSongValue: deal?.fullSongValue || undefined,
-      ourFee: deal?.ourFee || undefined,
-      fullRecordingFee: deal?.fullRecordingFee || undefined,
-      ourRecordingFee: deal?.ourRecordingFee || undefined,
-      
-      // Status dates
-      pitchedDate: deal?.pitchedDate ? new Date(deal.pitchedDate).toISOString().slice(0, 16) : undefined,
-      pendingApprovalDate: deal?.pendingApprovalDate ? new Date(deal.pendingApprovalDate).toISOString().slice(0, 16) : undefined,
-      quotedDate: deal?.quotedDate ? new Date(deal.quotedDate).toISOString().slice(0, 16) : undefined,
-      useConfirmedDate: deal?.useConfirmedDate ? new Date(deal.useConfirmedDate).toISOString().slice(0, 16) : undefined,
-      beingDraftedDate: deal?.beingDraftedDate ? new Date(deal.beingDraftedDate).toISOString().slice(0, 16) : undefined,
-      outForSignatureDate: deal?.outForSignatureDate ? new Date(deal.outForSignatureDate).toISOString().slice(0, 16) : undefined,
-      paymentReceivedDate: deal?.paymentReceivedDate ? new Date(deal.paymentReceivedDate).toISOString().slice(0, 16) : undefined,
-      completedDate: deal?.completedDate ? new Date(deal.completedDate).toISOString().slice(0, 16) : undefined,
-      usage: deal?.usage || "",
-      media: deal?.media || "",
-      territory: deal?.territory || "worldwide",
-      term: deal?.term || "",
-      exclusivity: deal?.exclusivity || false,
-      exclusivityRestrictions: deal?.exclusivityRestrictions || "",
-      
-      // Song Information
-      writers: deal?.writers || "",
-      publishingInfo: deal?.publishingInfo || "",
-      splits: deal?.splits || "",
-      artist: deal?.artist || "",
-      label: deal?.label || "",
-      artistLabelSplits: deal?.artistLabelSplits || "",
-      
-      notes: deal?.notes || "",
-      airDate: deal?.airDate ? new Date(deal.airDate).toISOString().split('T')[0] : "",
-      pitchDate: deal?.pitchDate ? new Date(deal.pitchDate).toISOString().split('T')[0] : undefined,
-    });
-  }, [deal, form]);
-
-  // Watch for status changes to auto-update dates
-  const watchedStatus = form.watch("status");
-  useEffect(() => {
-    if (watchedStatus && watchedStatus !== "pitched") {
-      const now = new Date().toISOString().slice(0, 16); // Format for datetime-local
-      const fieldMap = {
-        "pitched": "pitchedDate",
-        "pending approval": "pendingApprovalDate",
-        "quoted": "quotedDate",
-        "use confirmed": "useConfirmedDate",
-        "being drafted": "beingDraftedDate",
-        "out for signature": "outForSignatureDate",
-        "payment received": "paymentReceivedDate",
-        "completed": "completedDate"
-      };
-      
-      const dateField = fieldMap[watchedStatus.toLowerCase()];
-      if (dateField && !form.getValues(dateField)) {
-        form.setValue(dateField, now);
-      }
-    }
-  }, [watchedStatus, form]);
-
   const { data: songs = [] } = useQuery<Song[]>({
-    queryKey: ["/api/songs"],
+    queryKey: ['/api/songs'],
   });
 
   const { data: contacts = [] } = useQuery<Contact[]>({
-    queryKey: ["/api/contacts"],
-  });
-
-  const createContactMutation = useMutation({
-    mutationFn: async (contactData: any) => {
-      const response = await apiRequest('/api/contacts', { method: 'POST', body: contactData });
-      return response.json();
-    },
-    onSuccess: (newContact) => {
-      queryClient.invalidateQueries({ queryKey: ['/api/contacts'] });
-      form.setValue('contactId', newContact.id);
-      setShowAddContact(false);
-      // Clear form
-      setNewContactName("");
-      setNewContactEmail("");
-      setNewContactPhone("");
-      setNewContactCompany("");
-      setNewContactRole("");
-      setNewContactNotes("");
-      setNewContactProjects("");
-      toast({
-        title: "Contact added successfully",
-        description: `${newContact.name} has been added to your contacts.`,
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "Error adding contact",
-        description: "Failed to add the contact. Please try again.",
-        variant: "destructive",
-      });
-    }
+    queryKey: ['/api/contacts'],
   });
 
   const createDealMutation = useMutation({
-    mutationFn: async (data: InsertDeal) => {
-      // Ensure all required fields are present and properly typed
-      const processedData = {
-        ...data,
-        songId: data.songId ? parseInt(data.songId.toString()) : null,
-        contactId: data.contactId ? parseInt(data.contactId.toString()) : null,
-        dealValue: data.dealValue !== null && data.dealValue !== undefined ? parseFloat(data.dealValue.toString()) : null,
-        fullSongValue: data.fullSongValue !== null && data.fullSongValue !== undefined ? parseFloat(data.fullSongValue.toString()) : null,
-        ourFee: data.ourFee !== null && data.ourFee !== undefined ? parseFloat(data.ourFee.toString()) : null,
-        fullRecordingFee: data.fullRecordingFee !== null && data.fullRecordingFee !== undefined ? parseFloat(data.fullRecordingFee.toString()) : null,
-        ourRecordingFee: data.ourRecordingFee !== null && data.ourRecordingFee !== undefined ? parseFloat(data.ourRecordingFee.toString()) : null,
-        pitchDate: data.pitchDate ? new Date(data.pitchDate).toISOString() : null,
-        
-        // Status dates
-        pitchedDate: data.pitchedDate ? new Date(data.pitchedDate).toISOString() : null,
-        pendingApprovalDate: data.pendingApprovalDate ? new Date(data.pendingApprovalDate).toISOString() : null,
-        quotedDate: data.quotedDate ? new Date(data.quotedDate).toISOString() : null,
-        useConfirmedDate: data.useConfirmedDate ? new Date(data.useConfirmedDate).toISOString() : null,
-        beingDraftedDate: data.beingDraftedDate ? new Date(data.beingDraftedDate).toISOString() : null,
-        outForSignatureDate: data.outForSignatureDate ? new Date(data.outForSignatureDate).toISOString() : null,
-        paymentReceivedDate: data.paymentReceivedDate ? new Date(data.paymentReceivedDate).toISOString() : null,
-        completedDate: data.completedDate ? new Date(data.completedDate).toISOString() : null,
-        airDate: data.airDate ? new Date(data.airDate).toISOString() : null,
-      };
-      
-      console.log("Processed data:", processedData);
-      const endpoint = isEditing ? `/api/deals/${deal.id}` : "/api/deals";
-      const method = isEditing ? "PUT" : "POST";
-      const response = await apiRequest(endpoint, { method, body: processedData });
-      return response.json();
-    },
-    onSuccess: async (newDeal) => {
-      queryClient.invalidateQueries({ queryKey: ["/api/deals"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/dashboard"] });
-      
-      // Auto-create calendar event if airdate is set
-      if (newDeal.airDate) {
-        try {
-          await apiRequest("/api/calendar-events", {
-            method: "POST",
-            body: {
-              title: `Air Date: ${newDeal.projectName}`,
-              description: `Air date for ${newDeal.projectName}`,
-              startDate: newDeal.airDate,
-              endDate: newDeal.airDate,
-              entityType: "deal",
-              entityId: newDeal.id,
-              status: "scheduled"
-            }
-          });
-          queryClient.invalidateQueries({ queryKey: ["/api/calendar-events"] });
-        } catch (error) {
-          console.log("Failed to create calendar event:", error);
-        }
-      }
-      
-      form.reset();
-      onClose();
+    mutationFn: (data: InsertDeal) => 
+      apiRequest(isEditing ? `/api/deals/${deal.id}` : '/api/deals', {
+        method: isEditing ? 'PATCH' : 'POST',
+        body: data,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/deals'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/dashboard'] });
       toast({
-        title: isEditing ? "Deal Updated" : "Deal Added",
-        description: isEditing 
-          ? "Deal has been successfully updated"
-          : (newDeal.airDate 
-              ? "Deal has been added to the pipeline and calendar event created for air date"
-              : "Deal has been successfully added to the pipeline")
+        title: isEditing ? "Deal updated successfully" : "Deal created successfully",
+        description: `The deal has been ${isEditing ? 'updated' : 'created'}.`,
       });
+      onClose();
+      form.reset();
     },
     onError: (error) => {
-      console.error("Error creating deal:", error);
       toast({
-        title: isEditing ? "Error Updating Deal" : "Error Creating Deal",
-        description: isEditing 
-          ? "There was an error updating the deal. Please try again."
-          : "There was an error creating the deal. Please try again.",
+        title: "Error",
+        description: `Failed to ${isEditing ? 'update' : 'create'} deal: ${error.message}`,
         variant: "destructive",
       });
-    }
+    },
   });
 
-  const handleAddContact = () => {
-    if (!newContactName.trim() || !newContactEmail.trim()) {
-      toast({
-        title: "Missing required fields",
-        description: "Please provide at least a name and email for the contact.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const contactData = {
-      name: newContactName.trim(),
-      email: newContactEmail.trim(),
-      phone: newContactPhone.trim() || null,
-      company: newContactCompany.trim() || null,
-      role: newContactRole.trim() || null,
-      notes: `${newContactNotes.trim()}${newContactProjects.trim() ? '\n\nCurrent Projects:\n' + newContactProjects.trim() : ''}`.trim() || null,
-    };
-
-    createContactMutation.mutate(contactData);
-  };
-
-  // Function to parse splits percentage from text
+  // Function to parse our split percentage from splits text
   const parseOurSplitPercentage = (splitsText: string): number => {
-    if (!splitsText) return 50; // Default to 50% if no splits info
+    if (!splitsText) return 50; // Default to 50%
     
-    // Common patterns to look for our percentage
-    const patterns = [
-      /our\s*(?:share|split|percentage|%):?\s*(\d+)%?/i,
-      /we\s*(?:get|receive|own):?\s*(\d+)%?/i,
-      /(\d+)%?\s*(?:our|ours|us)/i,
-      /(\d+)%?\s*writer/i, // Assuming we're the writer
-      /(\d+)%?\s*publisher/i, // Assuming we're the publisher
+    // Look for our percentage patterns
+    const ourPatterns = [
+      /our[:\s]*(\d+)%/i,
+      /we[:\s]*(\d+)%/i,
+      /us[:\s]*(\d+)%/i,
+      /(\d+)%[^/]*our/i,
+      /(\d+)%[^/]*we/i,
+      /(\d+)%[^/]*us/i
     ];
     
-    for (const pattern of patterns) {
+    for (const pattern of ourPatterns) {
       const match = splitsText.match(pattern);
-      if (match && match[1]) {
+      if (match) {
         const percentage = parseInt(match[1]);
         if (percentage >= 0 && percentage <= 100) {
           return percentage;
@@ -451,6 +199,25 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                     onValueChange={(value) => {
                       const songId = parseInt(value);
                       form.setValue("songId", songId);
+                      
+                      // Auto-populate song information
+                      const selectedSong = songs.find(song => song.id === songId);
+                      if (selectedSong) {
+                        form.setValue("artist", selectedSong.artist);
+                        if (selectedSong.producer) {
+                          form.setValue("label", selectedSong.producer);
+                        }
+                        
+                        // Set splits to default 50/50 if not specified
+                        if (!form.watch("splits")) {
+                          form.setValue("splits", "50% Writer / 50% Publisher");
+                        }
+                        
+                        // Set artist/label splits to default if not specified
+                        if (!form.watch("artistLabelSplits")) {
+                          form.setValue("artistLabelSplits", "50% Artist / 50% Label");
+                        }
+                      }
                     }}
                   >
                     <SelectTrigger>
@@ -517,6 +284,172 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                       </SelectContent>
                     </Select>
                   </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <Label htmlFor="writers">Writers</Label>
+                  <Textarea
+                    id="writers"
+                    {...form.register("writers")}
+                    placeholder="List of song writers"
+                    rows={2}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="publishingInfo">Publishing Information</Label>
+                  <Textarea
+                    id="publishingInfo"
+                    {...form.register("publishingInfo")}
+                    placeholder="Publishing company details"
+                    rows={2}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="splits">Splits</Label>
+                  <Textarea
+                    id="splits"
+                    {...form.register("splits", {
+                      onChange: (e) => {
+                        // Recalculate fees when splits change
+                        const splitsText = e.target.value;
+                        const fullPublishingFee = form.watch("fullSongValue") || 0;
+                        const fullRecordingFee = form.watch("fullRecordingFee") || 0;
+                        
+                        if (fullPublishingFee > 0) {
+                          const ourPublishingFee = calculateOurFee(fullPublishingFee, splitsText);
+                          form.setValue("ourFee", Math.round(ourPublishingFee * 100) / 100);
+                        }
+                        
+                        if (fullRecordingFee > 0) {
+                          const ourRecordingFee = calculateOurFee(fullRecordingFee, splitsText);
+                          form.setValue("ourRecordingFee", Math.round(ourRecordingFee * 100) / 100);
+                        }
+                      }
+                    })}
+                    placeholder="Publishing splits breakdown"
+                    rows={2}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <Label htmlFor="artist">Artist</Label>
+                  <Input
+                    id="artist"
+                    {...form.register("artist")}
+                    placeholder="Recording artist"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="label">Label</Label>
+                  <Input
+                    id="label"
+                    {...form.register("label")}
+                    placeholder="Record label"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="artistLabelSplits">Artist/Label Split Information</Label>
+                  <Textarea
+                    id="artistLabelSplits"
+                    {...form.register("artistLabelSplits")}
+                    placeholder="Artist and label split details"
+                    rows={1}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="exclusivity"
+                    checked={form.watch("exclusivity")}
+                    onCheckedChange={(checked) => form.setValue("exclusivity", checked)}
+                  />
+                  <Label htmlFor="exclusivity">Exclusive Deal</Label>
+                </div>
+                <div>
+                  <Label htmlFor="exclusivityRestrictions">Exclusivity Restrictions</Label>
+                  <Input
+                    id="exclusivityRestrictions"
+                    {...form.register("exclusivityRestrictions")}
+                    placeholder="Describe any exclusivity restrictions"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="fullSongValue">100% Publishing Fee ($)</Label>
+                  <Input
+                    id="fullSongValue"
+                    type="text"
+                    value={formatCurrency(form.watch("fullSongValue") || "")}
+                    onChange={(e) => {
+                      const numericValue = parseFloat(e.target.value.replace(/[$,]/g, "")) || 0;
+                      form.setValue("fullSongValue", numericValue);
+                      
+                      // Auto-calculate our fee based on splits
+                      const splitsText = form.watch("splits") || "";
+                      if (splitsText) {
+                        const ourFee = calculateOurFee(numericValue, splitsText);
+                        form.setValue("ourFee", Math.round(ourFee * 100) / 100);
+                      }
+                    }}
+                    placeholder="$0.00"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="ourFee">Our Publishing Fee ($)</Label>
+                  <Input
+                    id="ourFee"
+                    type="text"
+                    value={formatCurrency(form.watch("ourFee") || "")}
+                    onChange={(e) => {
+                      const numericValue = parseFloat(e.target.value.replace(/[$,]/g, "")) || 0;
+                      form.setValue("ourFee", numericValue);
+                    }}
+                    placeholder="$0.00"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="fullRecordingFee">100% Recording Fee ($)</Label>
+                  <Input
+                    id="fullRecordingFee"
+                    type="text"
+                    value={formatCurrency(form.watch("fullRecordingFee") || "")}
+                    onChange={(e) => {
+                      const numericValue = parseFloat(e.target.value.replace(/[$,]/g, "")) || 0;
+                      form.setValue("fullRecordingFee", numericValue);
+                      
+                      // Auto-calculate our recording fee based on splits
+                      const splitsText = form.watch("splits") || "";
+                      if (splitsText) {
+                        const ourRecordingFee = calculateOurFee(numericValue, splitsText);
+                        form.setValue("ourRecordingFee", Math.round(ourRecordingFee * 100) / 100);
+                      }
+                    }}
+                    placeholder="$0.00"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="ourRecordingFee">Our Recording Fee ($)</Label>
+                  <Input
+                    id="ourRecordingFee"
+                    type="text"
+                    value={formatCurrency(form.watch("ourRecordingFee") || "")}
+                    onChange={(e) => {
+                      const numericValue = parseFloat(e.target.value.replace(/[$,]/g, "")) || 0;
+                      form.setValue("ourRecordingFee", numericValue);
+                    }}
+                    placeholder="$0.00"
+                  />
                 </div>
               </div>
             </CardContent>
@@ -622,7 +555,15 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                       <SelectItem value="documentary">Documentary</SelectItem>
                       <SelectItem value="film">Film</SelectItem>
                       <SelectItem value="game">Video Game</SelectItem>
-                      <SelectItem value="tv">TV Show</SelectItem>
+                      <SelectItem value="indie film">Indie Film</SelectItem>
+                      <SelectItem value="non-profit">Non-Profit</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
+                      <SelectItem value="podcast">Podcast</SelectItem>
+                      <SelectItem value="promos">Promos</SelectItem>
+                      <SelectItem value="sports">Sports</SelectItem>
+                      <SelectItem value="student film">Student Film</SelectItem>
+                      <SelectItem value="trailers">Trailers</SelectItem>
+                      <SelectItem value="tv show">TV Show</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -680,24 +621,34 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="contactId">Supervisor Name *</Label>
-                    <Select
-                      value={form.watch("contactId")?.toString() || ""}
-                      onValueChange={(value) => {
-                        const contactId = parseInt(value);
-                        form.setValue("contactId", contactId);
-                      }}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select supervisor" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {contacts.map((contact) => (
-                          <SelectItem key={contact.id} value={contact.id.toString()}>
-                            {contact.name} {contact.company && `(${contact.company})`}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div className="flex gap-2">
+                      <Select
+                        value={form.watch("contactId")?.toString() || ""}
+                        onValueChange={(value) => {
+                          const contactId = parseInt(value);
+                          form.setValue("contactId", contactId);
+                        }}
+                      >
+                        <SelectTrigger className="flex-1">
+                          <SelectValue placeholder="Select supervisor" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {contacts.map((contact) => (
+                            <SelectItem key={contact.id} value={contact.id.toString()}>
+                              {contact.name} {contact.company && `(${contact.company})`}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowAddContact(true)}
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
                     {form.formState.errors.contactId && (
                       <p className="text-sm text-red-600 mt-1">{form.formState.errors.contactId.message}</p>
                     )}
@@ -715,6 +666,27 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
             </CardContent>
           </Card>
 
+          {/* Section 4: Additional Information */}
+          <Card className="bg-green-50 border-green-200">
+            <CardHeader className="bg-green-100 border-b border-green-200">
+              <CardTitle className="flex items-center space-x-2 text-green-800">
+                <FileText className="h-5 w-5" />
+                <span>Additional Information</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4 bg-green-50">
+              <div>
+                <Label htmlFor="notes">Notes</Label>
+                <Textarea
+                  id="notes"
+                  {...form.register("notes")}
+                  placeholder="Additional notes about the deal"
+                  rows={3}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
           <div className="flex justify-end space-x-2 pt-4">
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel
@@ -724,6 +696,17 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
             </Button>
           </div>
         </form>
+
+        {/* Add Contact Dialog for Music Supervisor - temporarily disabled */}
+        {/* {showAddContact && (
+          <AddContactDialog
+            open={showAddContact}
+            onClose={() => setShowAddContact(false)}
+            onContactCreated={() => {
+              setShowAddContact(false);
+            }}
+          />
+        )} */}
       </DialogContent>
     </Dialog>
   );
