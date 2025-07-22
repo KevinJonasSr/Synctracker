@@ -524,6 +524,18 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                 </div>
               </div>
 
+              <div className="grid grid-cols-1 gap-4">
+                <div>
+                  <Label htmlFor="options">Options</Label>
+                  <Textarea
+                    id="options"
+                    {...form.register("options")}
+                    placeholder="Additional options, notes, or special terms for this deal"
+                    rows={3}
+                  />
+                </div>
+              </div>
+
               {/* Deal Terms */}
               <div className="border-t pt-4">
                 <h4 className="font-medium mb-3">Deal Terms</h4>

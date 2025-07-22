@@ -113,6 +113,7 @@ export const deals = pgTable("deals", {
   term: text("term"), // perpetual, 1 year, etc.
   exclusivity: boolean("exclusivity").default(false),
   exclusivityRestrictions: text("exclusivity_restrictions"),
+  options: text("options"), // Additional options, notes, or special terms
   
   // Song Information
   writers: text("writers"),
