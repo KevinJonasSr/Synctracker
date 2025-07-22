@@ -41,7 +41,10 @@ export default function AddSongForm({ open, onClose }: AddSongFormProps) {
 
   const createSongMutation = useMutation({
     mutationFn: async (data: InsertSong) => {
-      const response = await apiRequest("POST", "/api/songs", data);
+      const response = await apiRequest("/api/songs", {
+        method: "POST",
+        body: data,
+      });
       return response.json();
     },
     onSuccess: () => {
@@ -140,7 +143,7 @@ export default function AddSongForm({ open, onClose }: AddSongFormProps) {
               <Input
                 id="tempo"
                 type="number"
-                {...form.register("tempo", { valueAsNumber: true })}
+                {...form.register("tempo")}
                 placeholder="e.g., 120"
               />
             </div>
@@ -150,7 +153,7 @@ export default function AddSongForm({ open, onClose }: AddSongFormProps) {
               <Input
                 id="duration"
                 type="number"
-                {...form.register("duration", { valueAsNumber: true })}
+                {...form.register("duration")}
                 placeholder="e.g., 180"
               />
             </div>
@@ -171,7 +174,7 @@ export default function AddSongForm({ open, onClose }: AddSongFormProps) {
               <Input
                 id="bpm"
                 type="number"
-                {...form.register("bpm", { valueAsNumber: true })}
+                {...form.register("bpm")}
                 placeholder="e.g., 120"
               />
             </div>

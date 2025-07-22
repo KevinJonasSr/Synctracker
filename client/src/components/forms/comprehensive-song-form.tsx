@@ -43,7 +43,7 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
       moodTheme: song?.moodTheme || "",
       bpmKey: song?.bpmKey || "",
       vocalInstrumentation: song?.vocalInstrumentation || "",
-      explicitContent: song?.explicitContent || false,
+      explicitContent: song?.explicitContent ?? false,
       lyrics: song?.lyrics || "",
       durationFormatted: song?.durationFormatted || "",
       version: song?.version || "",
@@ -395,7 +395,7 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
                         <Input
                           id="tempo"
                           type="number"
-                          {...form.register("tempo", { valueAsNumber: true })}
+                          {...form.register("tempo")}
                           placeholder="e.g., 120"
                         />
                       </div>
@@ -404,7 +404,7 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
                         <Input
                           id="duration"
                           type="number"
-                          {...form.register("duration", { valueAsNumber: true })}
+                          {...form.register("duration")}
                           placeholder="e.g., 180"
                         />
                       </div>
@@ -413,7 +413,7 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
                         <Input
                           id="bpm"
                           type="number"
-                          {...form.register("bpm", { valueAsNumber: true })}
+                          {...form.register("bpm")}
                           placeholder="e.g., 120"
                         />
                       </div>
