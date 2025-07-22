@@ -272,7 +272,39 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                   <Label htmlFor="status">Status</Label>
                   <Select
                     value={form.watch("status")}
-                    onValueChange={(value) => form.setValue("status", value)}
+                    onValueChange={(value) => {
+                      form.setValue("status", value);
+                      
+                      // Auto-populate corresponding date when status changes
+                      const currentDate = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
+                      
+                      switch (value) {
+                        case "new request":
+                          form.setValue("pitchedDate", currentDate);
+                          break;
+                        case "pending approval":
+                          form.setValue("pendingApprovalDate", currentDate);
+                          break;
+                        case "quoted":
+                          form.setValue("quotedDate", currentDate);
+                          break;
+                        case "use confirmed":
+                          form.setValue("useConfirmedDate", currentDate);
+                          break;
+                        case "being drafted":
+                          form.setValue("beingDraftedDate", currentDate);
+                          break;
+                        case "out for signature":
+                          form.setValue("outForSignatureDate", currentDate);
+                          break;
+                        case "payment received":
+                          form.setValue("paymentReceivedDate", currentDate);
+                          break;
+                        case "completed":
+                          form.setValue("completedDate", currentDate);
+                          break;
+                      }
+                    }}
                   >
                     <SelectTrigger>
                       <SelectValue />
