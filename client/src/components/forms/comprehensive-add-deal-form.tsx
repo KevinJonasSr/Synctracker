@@ -20,11 +20,12 @@ import { Plus, Building, User, FileText, DollarSign } from "lucide-react";
 
 // Currency formatting functions
 const formatCurrency = (value: string | number) => {
-  if (!value || value === 0) return '';
+  if (!value && value !== 0) return '';
   const numValue = typeof value === 'string' ? parseFloat(value.replace(/[^0-9.-]+/g, '')) : value;
-  if (isNaN(numValue) || numValue === 0) return '';
+  if (isNaN(numValue)) return '';
+  if (numValue === 0) return '';
   return '$' + numValue.toLocaleString('en-US', {
-    minimumFractionDigits: 2,
+    minimumFractionDigits: 0,
     maximumFractionDigits: 2
   });
 };
