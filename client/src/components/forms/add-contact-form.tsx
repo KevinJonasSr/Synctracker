@@ -50,7 +50,12 @@ export default function AddContactForm({ open, onClose, contact, onContactCreate
 
   const createContactMutation = useMutation({
     mutationFn: async (data: InsertContact) => {
-      const response = await apiRequest("POST", "/api/contacts", data);
+      console.log("Making API request with data:", data);
+      const response = await apiRequest("/api/contacts", {
+        method: "POST",
+        body: data
+      });
+      console.log("API response:", response);
       return response.json();
     },
     onSuccess: (newContact) => {
@@ -77,7 +82,10 @@ export default function AddContactForm({ open, onClose, contact, onContactCreate
 
   const updateContactMutation = useMutation({
     mutationFn: async (data: InsertContact) => {
-      const response = await apiRequest("PUT", `/api/contacts/${contact?.id}`, data);
+      const response = await apiRequest(`/api/contacts/${contact?.id}`, {
+        method: "PUT",
+        body: data
+      });
       return response.json();
     },
     onSuccess: () => {
