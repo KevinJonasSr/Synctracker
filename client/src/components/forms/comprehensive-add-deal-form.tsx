@@ -15,7 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 import { apiRequest } from "@/lib/queryClient";
 import { insertDealSchema, insertContactSchema, type InsertDeal, type InsertContact, type Song, type Contact } from "@shared/schema";
-import { Plus, Building, User, FileText } from "lucide-react";
+import { Plus, Building, User, FileText, DollarSign } from "lucide-react";
 // Import removed for now - will need to create AddContactDialog component if needed
 
 // Currency formatting functions
@@ -433,6 +433,79 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                 </div>
               </div>
 
+
+
+              {/* Deal Terms */}
+              <div className="border-t pt-4">
+                <h4 className="font-medium mb-3">Deal Terms</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="usage">Usage</Label>
+                    <Input
+                      id="usage"
+                      {...form.register("usage")}
+                      placeholder="e.g., Background music"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="sceneDescription">Scene Description</Label>
+                    <Input
+                      id="sceneDescription"
+                      {...form.register("sceneDescription")}
+                      placeholder="Describe how music is used in scene"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-4 mt-4">
+                  <div>
+                    <Label htmlFor="media">Media</Label>
+                    <Input
+                      id="media"
+                      {...form.register("media")}
+                      placeholder="e.g., TV, Film, Streaming"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="term">Term</Label>
+                    <Input
+                      id="term"
+                      {...form.register("term")}
+                      placeholder="e.g., 5 years, In perpetuity"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="territory">Territory</Label>
+                    <Select
+                      value={form.watch("territory")}
+                      onValueChange={(value) => form.setValue("territory", value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="worldwide">Worldwide</SelectItem>
+                        <SelectItem value="us">United States</SelectItem>
+                        <SelectItem value="north_america">North America</SelectItem>
+                        <SelectItem value="europe">Europe</SelectItem>
+                        <SelectItem value="uk">United Kingdom</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Fees Section */}
+          <Card className="bg-green-50 border-green-200">
+            <CardHeader className="bg-green-100 border-b border-green-200">
+              <CardTitle className="flex items-center space-x-2 text-green-800">
+                <DollarSign className="h-5 w-5" />
+                <span>Fees</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4 bg-green-50">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="fullSongValue">100% Publishing Fee ($)</Label>
@@ -533,66 +606,6 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                     placeholder="Additional options, notes, or special terms for this deal"
                     rows={3}
                   />
-                </div>
-              </div>
-
-              {/* Deal Terms */}
-              <div className="border-t pt-4">
-                <h4 className="font-medium mb-3">Deal Terms</h4>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="usage">Usage</Label>
-                    <Input
-                      id="usage"
-                      {...form.register("usage")}
-                      placeholder="e.g., Background music"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="sceneDescription">Scene Description</Label>
-                    <Input
-                      id="sceneDescription"
-                      {...form.register("sceneDescription")}
-                      placeholder="Describe how music is used in scene"
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-3 gap-4 mt-4">
-                  <div>
-                    <Label htmlFor="media">Media</Label>
-                    <Input
-                      id="media"
-                      {...form.register("media")}
-                      placeholder="e.g., TV, Film, Streaming"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="term">Term</Label>
-                    <Input
-                      id="term"
-                      {...form.register("term")}
-                      placeholder="e.g., 5 years, In perpetuity"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="territory">Territory</Label>
-                    <Select
-                      value={form.watch("territory")}
-                      onValueChange={(value) => form.setValue("territory", value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="worldwide">Worldwide</SelectItem>
-                        <SelectItem value="us">United States</SelectItem>
-                        <SelectItem value="north_america">North America</SelectItem>
-                        <SelectItem value="europe">Europe</SelectItem>
-                        <SelectItem value="uk">United Kingdom</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
                 </div>
               </div>
             </CardContent>
