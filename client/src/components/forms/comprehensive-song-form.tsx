@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 import { apiRequest } from "@/lib/queryClient";
 import { insertSongSchema, type InsertSong } from "@shared/schema";
+import { Plus, X } from "lucide-react";
 
 interface ComprehensiveSongFormProps {
   open: boolean;
@@ -24,6 +25,39 @@ interface ComprehensiveSongFormProps {
 export default function ComprehensiveSongForm({ open, onClose, song }: ComprehensiveSongFormProps) {
   const { toast } = useToast();
   const isEditing = !!song;
+  
+  // State for managing multiple artists and composers
+  const [artists, setArtists] = useState<string[]>(
+    song?.artist ? song.artist.split(', ').filter(Boolean) : ['']
+  );
+  const [composers, setComposers] = useState<string[]>(
+    song?.composer ? song.composer.split(', ').filter(Boolean) : ['']
+  );
+  
+  // Helper functions for managing artist and composer arrays
+  const addArtist = () => setArtists([...artists, '']);
+  const removeArtist = (index: number) => {
+    if (artists.length > 1) {
+      setArtists(artists.filter((_, i) => i !== index));
+    }
+  };
+  const updateArtist = (index: number, value: string) => {
+    const newArtists = [...artists];
+    newArtists[index] = value;
+    setArtists(newArtists);
+  };
+
+  const addComposer = () => setComposers([...composers, '']);
+  const removeComposer = (index: number) => {
+    if (composers.length > 1) {
+      setComposers(composers.filter((_, i) => i !== index));
+    }
+  };
+  const updateComposer = (index: number, value: string) => {
+    const newComposers = [...composers];
+    newComposers[index] = value;
+    setComposers(newComposers);
+  };
   
   const form = useForm<InsertSong>({
     resolver: zodResolver(insertSongSchema),
@@ -123,8 +157,14 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
       processedTags = data.tags[0].split(",").map(tag => tag.trim()).filter(tag => tag.length > 0);
     }
     
+    // Combine multiple artists and composers into comma-separated strings
+    const combinedArtist = artists.filter(artist => artist.trim()).join(', ');
+    const combinedComposer = composers.filter(composer => composer.trim()).join(', ');
+    
     const processedData = {
       ...data,
+      artist: combinedArtist,
+      composer: combinedComposer,
       tags: processedTags,
     };
     
@@ -187,18 +227,43 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
                       </div>
                     </div>
                     
-                    {/* Second line: Artist, Label */}
+                    {/* Second line: Artist(s), Label */}
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="artist">Artist *</Label>
-                        <Input
-                          id="artist"
-                          {...form.register("artist")}
-                          placeholder="Artist name"
-                        />
-                        {form.formState.errors.artist && (
-                          <p className="text-sm text-red-600">{form.formState.errors.artist.message}</p>
-                        )}
+                        <div className="flex items-center justify-between mb-2">
+                          <Label>Artist(s) *</Label>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={addArtist}
+                            className="h-6 px-2"
+                          >
+                            <Plus className="h-3 w-3" />
+                          </Button>
+                        </div>
+                        <div className="space-y-2">
+                          {artists.map((artist, index) => (
+                            <div key={index} className="flex gap-2">
+                              <Input
+                                value={artist}
+                                onChange={(e) => updateArtist(index, e.target.value)}
+                                placeholder="Artist name"
+                              />
+                              {artists.length > 1 && (
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => removeArtist(index)}
+                                  className="h-10 px-3 flex-shrink-0"
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              )}
+                            </div>
+                          ))}
+                        </div>
                       </div>
                       <div>
                         <Label htmlFor="producer">Label</Label>
@@ -237,12 +302,40 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
                   <CardContent className="space-y-4 bg-green-50">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="composer">Composer(s)</Label>
-                        <Input
-                          id="composer"
-                          {...form.register("composer")}
-                          placeholder="Composer name(s)"
-                        />
+                        <div className="flex items-center justify-between mb-2">
+                          <Label>Composer(s)</Label>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={addComposer}
+                            className="h-6 px-2"
+                          >
+                            <Plus className="h-3 w-3" />
+                          </Button>
+                        </div>
+                        <div className="space-y-2">
+                          {composers.map((composer, index) => (
+                            <div key={index} className="flex gap-2">
+                              <Input
+                                value={composer}
+                                onChange={(e) => updateComposer(index, e.target.value)}
+                                placeholder="Composer name"
+                              />
+                              {composers.length > 1 && (
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => removeComposer(index)}
+                                  className="h-10 px-3 flex-shrink-0"
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              )}
+                            </div>
+                          ))}
+                        </div>
                       </div>
                       <div>
                         <Label htmlFor="publisher">Publisher(s)</Label>
