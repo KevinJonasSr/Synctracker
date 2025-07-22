@@ -291,58 +291,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                 />
               </div>
 
-              {/* Music Supervisor */}
-              <Separator />
-              <div>
-                <h4 className="font-medium mb-3 flex items-center space-x-2">
-                  <User className="h-4 w-4" />
-                  <span>Music Supervisor</span>
-                </h4>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="contactId">Supervisor Name *</Label>
-                    <div className="flex gap-2">
-                      <Select
-                        value={form.watch("contactId")?.toString() || ""}
-                        onValueChange={(value) => {
-                          const contactId = parseInt(value);
-                          form.setValue("contactId", contactId);
-                        }}
-                      >
-                        <SelectTrigger className="flex-1">
-                          <SelectValue placeholder="Select supervisor" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {contacts.map((contact) => (
-                            <SelectItem key={contact.id} value={contact.id.toString()}>
-                              {contact.name} {contact.company && `(${contact.company})`}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setShowAddContact(true)}
-                      >
-                        <Plus className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    {form.formState.errors.contactId && (
-                      <p className="text-sm text-red-600 mt-1">{form.formState.errors.contactId.message}</p>
-                    )}
-                  </div>
-                  <div>
-                    <Label htmlFor="musicSupervisorContactName">Company Name</Label>
-                    <Input
-                      id="musicSupervisorContactName"
-                      {...form.register("musicSupervisorContactName")}
-                      placeholder="Music company name"
-                    />
-                  </div>
-                </div>
-              </div>
+
             </CardContent>
           </Card>
 
@@ -619,64 +568,124 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
             </CardContent>
           </Card>
 
-          {/* Section 2: Licensee / Production Company */}
+          {/* Section 3: Contacts */}
           <Card className="bg-yellow-50 border-yellow-200">
             <CardHeader className="bg-yellow-100 border-b border-yellow-200">
               <CardTitle className="flex items-center space-x-2 text-yellow-800">
-                <Building className="h-5 w-5" />
-                <span>Licensee / Production Company</span>
+                <User className="h-5 w-5" />
+                <span>Contacts</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4 bg-yellow-50">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="licenseeCompanyName">Company Name</Label>
-                  <Input
-                    id="licenseeCompanyName"
-                    {...form.register("licenseeCompanyName")}
-                    placeholder="Production company name"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="licenseeContactName">Contact Name</Label>
-                  <Input
-                    id="licenseeContactName"
-                    {...form.register("licenseeContactName")}
-                    placeholder="Contact person name"
-                  />
+              {/* Music Supervisor */}
+              <div>
+                <h4 className="font-medium mb-3 flex items-center space-x-2">
+                  <User className="h-4 w-4" />
+                  <span>Music Supervisor</span>
+                </h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="contactId">Supervisor Name *</Label>
+                    <div className="flex gap-2">
+                      <Select
+                        value={form.watch("contactId")?.toString() || ""}
+                        onValueChange={(value) => {
+                          const contactId = parseInt(value);
+                          form.setValue("contactId", contactId);
+                        }}
+                      >
+                        <SelectTrigger className="flex-1">
+                          <SelectValue placeholder="Select supervisor" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {contacts.map((contact) => (
+                            <SelectItem key={contact.id} value={contact.id.toString()}>
+                              {contact.name} {contact.company && `(${contact.company})`}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowAddContact(true)}
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    {form.formState.errors.contactId && (
+                      <p className="text-sm text-red-600 mt-1">{form.formState.errors.contactId.message}</p>
+                    )}
+                  </div>
+                  <div>
+                    <Label htmlFor="musicSupervisorContactName">Company Name</Label>
+                    <Input
+                      id="musicSupervisorContactName"
+                      {...form.register("musicSupervisorContactName")}
+                      placeholder="Music company name"
+                    />
+                  </div>
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <Label htmlFor="licenseeContactEmail">Email</Label>
-                  <Input
-                    id="licenseeContactEmail"
-                    type="email"
-                    {...form.register("licenseeContactEmail")}
-                    placeholder="contact@company.com"
-                  />
+
+              {/* Licensee / Production Company */}
+              <Separator />
+              <div>
+                <h4 className="font-medium mb-3 flex items-center space-x-2">
+                  <Building className="h-4 w-4" />
+                  <span>Licensee / Production Company</span>
+                </h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="licenseeCompanyName">Company Name</Label>
+                    <Input
+                      id="licenseeCompanyName"
+                      {...form.register("licenseeCompanyName")}
+                      placeholder="Production company name"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="licenseeContactName">Contact Name</Label>
+                    <Input
+                      id="licenseeContactName"
+                      {...form.register("licenseeContactName")}
+                      placeholder="Contact person name"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <Label htmlFor="licenseeContactPhone">Phone</Label>
-                  <Input
-                    id="licenseeContactPhone"
-                    {...form.register("licenseeContactPhone")}
-                    placeholder="(555) 123-4567"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="licenseeAddress">Address</Label>
-                  <Input
-                    id="licenseeAddress"
-                    {...form.register("licenseeAddress")}
-                    placeholder="Company address"
-                  />
+                <div className="grid grid-cols-3 gap-4 mt-4">
+                  <div>
+                    <Label htmlFor="licenseeContactEmail">Email</Label>
+                    <Input
+                      id="licenseeContactEmail"
+                      type="email"
+                      {...form.register("licenseeContactEmail")}
+                      placeholder="contact@company.com"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="licenseeContactPhone">Phone</Label>
+                    <Input
+                      id="licenseeContactPhone"
+                      {...form.register("licenseeContactPhone")}
+                      placeholder="(555) 123-4567"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="licenseeAddress">Address</Label>
+                    <Input
+                      id="licenseeAddress"
+                      {...form.register("licenseeAddress")}
+                      placeholder="Company address"
+                    />
+                  </div>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Section 3: Additional Information */}
+          {/* Section 4: Additional Information */}
           <Card className="bg-green-50 border-green-200">
             <CardHeader className="bg-green-100 border-b border-green-200">
               <CardTitle className="flex items-center space-x-2 text-green-800">
