@@ -46,7 +46,7 @@ export default function AddContactForm({ open, onClose, contact, onContactCreate
       role: contact?.role || defaultRole || "",
       notes: contact?.notes || "",
     });
-  }, [contact, form]);
+  }, [contact, form, defaultRole]);
 
   const createContactMutation = useMutation({
     mutationFn: async (data: InsertContact) => {
@@ -66,9 +66,10 @@ export default function AddContactForm({ open, onClose, contact, onContactCreate
       }
     },
     onError: (error) => {
+      console.error("Contact creation error:", error);
       toast({
         title: "Error",
-        description: "Failed to add contact",
+        description: `Failed to add contact: ${error.message || error}`,
         variant: "destructive",
       });
     },
@@ -98,6 +99,7 @@ export default function AddContactForm({ open, onClose, contact, onContactCreate
   });
 
   const onSubmit = (data: InsertContact) => {
+    console.log("Form submission data:", data);
     if (isEditing) {
       updateContactMutation.mutate(data);
     } else {
