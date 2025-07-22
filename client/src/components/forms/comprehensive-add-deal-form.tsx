@@ -192,7 +192,161 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
         </DialogHeader>
         
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          {/* Section 1: Song Information */}
+          {/* Section 1: Project Information */}
+          <Card className="bg-purple-50 border-purple-200">
+            <CardHeader className="bg-purple-100 border-b border-purple-200">
+              <CardTitle className="flex items-center space-x-2 text-purple-800">
+                <FileText className="h-5 w-5" />
+                <span>Project Information</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4 bg-purple-50">
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <Label htmlFor="projectName">Project Name *</Label>
+                  <Input
+                    id="projectName"
+                    {...form.register("projectName")}
+                    placeholder="Project name"
+                  />
+                  {form.formState.errors.projectName && (
+                    <p className="text-sm text-red-600 mt-1">{form.formState.errors.projectName.message}</p>
+                  )}
+                </div>
+                <div>
+                  <Label htmlFor="episodeNumber">Episode #</Label>
+                  <Input
+                    id="episodeNumber"
+                    {...form.register("episodeNumber")}
+                    placeholder="e.g., S01E05"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="projectType">Project Type *</Label>
+                  <Select 
+                    value={form.watch("projectType")} 
+                    onValueChange={(value) => form.setValue("projectType", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select project type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="commercial">Commercial</SelectItem>
+                      <SelectItem value="documentary">Documentary</SelectItem>
+                      <SelectItem value="film">Film</SelectItem>
+                      <SelectItem value="game">Video Game</SelectItem>
+                      <SelectItem value="indie film">Indie Film</SelectItem>
+                      <SelectItem value="non-profit">Non-Profit</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
+                      <SelectItem value="podcast">Podcast</SelectItem>
+                      <SelectItem value="promos">Promos</SelectItem>
+                      <SelectItem value="sports">Sports</SelectItem>
+                      <SelectItem value="student film">Student Film</SelectItem>
+                      <SelectItem value="trailers">Trailers</SelectItem>
+                      <SelectItem value="tv show">TV Show</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="status">Status</Label>
+                  <Select
+                    value={form.watch("status")}
+                    onValueChange={(value) => form.setValue("status", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="new request">New Request</SelectItem>
+                      <SelectItem value="pending approval">Pending Approval</SelectItem>
+                      <SelectItem value="quoted">Quoted</SelectItem>
+                      <SelectItem value="use confirmed">Use Confirmed</SelectItem>
+                      <SelectItem value="being drafted">Being Drafted</SelectItem>
+                      <SelectItem value="out for signature">Out for Signature</SelectItem>
+                      <SelectItem value="payment received">Payment Received</SelectItem>
+                      <SelectItem value="completed">Completed</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="airDate">Air Date</Label>
+                  <Input
+                    id="airDate"
+                    type="date"
+                    {...form.register("airDate")}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="projectDescription">Project Description</Label>
+                <Textarea
+                  id="projectDescription"
+                  {...form.register("projectDescription")}
+                  placeholder="Brief description of the project"
+                  rows={2}
+                />
+              </div>
+
+              {/* Music Supervisor */}
+              <Separator />
+              <div>
+                <h4 className="font-medium mb-3 flex items-center space-x-2">
+                  <User className="h-4 w-4" />
+                  <span>Music Supervisor</span>
+                </h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="contactId">Supervisor Name *</Label>
+                    <div className="flex gap-2">
+                      <Select
+                        value={form.watch("contactId")?.toString() || ""}
+                        onValueChange={(value) => {
+                          const contactId = parseInt(value);
+                          form.setValue("contactId", contactId);
+                        }}
+                      >
+                        <SelectTrigger className="flex-1">
+                          <SelectValue placeholder="Select supervisor" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {contacts.map((contact) => (
+                            <SelectItem key={contact.id} value={contact.id.toString()}>
+                              {contact.name} {contact.company && `(${contact.company})`}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowAddContact(true)}
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    {form.formState.errors.contactId && (
+                      <p className="text-sm text-red-600 mt-1">{form.formState.errors.contactId.message}</p>
+                    )}
+                  </div>
+                  <div>
+                    <Label htmlFor="musicSupervisorContactName">Company Name</Label>
+                    <Input
+                      id="musicSupervisorContactName"
+                      {...form.register("musicSupervisorContactName")}
+                      placeholder="Music company name"
+                    />
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Section 2: Song Information */}
           <Card className="bg-blue-50 border-blue-200">
             <CardHeader className="bg-blue-100 border-b border-blue-200">
               <CardTitle className="flex items-center space-x-2 text-blue-800">
@@ -522,161 +676,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
             </CardContent>
           </Card>
 
-          {/* Section 3: Project Information */}
-          <Card className="bg-purple-50 border-purple-200">
-            <CardHeader className="bg-purple-100 border-b border-purple-200">
-              <CardTitle className="flex items-center space-x-2 text-purple-800">
-                <FileText className="h-5 w-5" />
-                <span>Project Information</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 bg-purple-50">
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <Label htmlFor="projectName">Project Name *</Label>
-                  <Input
-                    id="projectName"
-                    {...form.register("projectName")}
-                    placeholder="Project name"
-                  />
-                  {form.formState.errors.projectName && (
-                    <p className="text-sm text-red-600 mt-1">{form.formState.errors.projectName.message}</p>
-                  )}
-                </div>
-                <div>
-                  <Label htmlFor="episodeNumber">Episode #</Label>
-                  <Input
-                    id="episodeNumber"
-                    {...form.register("episodeNumber")}
-                    placeholder="e.g., S01E05"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="projectType">Project Type *</Label>
-                  <Select 
-                    value={form.watch("projectType")} 
-                    onValueChange={(value) => form.setValue("projectType", value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select project type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="commercial">Commercial</SelectItem>
-                      <SelectItem value="documentary">Documentary</SelectItem>
-                      <SelectItem value="film">Film</SelectItem>
-                      <SelectItem value="game">Video Game</SelectItem>
-                      <SelectItem value="indie film">Indie Film</SelectItem>
-                      <SelectItem value="non-profit">Non-Profit</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
-                      <SelectItem value="podcast">Podcast</SelectItem>
-                      <SelectItem value="promos">Promos</SelectItem>
-                      <SelectItem value="sports">Sports</SelectItem>
-                      <SelectItem value="student film">Student Film</SelectItem>
-                      <SelectItem value="trailers">Trailers</SelectItem>
-                      <SelectItem value="tv show">TV Show</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="status">Status</Label>
-                  <Select
-                    value={form.watch("status")}
-                    onValueChange={(value) => form.setValue("status", value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="new request">New Request</SelectItem>
-                      <SelectItem value="pending approval">Pending Approval</SelectItem>
-                      <SelectItem value="quoted">Quoted</SelectItem>
-                      <SelectItem value="use confirmed">Use Confirmed</SelectItem>
-                      <SelectItem value="being drafted">Being Drafted</SelectItem>
-                      <SelectItem value="out for signature">Out for Signature</SelectItem>
-                      <SelectItem value="payment received">Payment Received</SelectItem>
-                      <SelectItem value="completed">Completed</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="airDate">Air Date</Label>
-                  <Input
-                    id="airDate"
-                    type="date"
-                    {...form.register("airDate")}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <Label htmlFor="projectDescription">Project Description</Label>
-                <Textarea
-                  id="projectDescription"
-                  {...form.register("projectDescription")}
-                  placeholder="Brief description of the project"
-                  rows={2}
-                />
-              </div>
-
-              {/* Music Supervisor */}
-              <Separator />
-              <div>
-                <h4 className="font-medium mb-3 flex items-center space-x-2">
-                  <User className="h-4 w-4" />
-                  <span>Music Supervisor</span>
-                </h4>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="contactId">Supervisor Name *</Label>
-                    <div className="flex gap-2">
-                      <Select
-                        value={form.watch("contactId")?.toString() || ""}
-                        onValueChange={(value) => {
-                          const contactId = parseInt(value);
-                          form.setValue("contactId", contactId);
-                        }}
-                      >
-                        <SelectTrigger className="flex-1">
-                          <SelectValue placeholder="Select supervisor" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {contacts.map((contact) => (
-                            <SelectItem key={contact.id} value={contact.id.toString()}>
-                              {contact.name} {contact.company && `(${contact.company})`}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setShowAddContact(true)}
-                      >
-                        <Plus className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    {form.formState.errors.contactId && (
-                      <p className="text-sm text-red-600 mt-1">{form.formState.errors.contactId.message}</p>
-                    )}
-                  </div>
-                  <div>
-                    <Label htmlFor="musicSupervisorContactName">Company Name</Label>
-                    <Input
-                      id="musicSupervisorContactName"
-                      {...form.register("musicSupervisorContactName")}
-                      placeholder="Music company name"
-                    />
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Section 4: Additional Information */}
+          {/* Section 3: Additional Information */}
           <Card className="bg-green-50 border-green-200">
             <CardHeader className="bg-green-100 border-b border-green-200">
               <CardTitle className="flex items-center space-x-2 text-green-800">
