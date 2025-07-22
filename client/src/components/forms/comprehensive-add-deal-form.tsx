@@ -353,20 +353,29 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                       const songId = parseInt(value);
                       form.setValue("songId", songId);
                       
-                      // Auto-populate song information
+                      // Auto-populate comprehensive song information from database
                       const selectedSong = songs.find(song => song.id === songId);
                       if (selectedSong) {
-                        form.setValue("artist", selectedSong.artist);
-                        if (selectedSong.producer) {
-                          form.setValue("label", selectedSong.producer);
+                        // Basic song information
+                        form.setValue("artist", selectedSong.artist || "");
+                        form.setValue("label", selectedSong.producer || selectedSong.publisher || "");
+                        
+                        // Writers and publishing information
+                        if (selectedSong.composer) {
+                          form.setValue("writers", selectedSong.composer);
+                        }
+                        if (selectedSong.publisher) {
+                          form.setValue("publishingInfo", selectedSong.publisher);
                         }
                         
-                        // Set splits to default 50/50 if not specified
-                        if (!form.watch("splits")) {
+                        // Use actual split details if available, otherwise default
+                        if (selectedSong.splitDetails) {
+                          form.setValue("splits", selectedSong.splitDetails);
+                        } else if (!form.watch("splits")) {
                           form.setValue("splits", "50% Writer / 50% Publisher");
                         }
                         
-                        // Set artist/label splits to default if not specified
+                        // Artist/Label splits - default if not specified
                         if (!form.watch("artistLabelSplits")) {
                           form.setValue("artistLabelSplits", "50% Artist / 50% Label");
                         }
