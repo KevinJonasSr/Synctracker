@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import EditDealForm from "@/components/forms/edit-deal-form";
+import ComprehensiveAddDealForm from "@/components/forms/comprehensive-add-deal-form";
 import AttachmentsList from "@/components/attachments-list";
 import { 
   Calendar, 
@@ -554,7 +554,7 @@ export default function DealDetailsDialog({ deal, open, onClose }: DealDetailsDi
         </Tabs>
       </DialogContent>
       
-      <EditDealForm 
+      <ComprehensiveAddDealForm 
         deal={deal}
         open={showEditForm}
         onClose={() => setShowEditForm(false)}
