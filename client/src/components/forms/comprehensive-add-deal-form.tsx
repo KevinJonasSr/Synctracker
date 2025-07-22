@@ -433,75 +433,6 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                 </div>
               </div>
 
-              {/* Deal Terms */}
-              <div className="border-t pt-4">
-                <h4 className="font-medium mb-3">Deal Terms</h4>
-                <div className="grid grid-cols-4 gap-4">
-                  <div>
-                    <Label htmlFor="usage">Usage</Label>
-                    <Input
-                      id="usage"
-                      {...form.register("usage")}
-                      placeholder="e.g., Background music"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="media">Media</Label>
-                    <Input
-                      id="media"
-                      {...form.register("media")}
-                      placeholder="e.g., TV, Film, Streaming"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="term">Term</Label>
-                    <Input
-                      id="term"
-                      {...form.register("term")}
-                      placeholder="e.g., 5 years, In perpetuity"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="territory">Territory</Label>
-                    <Select
-                      value={form.watch("territory")}
-                      onValueChange={(value) => form.setValue("territory", value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="worldwide">Worldwide</SelectItem>
-                        <SelectItem value="us">United States</SelectItem>
-                        <SelectItem value="north_america">North America</SelectItem>
-                        <SelectItem value="europe">Europe</SelectItem>
-                        <SelectItem value="uk">United Kingdom</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="exclusivity"
-                    checked={form.watch("exclusivity")}
-                    onCheckedChange={(checked) => form.setValue("exclusivity", checked)}
-                  />
-                  <Label htmlFor="exclusivity">Exclusive Deal</Label>
-                </div>
-                <div>
-                  <Label htmlFor="exclusivityRestrictions">Exclusivity Restrictions</Label>
-                  <Input
-                    id="exclusivityRestrictions"
-                    {...form.register("exclusivityRestrictions")}
-                    placeholder="Describe any exclusivity restrictions"
-                  />
-                </div>
-              </div>
-
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="fullSongValue">100% Publishing Fee ($)</Label>
@@ -571,6 +502,75 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                     }}
                     placeholder="$0.00"
                   />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="exclusivity"
+                    checked={form.watch("exclusivity")}
+                    onCheckedChange={(checked) => form.setValue("exclusivity", checked)}
+                  />
+                  <Label htmlFor="exclusivity">Exclusive Deal</Label>
+                </div>
+                <div>
+                  <Label htmlFor="exclusivityRestrictions">Exclusivity Restrictions</Label>
+                  <Input
+                    id="exclusivityRestrictions"
+                    {...form.register("exclusivityRestrictions")}
+                    placeholder="Describe any exclusivity restrictions"
+                  />
+                </div>
+              </div>
+
+              {/* Deal Terms */}
+              <div className="border-t pt-4">
+                <h4 className="font-medium mb-3">Deal Terms</h4>
+                <div className="grid grid-cols-4 gap-4">
+                  <div>
+                    <Label htmlFor="usage">Usage</Label>
+                    <Input
+                      id="usage"
+                      {...form.register("usage")}
+                      placeholder="e.g., Background music"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="media">Media</Label>
+                    <Input
+                      id="media"
+                      {...form.register("media")}
+                      placeholder="e.g., TV, Film, Streaming"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="term">Term</Label>
+                    <Input
+                      id="term"
+                      {...form.register("term")}
+                      placeholder="e.g., 5 years, In perpetuity"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="territory">Territory</Label>
+                    <Select
+                      value={form.watch("territory")}
+                      onValueChange={(value) => form.setValue("territory", value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="worldwide">Worldwide</SelectItem>
+                        <SelectItem value="us">United States</SelectItem>
+                        <SelectItem value="north_america">North America</SelectItem>
+                        <SelectItem value="europe">Europe</SelectItem>
+                        <SelectItem value="uk">United Kingdom</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               </div>
             </CardContent>
