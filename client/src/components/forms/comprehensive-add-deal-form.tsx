@@ -1080,14 +1080,21 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
         open={showAddContact}
         onClose={() => setShowAddContact(false)}
         onContactCreated={(newContact) => {
+          console.log("New contact created:", newContact);
+          
           // Refresh contacts query
           queryClient.invalidateQueries({ queryKey: ['/api/contacts'] });
           
           // Auto-select the new contact and fill form
-          form.setValue("contactId", newContact.id);
-          form.setValue("musicSupervisorContactName", newContact.company || "");
-          form.setValue("musicSupervisorContactEmail", newContact.email || "");
-          form.setValue("musicSupervisorContactPhone", newContact.phone || "");
+          setTimeout(() => {
+            form.setValue("contactId", newContact.id);
+            form.setValue("musicSupervisorContactName", newContact.company || "");
+            form.setValue("musicSupervisorContactEmail", newContact.email || "");
+            form.setValue("musicSupervisorContactPhone", newContact.phone || "");
+            
+            // Trigger form update
+            form.trigger(['contactId', 'musicSupervisorContactName', 'musicSupervisorContactEmail', 'musicSupervisorContactPhone']);
+          }, 100);
           
           setShowAddContact(false);
         }}
