@@ -68,6 +68,23 @@ export default function Deals() {
     return new Date(date).toLocaleDateString();
   };
 
+  const getLatestStatusDate = (deal: DealWithRelations) => {
+    // Get the most recent status date based on current status
+    const statusDates = {
+      'new request': deal.pitchedDate,
+      'pending approval': deal.pendingApprovalDate,
+      'quoted': deal.quotedDate,
+      'use confirmed': deal.useConfirmedDate,
+      'being drafted': deal.beingDraftedDate,
+      'out for signature': deal.outForSignatureDate,
+      'payment received': deal.paymentReceivedDate,
+      'completed': deal.completedDate
+    };
+    
+    const currentStatusDate = statusDates[deal.status as keyof typeof statusDates];
+    return formatDate(currentStatusDate);
+  };
+
   const filteredDeals = activeTab === "all" ? deals : deals.filter(deal => deal.status === activeTab);
 
   if (isLoading) {
@@ -221,7 +238,7 @@ export default function Deals() {
                             <div className="flex items-center space-x-4 text-sm text-gray-600">
                               <div className="flex items-center space-x-1">
                                 <Calendar className="h-4 w-4" />
-                                <span>Pitched: {formatDate(deal.pitchedDate)}</span>
+                                <span>Updated: {getLatestStatusDate(deal)}</span>
                               </div>
                               {deal.useConfirmedDate && (
                                 <div className="flex items-center space-x-1">
