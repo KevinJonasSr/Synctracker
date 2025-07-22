@@ -59,6 +59,8 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
       
       musicSupervisorName: deal?.musicSupervisorName || "",
       musicSupervisorContactName: deal?.musicSupervisorContactName || "",
+      musicSupervisorContactEmail: deal?.musicSupervisorContactEmail || "",
+      musicSupervisorContactPhone: deal?.musicSupervisorContactPhone || "",
       
       status: deal?.status || "new request",
       dealValue: deal?.dealValue || undefined,
@@ -624,6 +626,25 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                       id="musicSupervisorContactName"
                       {...form.register("musicSupervisorContactName")}
                       placeholder="Music company name"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4 mt-4">
+                  <div>
+                    <Label htmlFor="musicSupervisorContactEmail">Email</Label>
+                    <Input
+                      id="musicSupervisorContactEmail"
+                      type="email"
+                      {...form.register("musicSupervisorContactEmail")}
+                      placeholder="supervisor@company.com"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="musicSupervisorContactPhone">Phone</Label>
+                    <Input
+                      id="musicSupervisorContactPhone"
+                      {...form.register("musicSupervisorContactPhone")}
+                      placeholder="(555) 123-4567"
                     />
                   </div>
                 </div>
