@@ -62,6 +62,12 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
       musicSupervisorContactEmail: deal?.musicSupervisorContactEmail || "",
       musicSupervisorContactPhone: deal?.musicSupervisorContactPhone || "",
       
+      clearanceCompanyName: deal?.clearanceCompanyName || "",
+      clearanceCompanyContactName: deal?.clearanceCompanyContactName || "",
+      clearanceCompanyContactEmail: deal?.clearanceCompanyContactEmail || "",
+      clearanceCompanyContactPhone: deal?.clearanceCompanyContactPhone || "",
+      clearanceCompanyAddress: deal?.clearanceCompanyAddress || "",
+      
       status: deal?.status || "new request",
       dealValue: deal?.dealValue || undefined,
       fullSongValue: deal?.fullSongValue || undefined,
@@ -698,6 +704,60 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                     <Input
                       id="licenseeAddress"
                       {...form.register("licenseeAddress")}
+                      placeholder="Company address"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Clearance Company */}
+              <Separator />
+              <div>
+                <h4 className="font-medium mb-3 flex items-center space-x-2">
+                  <Building className="h-4 w-4" />
+                  <span>Clearance Company</span>
+                </h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="clearanceCompanyName">Company Name</Label>
+                    <Input
+                      id="clearanceCompanyName"
+                      {...form.register("clearanceCompanyName")}
+                      placeholder="Clearance company name"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="clearanceCompanyContactName">Contact Name</Label>
+                    <Input
+                      id="clearanceCompanyContactName"
+                      {...form.register("clearanceCompanyContactName")}
+                      placeholder="Contact person name"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-4 mt-4">
+                  <div>
+                    <Label htmlFor="clearanceCompanyContactEmail">Email</Label>
+                    <Input
+                      id="clearanceCompanyContactEmail"
+                      type="email"
+                      {...form.register("clearanceCompanyContactEmail")}
+                      placeholder="clearance@company.com"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="clearanceCompanyContactPhone">Phone</Label>
+                    <Input
+                      id="clearanceCompanyContactPhone"
+                      {...form.register("clearanceCompanyContactPhone")}
+                      placeholder="(555) 123-4567"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="clearanceCompanyAddress">Address</Label>
+                    <Input
+                      id="clearanceCompanyAddress"
+                      {...form.register("clearanceCompanyAddress")}
                       placeholder="Company address"
                     />
                   </div>
