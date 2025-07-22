@@ -582,20 +582,24 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                   </div>
                   <div>
                     <Label htmlFor="sceneDescription">Scene Description</Label>
-                    <Input
+                    <Textarea
                       id="sceneDescription"
                       {...form.register("sceneDescription")}
                       placeholder="Describe how music is used in scene"
+                      rows={4}
+                      className="min-h-[100px]"
                     />
                   </div>
                 </div>
                 <div className="grid grid-cols-3 gap-4 mt-4">
                   <div>
                     <Label htmlFor="media">Media</Label>
-                    <Input
+                    <Textarea
                       id="media"
                       {...form.register("media")}
-                      placeholder="e.g., TV, Film, Streaming"
+                      placeholder="e.g., TV, Film, Streaming, All media and devices..."
+                      rows={3}
+                      className="min-h-[80px]"
                     />
                   </div>
                   <div>
