@@ -42,6 +42,10 @@ export const songs = pgTable("songs", {
   description: text("description"),
   tags: text("tags").array(),
   filePath: text("file_path"),
+  // Ownership percentages
+  publishingOwnership: decimal("publishing_ownership", { precision: 5, scale: 2 }), // Our publishing ownership percentage (0-100)
+  masterOwnership: decimal("master_ownership", { precision: 5, scale: 2 }), // Our master recording ownership percentage (0-100)
+  splitDetails: text("split_details"), // Detailed breakdown of all splits
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -479,6 +483,9 @@ export const insertSongSchema = createInsertSchema(songs).omit({
   tempo: z.union([z.number(), z.string().transform(val => val === '' ? undefined : parseInt(val))]).optional().nullable(),
   duration: z.union([z.number(), z.string().transform(val => val === '' ? undefined : parseInt(val))]).optional().nullable(),
   bpm: z.union([z.number(), z.string().transform(val => val === '' ? undefined : parseInt(val))]).optional().nullable(),
+  // Handle ownership percentages
+  publishingOwnership: z.union([z.number(), z.string().transform(val => val === '' ? undefined : parseFloat(val))]).optional().nullable(),
+  masterOwnership: z.union([z.number(), z.string().transform(val => val === '' ? undefined : parseFloat(val))]).optional().nullable(),
 });
 
 export const insertContactSchema = createInsertSchema(contacts).omit({

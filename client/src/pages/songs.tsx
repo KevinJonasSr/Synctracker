@@ -138,6 +138,28 @@ export default function Songs() {
                           )}
                         </div>
                         
+                        {/* Ownership Information */}
+                        {(song.publishingOwnership || song.masterOwnership) && (
+                          <div className="mt-3 p-3 bg-green-50 rounded-lg border border-green-200">
+                            <div className="flex items-center space-x-4 text-sm">
+                              <div className="font-semibold text-green-800">Your Ownership:</div>
+                              {song.publishingOwnership && (
+                                <div className="text-green-700">
+                                  <span className="font-medium">Publishing: {song.publishingOwnership}%</span>
+                                </div>
+                              )}
+                              {song.masterOwnership && (
+                                <div className="text-green-700">
+                                  <span className="font-medium">Master: {song.masterOwnership}%</span>
+                                </div>
+                              )}
+                            </div>
+                            {song.splitDetails && (
+                              <p className="text-xs text-green-600 mt-1">{song.splitDetails}</p>
+                            )}
+                          </div>
+                        )}
+                        
                         {song.description && (
                           <p className="text-sm text-gray-600 mt-3">{song.description}</p>
                         )}

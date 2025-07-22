@@ -36,6 +36,9 @@ export default function AddSongForm({ open, onClose }: AddSongFormProps) {
       description: "",
       tags: [],
       filePath: "",
+      publishingOwnership: undefined,
+      masterOwnership: undefined,
+      splitDetails: "",
     },
   });
 
@@ -215,6 +218,43 @@ export default function AddSongForm({ open, onClose }: AddSongFormProps) {
               id="filePath"
               {...form.register("filePath")}
               placeholder="Enter file path or URL"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="publishingOwnership">Publishing Ownership (%)</Label>
+              <Input
+                id="publishingOwnership"
+                type="number"
+                min="0"
+                max="100"
+                step="0.01"
+                {...form.register("publishingOwnership")}
+                placeholder="e.g., 50.00"
+              />
+            </div>
+            <div>
+              <Label htmlFor="masterOwnership">Master Recording Ownership (%)</Label>
+              <Input
+                id="masterOwnership"
+                type="number"
+                min="0"
+                max="100"
+                step="0.01"
+                {...form.register("masterOwnership")}
+                placeholder="e.g., 50.00"
+              />
+            </div>
+          </div>
+
+          <div>
+            <Label htmlFor="splitDetails">Split Details (Optional)</Label>
+            <Textarea
+              id="splitDetails"
+              {...form.register("splitDetails")}
+              placeholder="Detailed breakdown of ownership splits and agreements"
+              rows={2}
             />
           </div>
 

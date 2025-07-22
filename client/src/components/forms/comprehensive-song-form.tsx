@@ -65,6 +65,10 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
       description: song?.description || "",
       tags: song?.tags || [],
       filePath: song?.filePath || "",
+      // Ownership fields
+      publishingOwnership: song?.publishingOwnership || undefined,
+      masterOwnership: song?.masterOwnership || undefined,
+      splitDetails: song?.splitDetails || "",
     },
   });
 
@@ -325,6 +329,48 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
                           {...form.register("contentRepresentationCode")}
                           placeholder="Content representation code"
                         />
+                      </div>
+                    </div>
+                    
+                    <div className="border-t pt-4">
+                      <h4 className="font-semibold text-lg mb-4">Ownership Information</h4>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="publishingOwnership">Publishing Ownership (%)</Label>
+                          <Input
+                            id="publishingOwnership"
+                            type="number"
+                            min="0"
+                            max="100"
+                            step="0.01"
+                            {...form.register("publishingOwnership")}
+                            placeholder="e.g., 50.00"
+                          />
+                          <p className="text-xs text-gray-600 mt-1">Your publishing ownership percentage (0-100%)</p>
+                        </div>
+                        <div>
+                          <Label htmlFor="masterOwnership">Master Recording Ownership (%)</Label>
+                          <Input
+                            id="masterOwnership"
+                            type="number"
+                            min="0"
+                            max="100"
+                            step="0.01"
+                            {...form.register("masterOwnership")}
+                            placeholder="e.g., 50.00"
+                          />
+                          <p className="text-xs text-gray-600 mt-1">Your master recording ownership percentage (0-100%)</p>
+                        </div>
+                      </div>
+                      <div className="mt-4">
+                        <Label htmlFor="splitDetails">Split Details</Label>
+                        <Textarea
+                          id="splitDetails"
+                          {...form.register("splitDetails")}
+                          placeholder="Detailed breakdown of all ownership splits and agreements"
+                          rows={3}
+                        />
+                        <p className="text-xs text-gray-600 mt-1">Include detailed information about all parties' ownership shares and agreements</p>
                       </div>
                     </div>
                   </CardContent>
