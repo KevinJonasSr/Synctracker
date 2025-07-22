@@ -773,13 +773,37 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                         onValueChange={(value) => {
                           const contactId = parseInt(value);
                           form.setValue("contactId", contactId);
+                          
+                          // Auto-fill contact information when supervisor is selected
+                          const selectedContact = contacts.find(c => c.id === contactId);
+                          if (selectedContact) {
+                            form.setValue("musicSupervisorContactName", selectedContact.company || "");
+                            form.setValue("musicSupervisorContactEmail", selectedContact.email || "");
+                            form.setValue("musicSupervisorContactPhone", selectedContact.phone || "");
+                          }
                         }}
                       >
                         <SelectTrigger className="flex-1">
                           <SelectValue placeholder="Select supervisor" />
                         </SelectTrigger>
                         <SelectContent>
-                          {contacts.map((contact) => (
+                          {contacts.filter(contact => 
+                            contact.role && (
+                              contact.role.toLowerCase().includes('music supervisor') ||
+                              contact.role.toLowerCase().includes('supervisor')
+                            )
+                          ).map((contact) => (
+                            <SelectItem key={contact.id} value={contact.id.toString()}>
+                              {contact.name} {contact.company && `(${contact.company})`}
+                            </SelectItem>
+                          ))}
+                          <SelectItem value="all">--- Show All Contacts ---</SelectItem>
+                          {contacts.filter(contact => 
+                            !contact.role || !(
+                              contact.role.toLowerCase().includes('music supervisor') ||
+                              contact.role.toLowerCase().includes('supervisor')
+                            )
+                          ).map((contact) => (
                             <SelectItem key={contact.id} value={contact.id.toString()}>
                               {contact.name} {contact.company && `(${contact.company})`}
                             </SelectItem>
