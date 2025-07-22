@@ -116,12 +116,38 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
         method: isEditing ? 'PATCH' : 'POST',
         body: data,
       }),
-    onSuccess: () => {
+    onSuccess: async (newDeal) => {
       queryClient.invalidateQueries({ queryKey: ['/api/deals'] });
       queryClient.invalidateQueries({ queryKey: ['/api/dashboard'] });
+      
+      // Auto-create calendar event if air date is provided
+      if (newDeal.airDate && !isEditing) {
+        try {
+          await apiRequest('/api/calendar-events', {
+            method: 'POST',
+            body: {
+              title: `${newDeal.projectName} - Air Date`,
+              description: `Air date for ${newDeal.projectName}`,
+              startDate: newDeal.airDate,
+              endDate: newDeal.airDate,
+              allDay: true,
+              entityType: "deal",
+              entityId: newDeal.id,
+              status: 'scheduled',
+              reminderMinutes: 1440 // 24 hours before
+            }
+          });
+          queryClient.invalidateQueries({ queryKey: ["/api/calendar-events"] });
+        } catch (error) {
+          console.log("Failed to create calendar event:", error);
+        }
+      }
+      
       toast({
         title: isEditing ? "Deal updated successfully" : "Deal created successfully",
-        description: `The deal has been ${isEditing ? 'updated' : 'created'}.`,
+        description: newDeal.airDate && !isEditing
+          ? `The deal has been ${isEditing ? 'updated' : 'created'} and calendar event created for air date.`
+          : `The deal has been ${isEditing ? 'updated' : 'created'}.`,
       });
       onClose();
       form.reset();
