@@ -238,6 +238,33 @@ export default function DealDetailsDialog({ deal, open, onClose }: DealDetailsDi
                       <p className="text-gray-900">{deal.song.composer}</p>
                     </div>
                   )}
+                  {deal.song.publisher && (
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Publisher</label>
+                      <p className="text-gray-900">{deal.song.publisher}</p>
+                    </div>
+                  )}
+                  {/* Ownership Information */}
+                  {(deal.song.publishingOwnership || deal.song.masterOwnership) && (
+                    <div className="mt-4 p-3 bg-green-50 rounded-lg border border-green-200">
+                      <div className="flex items-center space-x-4 text-sm">
+                        <div className="font-semibold text-green-800">Your Ownership:</div>
+                        {deal.song.publishingOwnership && (
+                          <div className="text-green-700">
+                            <span className="font-medium">Publishing: {deal.song.publishingOwnership}%</span>
+                          </div>
+                        )}
+                        {deal.song.masterOwnership && (
+                          <div className="text-green-700">
+                            <span className="font-medium">Master: {deal.song.masterOwnership}%</span>
+                          </div>
+                        )}
+                      </div>
+                      {deal.song.splitDetails && (
+                        <p className="text-xs text-green-600 mt-1">{deal.song.splitDetails}</p>
+                      )}
+                    </div>
+                  )}
                   {deal.song.description && (
                     <div>
                       <label className="text-sm font-medium text-gray-600">Description</label>

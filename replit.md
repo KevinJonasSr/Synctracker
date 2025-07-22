@@ -201,6 +201,16 @@ Changelog:
   * Removed redundant deal information line for cleaner pitch card layout
   * Added proper form validation and reset behavior for custom deal name functionality
   * Successfully tested pitch creation with both existing deals and custom deal names
+- July 22, 2025. Enhanced song form with reorganized Basic Info tab and multiple artists/composers:
+  * Reorganized Basic Info tab into two color-coded sections for better visual organization
+  * Light purple section contains basic song details (Title, Album, Artist, Label, Master Recording Ownership %)
+  * Green section contains publishing information (Composer, Publisher, Publishing Ownership %, Split Details)
+  * Added dynamic multiple artists capability with add/remove buttons for unlimited artist entries
+  * Added dynamic multiple composers capability with add/remove buttons for unlimited composer entries
+  * Form automatically combines multiple entries into comma-separated strings for database storage
+  * Enhanced ownership information display across Song Database, Deal Pipeline, and Deal Details dialog
+  * Updated deal details dialog to show comprehensive song ownership information with green highlighting
+  * All song information from Basic Info tab now properly reflected in all relevant pages and components
 ```
 
 ## User Preferences
