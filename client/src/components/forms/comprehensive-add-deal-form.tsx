@@ -387,7 +387,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                       form.setValue("status", value);
                       
                       // Auto-populate corresponding date when status changes
-                      const currentDate = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
+                      const currentDate = new Date().toISOString().slice(0, 16); // Format: YYYY-MM-DDTHH:MM
                       
                       switch (value) {
                         case "new request":
