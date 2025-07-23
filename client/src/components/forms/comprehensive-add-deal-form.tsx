@@ -188,8 +188,12 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
         body: data 
       }),
     onSuccess: async (response) => {
-      queryClient.invalidateQueries({ queryKey: ['/api/deals'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/dashboard'] });
+      console.log("Deal update successful:", response);
+      
+      // Invalidate multiple cache keys
+      await queryClient.invalidateQueries({ queryKey: ['/api/deals'] });
+      await queryClient.invalidateQueries({ queryKey: ['/api/dashboard'] });
+      await queryClient.invalidateQueries({ queryKey: ['/api/deals', deal?.id] });
       
       const newDeal = response;
       
@@ -222,8 +226,14 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
           ? `The deal has been ${isEditing ? 'updated' : 'created'} and calendar event created for air date.`
           : `The deal has been ${isEditing ? 'updated' : 'created'}.`,
       });
-      onClose();
-      form.reset();
+      
+      // Force a brief delay to ensure cache invalidation completes
+      setTimeout(() => {
+        onClose();
+        if (!isEditing) {
+          form.reset();
+        }
+      }, 100);
     },
     onError: (error) => {
       toast({
@@ -278,6 +288,8 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
   };
 
   const onSubmit = (data: InsertDeal) => {
+    console.log("Form submission data:", data);
+    
     // Validate required fields manually
     if (!data.projectName || !data.projectType || !data.songId || !data.contactId) {
       toast({
