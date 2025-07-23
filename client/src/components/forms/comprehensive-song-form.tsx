@@ -103,6 +103,9 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
       publishingOwnership: song?.publishingOwnership || undefined,
       masterOwnership: song?.masterOwnership || undefined,
       splitDetails: song?.splitDetails || "",
+      // Label fields
+      label: song?.label || "",
+      artistLabelSplits: song?.artistLabelSplits || "",
     },
   });
 
@@ -372,6 +375,46 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
                         rows={3}
                       />
                       <p className="text-xs text-green-600 mt-1">Include detailed information about all parties' ownership shares and agreements</p>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                {/* Part 3: Label Information - Blue */}
+                <Card className="bg-blue-50 border-blue-200">
+                  <CardHeader className="bg-blue-100 border-b border-blue-200">
+                    <CardTitle className="text-blue-800">Label Information</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4 bg-blue-50">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="labelArtist">Artist</Label>
+                        <Input
+                          id="labelArtist"
+                          {...form.register("artist")}
+                          placeholder="Recording artist name"
+                        />
+                        <p className="text-xs text-blue-600 mt-1">Primary artist for this recording</p>
+                      </div>
+                      <div>
+                        <Label htmlFor="label">Label</Label>
+                        <Input
+                          id="label"
+                          {...form.register("label")}
+                          placeholder="Record label name"
+                        />
+                        <p className="text-xs text-blue-600 mt-1">Record label that released this track</p>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="artistLabelSplits">Artist/Label Split Information</Label>
+                      <Textarea
+                        id="artistLabelSplits"
+                        {...form.register("artistLabelSplits")}
+                        placeholder="Detailed breakdown of artist and label revenue splits and agreements"
+                        rows={3}
+                      />
+                      <p className="text-xs text-blue-600 mt-1">Include specific information about how revenue is split between artist and label</p>
                     </div>
                   </CardContent>
                 </Card>

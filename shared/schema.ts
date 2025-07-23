@@ -46,6 +46,9 @@ export const songs = pgTable("songs", {
   publishingOwnership: decimal("publishing_ownership", { precision: 5, scale: 2 }), // Our publishing ownership percentage (0-100)
   masterOwnership: decimal("master_ownership", { precision: 5, scale: 2 }), // Our master recording ownership percentage (0-100)
   splitDetails: text("split_details"), // Detailed breakdown of all splits
+  // Label Information
+  label: text("label"), // Record label name
+  artistLabelSplits: text("artist_label_splits"), // Artist/Label split information
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
