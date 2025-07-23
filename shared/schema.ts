@@ -123,6 +123,7 @@ export const deals = pgTable("deals", {
   artist: text("artist"),
   label: text("label"),
   artistLabelSplits: text("artist_label_splits"),
+  restrictions: text("restrictions"), // Usage restrictions for this deal
   
   notes: text("notes"),
   airDate: timestamp("air_date"),

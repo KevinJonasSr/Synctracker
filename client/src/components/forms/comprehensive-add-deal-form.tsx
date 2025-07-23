@@ -175,6 +175,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
         artistLabelSplits: deal.artistLabelSplits || "",
         exclusivity: deal.exclusivity ?? false,
         exclusivityRestrictions: deal.exclusivityRestrictions || "",
+        restrictions: deal.restrictions || "",
         notes: deal.notes || "",
         airDate: deal.airDate || "",
       });
@@ -490,6 +491,11 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                         if (!form.watch("artistLabelSplits")) {
                           form.setValue("artistLabelSplits", "50% Artist / 50% Label");
                         }
+                        
+                        // Auto-populate restrictions if available
+                        if (selectedSong.restrictions) {
+                          form.setValue("restrictions", selectedSong.restrictions);
+                        }
                       }
                     }}
                   >
@@ -585,7 +591,17 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                 </div>
               </div>
 
-
+              <div className="grid grid-cols-1 gap-4">
+                <div>
+                  <Label htmlFor="restrictions">Restrictions</Label>
+                  <Textarea
+                    id="restrictions"
+                    {...form.register("restrictions")}
+                    placeholder="Any usage restrictions, limitations, or special licensing requirements"
+                    rows={2}
+                  />
+                </div>
+              </div>
 
               {/* Deal Terms */}
               <div className="border-t pt-4">

@@ -265,6 +265,12 @@ export default function DealDetailsDialog({ deal, open, onClose }: DealDetailsDi
                       )}
                     </div>
                   )}
+                  {deal.restrictions && (
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Restrictions</label>
+                      <p className="text-gray-900 text-sm">{deal.restrictions}</p>
+                    </div>
+                  )}
                   {deal.song.description && (
                     <div>
                       <label className="text-sm font-medium text-gray-600">Description</label>
