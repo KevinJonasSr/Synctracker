@@ -46,6 +46,7 @@ export const songs = pgTable("songs", {
   publishingOwnership: decimal("publishing_ownership", { precision: 5, scale: 2 }), // Our publishing ownership percentage (0-100)
   masterOwnership: decimal("master_ownership", { precision: 5, scale: 2 }), // Our master recording ownership percentage (0-100)
   splitDetails: text("split_details"), // Detailed breakdown of all splits
+  restrictions: text("restrictions"), // Usage restrictions or limitations
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

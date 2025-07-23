@@ -103,6 +103,7 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
       publishingOwnership: song?.publishingOwnership || undefined,
       masterOwnership: song?.masterOwnership || undefined,
       splitDetails: song?.splitDetails || "",
+      restrictions: song?.restrictions || "",
     },
   });
 
@@ -372,6 +373,25 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
                         rows={3}
                       />
                       <p className="text-xs text-green-600 mt-1">Include detailed information about all parties' ownership shares and agreements</p>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                {/* Part 3: Restrictions - Yellow */}
+                <Card className="bg-yellow-50 border-yellow-200">
+                  <CardHeader className="bg-yellow-100 border-b border-yellow-200">
+                    <CardTitle className="text-yellow-800">Restrictions</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4 bg-yellow-50">
+                    <div>
+                      <Label htmlFor="restrictions">Usage Restrictions</Label>
+                      <Textarea
+                        id="restrictions"
+                        {...form.register("restrictions")}
+                        placeholder="Any usage restrictions, limitations, or special licensing requirements for this song"
+                        rows={3}
+                      />
+                      <p className="text-xs text-yellow-600 mt-1">Include any restrictions on territory, media, exclusivity, or other licensing limitations</p>
                     </div>
                   </CardContent>
                 </Card>
