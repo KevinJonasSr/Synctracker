@@ -183,7 +183,10 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
 
   const createDealMutation = useMutation({
     mutationFn: (data: InsertDeal) => 
-      apiRequest(isEditing ? 'PATCH' : 'POST', isEditing ? `/api/deals/${deal.id}` : '/api/deals', data),
+      apiRequest(isEditing ? `/api/deals/${deal.id}` : '/api/deals', { 
+        method: isEditing ? 'PATCH' : 'POST', 
+        body: data 
+      }),
     onSuccess: async (response) => {
       queryClient.invalidateQueries({ queryKey: ['/api/deals'] });
       queryClient.invalidateQueries({ queryKey: ['/api/dashboard'] });
@@ -193,16 +196,19 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
       // Auto-create calendar event if air date is provided
       if (newDeal.airDate && !isEditing) {
         try {
-          await apiRequest('POST', '/api/calendar-events', {
-            title: `${newDeal.projectName} - Air Date`,
-            description: `Air date for ${newDeal.projectName}`,
-            startDate: newDeal.airDate,
-            endDate: newDeal.airDate,
-            allDay: true,
-            entityType: "deal",
-            entityId: newDeal.id,
-            status: 'scheduled',
-            reminderMinutes: 1440 // 24 hours before
+          await apiRequest('/api/calendar-events', {
+            method: 'POST',
+            body: {
+              title: `${newDeal.projectName} - Air Date`,
+              description: `Air date for ${newDeal.projectName}`,
+              startDate: newDeal.airDate,
+              endDate: newDeal.airDate,
+              allDay: true,
+              entityType: "deal",
+              entityId: newDeal.id,
+              status: 'scheduled',
+              reminderMinutes: 1440 // 24 hours before
+            }
           });
           queryClient.invalidateQueries({ queryKey: ["/api/calendar-events"] });
         } catch (error) {
