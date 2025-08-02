@@ -31,7 +31,7 @@ The system adopts a full-stack TypeScript approach, ensuring type safety across 
 - **Music Catalog**: Manages comprehensive song metadata, including professional identifiers and rights information. Supports multiple artists and composers.
 - **Deal Pipeline**: Tracks licensing opportunities through various stages (New Request, Pending Approval, Quoted, Use Confirmed, Being Drafted, Out for Signature, Payment Received, Completed). Includes automatic date tracking for status changes.
 - **Contact & Relationship Management**: Manages industry contacts and client profiles, including inline contact creation.
-- **Financial Management**: Features revenue tracking, automated invoice generation, expense tracking, and detailed financial breakdowns (publishing and recording fees).
+- **Financial Management**: Features revenue tracking, automated invoice generation, expense tracking, and detailed financial breakdowns (publishing and recording fees). Uses accurate ownership percentages for fee calculations: publishing fees use publishing ownership, recording fees use master ownership.
 - **Document Management**: Allows for file attachments (contracts, demos), document template generation, and version control for mixes/stems.
 - **Reporting & Analytics**: Offers comprehensive reporting, performance analytics, and market intelligence.
 - **AI & Automation**: Includes AI-powered smart pitch matching, workflow automation, and AI-assisted contract generation.

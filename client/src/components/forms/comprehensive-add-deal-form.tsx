@@ -313,6 +313,12 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
     return (fullFee * ourPercentage) / 100;
   };
 
+  // Function to calculate our fee based on actual ownership percentages
+  const calculateOurFeeFromOwnership = (fullFee: number, ownershipPercentage: number): number => {
+    if (!fullFee || fullFee === 0) return 0;
+    return (fullFee * ownershipPercentage) / 100;
+  };
+
   const onSubmit = (data: InsertDeal) => {
     console.log("Form submission data:", data);
     
@@ -851,11 +857,17 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                       const numericValue = parseFloat(e.target.value.replace(/[$,]/g, "")) || 0;
                       form.setValue("fullSongValue", numericValue);
                       
-                      // Auto-calculate our fee based on splits
-                      const splitsText = form.watch("splits") || "";
-                      if (splitsText) {
-                        const ourFee = calculateOurFee(numericValue, splitsText);
+                      // Auto-calculate our fee based on actual publishing ownership percentage
+                      if (selectedSong && selectedSong.publishingOwnership) {
+                        const ourFee = calculateOurFeeFromOwnership(numericValue, selectedSong.publishingOwnership);
                         form.setValue("ourFee", Math.round(ourFee * 100) / 100);
+                      } else {
+                        // Fallback to splits text parsing if no ownership data
+                        const splitsText = form.watch("splits") || "";
+                        if (splitsText) {
+                          const ourFee = calculateOurFee(numericValue, splitsText);
+                          form.setValue("ourFee", Math.round(ourFee * 100) / 100);
+                        }
                       }
                     }}
                     placeholder="$0.00"
@@ -887,11 +899,17 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                       const numericValue = parseFloat(e.target.value.replace(/[$,]/g, "")) || 0;
                       form.setValue("fullRecordingFee", numericValue);
                       
-                      // Auto-calculate our recording fee based on splits
-                      const splitsText = form.watch("splits") || "";
-                      if (splitsText) {
-                        const ourRecordingFee = calculateOurFee(numericValue, splitsText);
+                      // Auto-calculate our recording fee based on actual master ownership percentage
+                      if (selectedSong && selectedSong.masterOwnership) {
+                        const ourRecordingFee = calculateOurFeeFromOwnership(numericValue, selectedSong.masterOwnership);
                         form.setValue("ourRecordingFee", Math.round(ourRecordingFee * 100) / 100);
+                      } else {
+                        // Fallback to artist/label splits text parsing if no ownership data
+                        const artistLabelSplitsText = form.watch("artistLabelSplits") || "";
+                        if (artistLabelSplitsText) {
+                          const ourRecordingFee = calculateOurFee(numericValue, artistLabelSplitsText);
+                          form.setValue("ourRecordingFee", Math.round(ourRecordingFee * 100) / 100);
+                        }
                       }
                     }}
                     placeholder="$0.00"
