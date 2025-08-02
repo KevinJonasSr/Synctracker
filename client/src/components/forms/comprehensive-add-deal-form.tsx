@@ -516,78 +516,82 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <Label htmlFor="writers">Writers</Label>
-                  <Textarea
-                    id="writers"
-                    {...form.register("writers")}
-                    placeholder="List of song writers"
-                    rows={2}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="publishingInfo">Publishing Information</Label>
-                  <Textarea
-                    id="publishingInfo"
-                    {...form.register("publishingInfo")}
-                    placeholder="Publishing company details"
-                    rows={2}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="splits">Splits</Label>
-                  <Textarea
-                    id="splits"
-                    {...form.register("splits", {
-                      onChange: (e) => {
-                        // Recalculate fees when splits change
-                        const splitsText = e.target.value;
-                        const fullPublishingFee = form.watch("fullSongValue") || 0;
-                        const fullRecordingFee = form.watch("fullRecordingFee") || 0;
-                        
-                        if (fullPublishingFee > 0) {
-                          const ourPublishingFee = calculateOurFee(fullPublishingFee, splitsText);
-                          form.setValue("ourFee", Math.round(ourPublishingFee * 100) / 100);
+              {/* Writers and Publishing Information */}
+              <div className="space-y-4">
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <Label htmlFor="writers">Writers</Label>
+                    <Textarea
+                      id="writers"
+                      {...form.register("writers")}
+                      placeholder="Amy Stroup, Rachael Lynn Davis, Bobby Campbell"
+                      rows={2}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="publishingInfo">Publishing Information</Label>
+                    <Textarea
+                      id="publishingInfo"
+                      {...form.register("publishingInfo")}
+                      placeholder="Jonas Group Publishing, Jonas Group Publishing, Warner Chappell"
+                      rows={2}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="splits">Splits</Label>
+                    <Textarea
+                      id="splits"
+                      {...form.register("splits", {
+                        onChange: (e) => {
+                          // Recalculate fees when splits change
+                          const splitsText = e.target.value;
+                          const fullPublishingFee = form.watch("fullSongValue") || 0;
+                          const fullRecordingFee = form.watch("fullRecordingFee") || 0;
+                          
+                          if (fullPublishingFee > 0) {
+                            const ourPublishingFee = calculateOurFee(fullPublishingFee, splitsText);
+                            form.setValue("ourFee", Math.round(ourPublishingFee * 100) / 100);
+                          }
+                          
+                          if (fullRecordingFee > 0) {
+                            const ourRecordingFee = calculateOurFee(fullRecordingFee, splitsText);
+                            form.setValue("ourRecordingFee", Math.round(ourRecordingFee * 100) / 100);
+                          }
                         }
-                        
-                        if (fullRecordingFee > 0) {
-                          const ourRecordingFee = calculateOurFee(fullRecordingFee, splitsText);
-                          form.setValue("ourRecordingFee", Math.round(ourRecordingFee * 100) / 100);
-                        }
-                      }
-                    })}
-                    placeholder="Publishing splits breakdown"
-                    rows={2}
-                  />
+                      })}
+                      placeholder="50% Writer / 50% Publisher"
+                      rows={2}
+                    />
+                  </div>
                 </div>
-              </div>
 
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <Label htmlFor="artist">Artist</Label>
-                  <Input
-                    id="artist"
-                    {...form.register("artist")}
-                    placeholder="Recording artist"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="label">Label</Label>
-                  <Input
-                    id="label"
-                    {...form.register("label")}
-                    placeholder="Record label"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="artistLabelSplits">Artist/Label Split Information</Label>
-                  <Textarea
-                    id="artistLabelSplits"
-                    {...form.register("artistLabelSplits")}
-                    placeholder="Artist and label split details"
-                    rows={1}
-                  />
+                {/* Artist and Label Information */}
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <Label htmlFor="artist">Artist</Label>
+                    <Input
+                      id="artist"
+                      {...form.register("artist")}
+                      placeholder="Raelynn"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="label">Label</Label>
+                    <Input
+                      id="label"
+                      {...form.register("label")}
+                      placeholder="Red Van Records"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="artistLabelSplits">Artist/Label Split Information</Label>
+                    <Textarea
+                      id="artistLabelSplits"
+                      {...form.register("artistLabelSplits")}
+                      placeholder="50% Artist / 50% Label"
+                      rows={1}
+                    />
+                  </div>
                 </div>
               </div>
 
