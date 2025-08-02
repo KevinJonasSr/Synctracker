@@ -142,6 +142,56 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
   // Reset form when deal prop changes (for editing)
   useEffect(() => {
     if (deal) {
+      // Set up selectedSong state for editing
+      if (deal.songId && songs.length > 0) {
+        const song = songs.find(s => s.id === deal.songId);
+        if (song) {
+          setSelectedSong(song);
+          
+          // Load structured ownership data if available
+          if (song.composerPublishers && Array.isArray(song.composerPublishers)) {
+            setComposerPublishers(song.composerPublishers);
+          } else if (song.composer || song.publisher) {
+            // Fall back to legacy comma-separated strings
+            const composers = song.composer ? song.composer.split(', ').filter(Boolean) : [''];
+            const publishers = song.publisher ? song.publisher.split(', ').filter(Boolean) : [''];
+            
+            const maxLength = Math.max(composers.length, publishers.length);
+            const result: ComposerPublisher[] = [];
+            for (let i = 0; i < maxLength; i++) {
+              result.push({
+                composer: composers[i] || '',
+                publisher: publishers[i] || '',
+                publishingOwnership: '',
+                isMine: false
+              });
+            }
+            setComposerPublishers(result.length > 0 ? result : [{ composer: '', publisher: '', publishingOwnership: '', isMine: false }]);
+          }
+          
+          // Load artist-label data if available
+          if (song.artistLabels && Array.isArray(song.artistLabels)) {
+            setArtistLabels(song.artistLabels);
+          } else if (song.artist || song.producer) {
+            // Fall back to legacy comma-separated strings
+            const artists = song.artist ? song.artist.split(', ').filter(Boolean) : [''];
+            const labels = song.producer ? [song.producer] : [''];
+            
+            const maxLength = Math.max(artists.length, labels.length);
+            const result: ArtistLabel[] = [];
+            for (let i = 0; i < maxLength; i++) {
+              result.push({
+                artist: artists[i] || '',
+                label: labels[i] || '',
+                labelOwnership: '',
+                isMine: false
+              });
+            }
+            setArtistLabels(result.length > 0 ? result : [{ artist: '', label: '', labelOwnership: '', isMine: false }]);
+          }
+        }
+      }
+      
       form.reset({
         projectName: deal.projectName || "",
         episodeNumber: deal.episodeNumber || "",
@@ -205,7 +255,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
         airDate: deal.airDate || "",
       });
     }
-  }, [deal, form]);
+  }, [deal, form, songs]);
 
   const createDealMutation = useMutation({
     mutationFn: (data: InsertDeal) => 
