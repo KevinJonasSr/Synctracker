@@ -412,6 +412,15 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
     const combinedComposer = composerPublishers.map(cp => cp.composer).filter(composer => composer.trim()).join(', ');
     const combinedPublisher = composerPublishers.map(cp => cp.publisher).filter(publisher => publisher.trim()).join(', ');
     
+    // Calculate Jonas's total ownership percentages
+    const jonasPublishingOwnership = composerPublishers
+      .filter(cp => cp.isMine && cp.publishingOwnership)
+      .reduce((total, cp) => total + parseFloat(cp.publishingOwnership || '0'), 0);
+    
+    const jonasLabelOwnership = artistLabels
+      .filter(al => al.isMine && al.labelOwnership)
+      .reduce((total, al) => total + parseFloat(al.labelOwnership || '0'), 0);
+    
     const processedData = {
       ...data,
       artist: combinedArtist,
@@ -422,6 +431,9 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
       // Include structured ownership data
       composerPublishers: composerPublishers,
       artistLabels: artistLabels,
+      // Include calculated ownership percentages for display
+      publishingOwnership: jonasPublishingOwnership > 0 ? jonasPublishingOwnership.toString() : null,
+      masterOwnership: jonasLabelOwnership > 0 ? jonasLabelOwnership.toString() : null,
     };
     
     console.log('Processed data for submission:', processedData);
