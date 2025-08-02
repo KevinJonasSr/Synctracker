@@ -432,8 +432,8 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
       composerPublishers: composerPublishers,
       artistLabels: artistLabels,
       // Include calculated ownership percentages for display
-      publishingOwnership: jonasPublishingOwnership > 0 ? jonasPublishingOwnership.toString() : null,
-      masterOwnership: jonasLabelOwnership > 0 ? jonasLabelOwnership.toString() : null,
+      publishingOwnership: jonasPublishingOwnership > 0 ? jonasPublishingOwnership : null,
+      masterOwnership: jonasLabelOwnership > 0 ? jonasLabelOwnership : null,
     };
     
     console.log('Processed data for submission:', processedData);
