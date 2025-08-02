@@ -95,8 +95,12 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
     // Reset legacy artists
     setLegacyArtists(song?.artist ? song.artist.split(', ').filter(Boolean) : ['']);
     
-    // Reset composer-publisher data
-    if (song?.composer || song?.publisher) {
+    // Reset composer-publisher data - use structured data if available, otherwise fall back to legacy
+    if (song?.composerPublishers && Array.isArray(song.composerPublishers) && song.composerPublishers.length > 0) {
+      // Use saved structured data
+      setComposerPublishers(song.composerPublishers);
+    } else if (song?.composer || song?.publisher) {
+      // Fall back to legacy comma-separated strings
       const composers = song?.composer ? song.composer.split(', ').filter(Boolean) : [''];
       const publishers = song?.publisher ? song.publisher.split(', ').filter(Boolean) : [''];
       
@@ -115,8 +119,12 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
       setComposerPublishers([{ composer: '', publisher: '', publishingOwnership: '', isMine: false }]);
     }
     
-    // Reset artist-label data
-    if (song?.artist || song?.producer) {
+    // Reset artist-label data - use structured data if available, otherwise fall back to legacy
+    if (song?.artistLabels && Array.isArray(song.artistLabels) && song.artistLabels.length > 0) {
+      // Use saved structured data
+      setArtistLabels(song.artistLabels);
+    } else if (song?.artist || song?.producer) {
+      // Fall back to legacy comma-separated strings
       const artists = song?.artist ? song.artist.split(', ').filter(Boolean) : [''];
       const labels = song?.producer ? [song.producer] : [''];
       
@@ -411,6 +419,9 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
       composer: combinedComposer,
       publisher: combinedPublisher,
       tags: processedTags,
+      // Include structured ownership data
+      composerPublishers: composerPublishers,
+      artistLabels: artistLabels,
     };
     
     console.log('Processed data for submission:', processedData);
