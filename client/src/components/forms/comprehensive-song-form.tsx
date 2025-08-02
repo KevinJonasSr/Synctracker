@@ -31,10 +31,11 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
     song?.artist ? song.artist.split(', ').filter(Boolean) : ['']
   );
   
-  // Structure to store composer and their associated publisher
+  // Structure to store composer and their associated publisher and ownership
   interface ComposerPublisher {
     composer: string;
     publisher: string;
+    publishingOwnership: string;
   }
   
   const [composerPublishers, setComposerPublishers] = useState<ComposerPublisher[]>(() => {
@@ -48,12 +49,13 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
       for (let i = 0; i < maxLength; i++) {
         result.push({
           composer: composers[i] || '',
-          publisher: publishers[i] || ''
+          publisher: publishers[i] || '',
+          publishingOwnership: ''
         });
       }
-      return result.length > 0 ? result : [{ composer: '', publisher: '' }];
+      return result.length > 0 ? result : [{ composer: '', publisher: '', publishingOwnership: '' }];
     }
-    return [{ composer: '', publisher: '' }];
+    return [{ composer: '', publisher: '', publishingOwnership: '' }];
   });
   
   // Helper functions for managing artist arrays
@@ -70,7 +72,7 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
   };
 
   // Helper functions for managing composer-publisher pairs
-  const addComposerPublisher = () => setComposerPublishers([...composerPublishers, { composer: '', publisher: '' }]);
+  const addComposerPublisher = () => setComposerPublishers([...composerPublishers, { composer: '', publisher: '', publishingOwnership: '' }]);
   const removeComposerPublisher = (index: number) => {
     if (composerPublishers.length > 1) {
       setComposerPublishers(composerPublishers.filter((_, i) => i !== index));
@@ -84,6 +86,11 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
   const updatePublisher = (index: number, value: string) => {
     const newComposerPublishers = [...composerPublishers];
     newComposerPublishers[index].publisher = value;
+    setComposerPublishers(newComposerPublishers);
+  };
+  const updatePublishingOwnership = (index: number, value: string) => {
+    const newComposerPublishers = [...composerPublishers];
+    newComposerPublishers[index].publishingOwnership = value;
     setComposerPublishers(newComposerPublishers);
   };
   
@@ -333,7 +340,7 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
                   <CardContent className="space-y-4 bg-green-50">
                     <div>
                       <div className="flex items-center justify-between mb-3">
-                        <Label className="text-base font-semibold">Composer(s) & Publisher(s)</Label>
+                        <Label className="text-base font-semibold">Composer(s), Publisher(s) & Ownership</Label>
                         <Button
                           type="button"
                           variant="outline"
@@ -346,24 +353,36 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
                       </div>
                       <div className="space-y-3">
                         <div className="grid grid-cols-12 gap-2 text-sm font-medium text-green-700">
-                          <div className="col-span-5">Composer Name</div>
-                          <div className="col-span-5">Publisher</div>
+                          <div className="col-span-4">Composer Name</div>
+                          <div className="col-span-4">Publisher</div>
+                          <div className="col-span-2">Ownership (%)</div>
                           <div className="col-span-2">Actions</div>
                         </div>
                         {composerPublishers.map((item, index) => (
                           <div key={index} className="grid grid-cols-12 gap-2">
-                            <div className="col-span-5">
+                            <div className="col-span-4">
                               <Input
                                 value={item.composer}
                                 onChange={(e) => updateComposer(index, e.target.value)}
                                 placeholder="Composer name"
                               />
                             </div>
-                            <div className="col-span-5">
+                            <div className="col-span-4">
                               <Input
                                 value={item.publisher}
                                 onChange={(e) => updatePublisher(index, e.target.value)}
                                 placeholder="Publisher name"
+                              />
+                            </div>
+                            <div className="col-span-2">
+                              <Input
+                                type="number"
+                                min="0"
+                                max="100"
+                                step="0.01"
+                                value={item.publishingOwnership}
+                                onChange={(e) => updatePublishingOwnership(index, e.target.value)}
+                                placeholder="0.00"
                               />
                             </div>
                             <div className="col-span-2 flex justify-center">
@@ -381,22 +400,6 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
                             </div>
                           </div>
                         ))}
-                      </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 gap-4">
-                      <div>
-                        <Label htmlFor="publishingOwnership">Publishing Ownership (%)</Label>
-                        <Input
-                          id="publishingOwnership"
-                          type="number"
-                          min="0"
-                          max="100"
-                          step="0.01"
-                          {...form.register("publishingOwnership")}
-                          placeholder="e.g., 50.00"
-                        />
-                        <p className="text-xs text-green-600 mt-1">Your publishing ownership percentage (0-100%)</p>
                       </div>
                     </div>
                     
