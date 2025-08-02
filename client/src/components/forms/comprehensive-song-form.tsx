@@ -373,22 +373,22 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
                       </div>
                       <div className="space-y-3">
                         <div className="grid grid-cols-12 gap-2 text-sm font-medium text-green-700">
-                          <div className="col-span-3">Composer Name</div>
-                          <div className="col-span-3">Publisher</div>
+                          <div className="col-span-4">Composer Name</div>
+                          <div className="col-span-4">Publisher</div>
                           <div className="col-span-2">Ownership (%)</div>
-                          <div className="col-span-2">Mine</div>
-                          <div className="col-span-2">Actions</div>
+                          <div className="col-span-1">Jonas</div>
+                          <div className="col-span-1">Actions</div>
                         </div>
                         {composerPublishers.map((item, index) => (
                           <div key={index} className="grid grid-cols-12 gap-2">
-                            <div className="col-span-3">
+                            <div className="col-span-4">
                               <Input
                                 value={item.composer}
                                 onChange={(e) => updateComposer(index, e.target.value)}
                                 placeholder="Composer name"
                               />
                             </div>
-                            <div className="col-span-3">
+                            <div className="col-span-4">
                               <Input
                                 value={item.publisher}
                                 onChange={(e) => updatePublisher(index, e.target.value)}
@@ -406,13 +406,13 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
                                 placeholder="0.00"
                               />
                             </div>
-                            <div className="col-span-2 flex justify-center items-center">
+                            <div className="col-span-1 flex justify-center items-center">
                               <Checkbox
                                 checked={item.isMine}
                                 onCheckedChange={(checked: boolean | string) => updateComposerIsMine(index, Boolean(checked))}
                               />
                             </div>
-                            <div className="col-span-2 flex justify-center">
+                            <div className="col-span-1 flex justify-center">
                               {composerPublishers.length > 1 && (
                                 <Button
                                   type="button"
@@ -464,22 +464,22 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
                       </div>
                       <div className="space-y-3">
                         <div className="grid grid-cols-12 gap-2 text-sm font-medium text-blue-700">
-                          <div className="col-span-3">Artist Name</div>
-                          <div className="col-span-3">Label</div>
+                          <div className="col-span-4">Artist Name</div>
+                          <div className="col-span-4">Label</div>
                           <div className="col-span-2">Ownership (%)</div>
-                          <div className="col-span-2">Mine</div>
-                          <div className="col-span-2">Actions</div>
+                          <div className="col-span-1">Jonas</div>
+                          <div className="col-span-1">Actions</div>
                         </div>
                         {artistLabels.map((item, index) => (
                           <div key={index} className="grid grid-cols-12 gap-2">
-                            <div className="col-span-3">
+                            <div className="col-span-4">
                               <Input
                                 value={item.artist}
                                 onChange={(e) => updateArtist(index, e.target.value)}
                                 placeholder="Artist name"
                               />
                             </div>
-                            <div className="col-span-3">
+                            <div className="col-span-4">
                               <Input
                                 value={item.label}
                                 onChange={(e) => updateLabel(index, e.target.value)}
@@ -497,13 +497,13 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
                                 placeholder="0.00"
                               />
                             </div>
-                            <div className="col-span-2 flex justify-center items-center">
+                            <div className="col-span-1 flex justify-center items-center">
                               <Checkbox
                                 checked={item.isMine}
                                 onCheckedChange={(checked: boolean | string) => updateArtistIsMine(index, Boolean(checked))}
                               />
                             </div>
-                            <div className="col-span-2 flex justify-center">
+                            <div className="col-span-1 flex justify-center">
                               {artistLabels.length > 1 && (
                                 <Button
                                   type="button"
