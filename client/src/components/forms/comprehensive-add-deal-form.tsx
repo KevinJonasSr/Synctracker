@@ -15,7 +15,8 @@ import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 import { apiRequest } from "@/lib/queryClient";
 import { insertDealSchema, insertContactSchema, type InsertDeal, type InsertContact, type Song, type Contact } from "@shared/schema";
-import { Plus, Building, User, FileText, DollarSign } from "lucide-react";
+import { Plus, Building, User, FileText, DollarSign, X } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import AddContactForm from "@/components/forms/add-contact-form";
 
 // Currency formatting functions
@@ -40,6 +41,30 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
   const { toast } = useToast();
   const isEditing = !!deal;
   const [showAddContact, setShowAddContact] = useState(false);
+  const [selectedSong, setSelectedSong] = useState<Song | null>(null);
+
+  // State for managing composer-publisher and artist-label data from selected song
+  interface ComposerPublisher {
+    composer: string;
+    publisher: string;
+    publishingOwnership: string;
+    isMine: boolean;
+  }
+  
+  interface ArtistLabel {
+    artist: string;
+    label: string;
+    labelOwnership: string;
+    isMine: boolean;
+  }
+  
+  const [composerPublishers, setComposerPublishers] = useState<ComposerPublisher[]>([
+    { composer: '', publisher: '', publishingOwnership: '', isMine: false }
+  ]);
+  
+  const [artistLabels, setArtistLabels] = useState<ArtistLabel[]>([
+    { artist: '', label: '', labelOwnership: '', isMine: false }
+  ]);
 
   const form = useForm<InsertDeal>({
     shouldFocusError: false,
@@ -466,38 +491,82 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                       form.setValue("songId", songId);
                       
                       // Auto-populate comprehensive song information from database
-                      const selectedSong = songs.find(song => song.id === songId);
-                      if (selectedSong) {
+                      const song = songs.find(s => s.id === songId);
+                      if (song) {
+                        setSelectedSong(song);
+                        
                         // Basic song information
-                        form.setValue("artist", selectedSong.artist || "");
-                        form.setValue("label", selectedSong.producer || selectedSong.publisher || "");
+                        form.setValue("artist", song.artist || "");
+                        form.setValue("label", song.producer || "");
                         
                         // Writers and publishing information
-                        if (selectedSong.composer) {
-                          form.setValue("writers", selectedSong.composer);
+                        if (song.composer) {
+                          form.setValue("writers", song.composer);
                         }
-                        if (selectedSong.publisher) {
-                          form.setValue("publishingInfo", selectedSong.publisher);
+                        if (song.publisher) {
+                          form.setValue("publishingInfo", song.publisher);
+                        }
+                        
+                        // Load structured ownership data if available
+                        if (song.composerPublishers && Array.isArray(song.composerPublishers)) {
+                          setComposerPublishers(song.composerPublishers);
+                        } else if (song.composer || song.publisher) {
+                          // Fall back to legacy comma-separated strings
+                          const composers = song.composer ? song.composer.split(', ').filter(Boolean) : [''];
+                          const publishers = song.publisher ? song.publisher.split(', ').filter(Boolean) : [''];
+                          
+                          const maxLength = Math.max(composers.length, publishers.length);
+                          const result: ComposerPublisher[] = [];
+                          for (let i = 0; i < maxLength; i++) {
+                            result.push({
+                              composer: composers[i] || '',
+                              publisher: publishers[i] || '',
+                              publishingOwnership: '',
+                              isMine: false
+                            });
+                          }
+                          setComposerPublishers(result.length > 0 ? result : [{ composer: '', publisher: '', publishingOwnership: '', isMine: false }]);
+                        }
+                        
+                        // Load artist-label data if available
+                        if (song.artistLabels && Array.isArray(song.artistLabels)) {
+                          setArtistLabels(song.artistLabels);
+                        } else if (song.artist || song.producer) {
+                          // Fall back to legacy comma-separated strings
+                          const artists = song.artist ? song.artist.split(', ').filter(Boolean) : [''];
+                          const labels = song.producer ? [song.producer] : [''];
+                          
+                          const maxLength = Math.max(artists.length, labels.length);
+                          const result: ArtistLabel[] = [];
+                          for (let i = 0; i < maxLength; i++) {
+                            result.push({
+                              artist: artists[i] || '',
+                              label: labels[i] || '',
+                              labelOwnership: '',
+                              isMine: false
+                            });
+                          }
+                          setArtistLabels(result.length > 0 ? result : [{ artist: '', label: '', labelOwnership: '', isMine: false }]);
                         }
                         
                         // Use actual split details if available, otherwise calculate from ownership data
-                        if (selectedSong.splitDetails) {
-                          form.setValue("splits", selectedSong.splitDetails);
+                        if (song.splitDetails) {
+                          form.setValue("splits", song.splitDetails);
                         } else {
                           // Calculate splits from actual ownership percentages
-                          const publishingOwnership = selectedSong.publishingOwnership || 0;
+                          const publishingOwnership = song.publishingOwnership || 0;
                           const publisherOwnership = 100 - publishingOwnership;
                           form.setValue("splits", `${publishingOwnership}% Writer / ${publisherOwnership}% Publisher`);
                         }
                         
                         // Artist/Label splits from actual ownership data
-                        const masterOwnership = selectedSong.masterOwnership || 0;
+                        const masterOwnership = song.masterOwnership || 0;
                         const labelOwnership = 100 - masterOwnership;
                         form.setValue("artistLabelSplits", `${masterOwnership}% Artist / ${labelOwnership}% Label`);
                         
                         // Auto-populate restrictions if available
-                        if (selectedSong.restrictions) {
-                          form.setValue("restrictions", selectedSong.restrictions);
+                        if (song.restrictions) {
+                          form.setValue("restrictions", song.restrictions);
                         }
                       }
                     }}
@@ -519,160 +588,246 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                 </div>
               </div>
 
-              {/* Writers and Publishing Information */}
-              <div className="space-y-4">
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <Label htmlFor="writers">Writers</Label>
-                    <Textarea
-                      id="writers"
-                      {...form.register("writers")}
-                      placeholder="Amy Stroup, Rachael Lynn Davis, Bobby Campbell"
-                      rows={2}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="publishingInfo">Publishing Information</Label>
-                    <Textarea
-                      id="publishingInfo"
-                      {...form.register("publishingInfo")}
-                      placeholder="Jonas Group Publishing, Jonas Group Publishing, Warner Chappell"
-                      rows={2}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="splits">Splits</Label>
-                    <Textarea
-                      id="splits"
-                      {...form.register("splits", {
-                        onChange: (e) => {
-                          // Recalculate fees when splits change
-                          const splitsText = e.target.value;
-                          const fullPublishingFee = form.watch("fullSongValue") || 0;
-                          const fullRecordingFee = form.watch("fullRecordingFee") || 0;
-                          
-                          if (fullPublishingFee > 0) {
-                            const ourPublishingFee = calculateOurFee(fullPublishingFee, splitsText);
-                            form.setValue("ourFee", Math.round(ourPublishingFee * 100) / 100);
-                          }
-                          
-                          if (fullRecordingFee > 0) {
-                            const ourRecordingFee = calculateOurFee(fullRecordingFee, splitsText);
-                            form.setValue("ourRecordingFee", Math.round(ourRecordingFee * 100) / 100);
-                          }
-                        }
-                      })}
-                      placeholder="50% Writer / 50% Publisher"
-                      rows={2}
-                    />
-                  </div>
-                </div>
+              {selectedSong && (
+                <div className="space-y-4">
+                  {/* Basic Song Information */}
+                  <Card className="bg-purple-50 border-purple-200">
+                    <CardHeader className="bg-purple-100 border-b border-purple-200">
+                      <CardTitle className="text-purple-800">Basic Song Information</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4 bg-purple-50">
+                      {/* First line: Title, Album */}
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label>Title</Label>
+                          <Input
+                            value={selectedSong.title || ""}
+                            readOnly
+                            className="bg-purple-25 cursor-not-allowed"
+                          />
+                        </div>
+                        <div>
+                          <Label>Album</Label>
+                          <Input
+                            value={selectedSong.album || ""}
+                            readOnly
+                            className="bg-purple-25 cursor-not-allowed"
+                            placeholder="Album name"
+                          />
+                        </div>
+                      </div>
+                      
+                      {/* Second line: Jonas's Ownership Summary */}
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label>Publishing Ownership (%)</Label>
+                          <Input
+                            type="number"
+                            min="0"
+                            max="100"
+                            step="0.01"
+                            value={composerPublishers
+                              .filter(cp => cp.isMine && cp.publishingOwnership)
+                              .reduce((total, cp) => total + parseFloat(cp.publishingOwnership || '0'), 0)
+                              .toFixed(2)}
+                            readOnly
+                            className="bg-purple-25 cursor-not-allowed"
+                            placeholder="0.00"
+                          />
+                          <p className="text-xs text-purple-600 mt-1">Auto-calculated from Jonas's checked composers</p>
+                        </div>
+                        <div>
+                          <Label>Label Recording Ownership (%)</Label>
+                          <Input
+                            type="number"
+                            min="0"
+                            max="100"
+                            step="0.01"
+                            value={artistLabels
+                              .filter(al => al.isMine && al.labelOwnership)
+                              .reduce((total, al) => total + parseFloat(al.labelOwnership || '0'), 0)
+                              .toFixed(2)}
+                            readOnly
+                            className="bg-purple-25 cursor-not-allowed"
+                            placeholder="0.00"
+                          />
+                          <p className="text-xs text-purple-600 mt-1">Auto-calculated from Jonas's checked artists</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  
+                  {/* Publishing Information */}
+                  <Card className="bg-green-50 border-green-200">
+                    <CardHeader className="bg-green-100 border-b border-green-200">
+                      <CardTitle className="text-green-800">Publishing Information</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4 bg-green-50">
+                      <div>
+                        <Label className="text-base font-semibold">Composer(s), Publisher(s) & Ownership</Label>
+                        <div className="space-y-3 mt-3">
+                          <div className="grid grid-cols-12 gap-2 text-sm font-medium text-green-700">
+                            <div className="col-span-4">Composer Name</div>
+                            <div className="col-span-4">Publisher</div>
+                            <div className="col-span-2">Ownership (%)</div>
+                            <div className="col-span-1">Jonas</div>
+                            <div className="col-span-1"></div>
+                          </div>
+                          {composerPublishers.map((item, index) => (
+                            <div key={index} className="grid grid-cols-12 gap-2">
+                              <div className="col-span-4">
+                                <Input
+                                  value={item.composer}
+                                  readOnly
+                                  className="bg-green-25 cursor-not-allowed"
+                                />
+                              </div>
+                              <div className="col-span-4">
+                                <Input
+                                  value={item.publisher}
+                                  readOnly
+                                  className="bg-green-25 cursor-not-allowed"
+                                />
+                              </div>
+                              <div className="col-span-2">
+                                <Input
+                                  value={item.publishingOwnership}
+                                  readOnly
+                                  className="bg-green-25 cursor-not-allowed"
+                                />
+                              </div>
+                              <div className="col-span-1 flex justify-center items-center">
+                                <Checkbox
+                                  checked={item.isMine}
+                                  disabled
+                                />
+                              </div>
+                              <div className="col-span-1"></div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  
+                  {/* Label Information */}
+                  <Card className="bg-blue-50 border-blue-200">
+                    <CardHeader className="bg-blue-100 border-b border-blue-200">
+                      <CardTitle className="text-blue-800">Label Information</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4 bg-blue-50">
+                      <div>
+                        <Label className="text-base font-semibold">Artist(s), Label(s) & Ownership</Label>
+                        <div className="space-y-3 mt-3">
+                          <div className="grid grid-cols-12 gap-2 text-sm font-medium text-blue-700">
+                            <div className="col-span-4">Artist Name</div>
+                            <div className="col-span-4">Label</div>
+                            <div className="col-span-2">Ownership (%)</div>
+                            <div className="col-span-1">Jonas</div>
+                            <div className="col-span-1"></div>
+                          </div>
+                          {artistLabels.map((item, index) => (
+                            <div key={index} className="grid grid-cols-12 gap-2">
+                              <div className="col-span-4">
+                                <Input
+                                  value={item.artist}
+                                  readOnly
+                                  className="bg-blue-25 cursor-not-allowed"
+                                />
+                              </div>
+                              <div className="col-span-4">
+                                <Input
+                                  value={item.label}
+                                  readOnly
+                                  className="bg-blue-25 cursor-not-allowed"
+                                />
+                              </div>
+                              <div className="col-span-2">
+                                <Input
+                                  value={item.labelOwnership}
+                                  readOnly
+                                  className="bg-blue-25 cursor-not-allowed"
+                                />
+                              </div>
+                              <div className="col-span-1 flex justify-center items-center">
+                                <Checkbox
+                                  checked={item.isMine}
+                                  disabled
+                                />
+                              </div>
+                              <div className="col-span-1"></div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
 
-                {/* Artist and Label Information */}
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <Label htmlFor="artist">Artist</Label>
-                    <Input
-                      id="artist"
-                      {...form.register("artist")}
-                      placeholder="Raelynn"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="label">Label</Label>
-                    <Input
-                      id="label"
-                      {...form.register("label")}
-                      placeholder="Red Van Records"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="artistLabelSplits">Artist/Label Split Information</Label>
-                    <Textarea
-                      id="artistLabelSplits"
-                      {...form.register("artistLabelSplits")}
-                      placeholder="50% Artist / 50% Label"
-                      rows={1}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 gap-4">
-                <div>
-                  <Label htmlFor="restrictions">Restrictions</Label>
-                  <Textarea
-                    id="restrictions"
-                    {...form.register("restrictions")}
-                    placeholder="Any usage restrictions, limitations, or special licensing requirements"
-                    rows={2}
-                  />
-                </div>
-              </div>
-
-              {/* Deal Terms */}
-              <div className="border-t pt-4">
-                <h4 className="font-medium mb-3">Deal Terms</h4>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="usage">Usage</Label>
-                    <Input
-                      id="usage"
-                      {...form.register("usage")}
-                      placeholder="e.g., Background music"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="sceneDescription">Scene Description</Label>
-                    <Textarea
-                      id="sceneDescription"
-                      {...form.register("sceneDescription")}
-                      placeholder="Describe how music is used in scene"
-                      rows={4}
-                      className="min-h-[100px]"
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-3 gap-4 mt-4">
-                  <div>
-                    <Label htmlFor="media">Media</Label>
-                    <Textarea
-                      id="media"
-                      {...form.register("media")}
-                      placeholder="e.g., TV, Film, Streaming, All media and devices..."
-                      rows={3}
-                      className="min-h-[80px]"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="term">Term</Label>
-                    <Input
-                      id="term"
-                      {...form.register("term")}
-                      placeholder="e.g., 5 years, In perpetuity"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="territory">Territory</Label>
-                    <Select
-                      value={form.watch("territory")}
-                      onValueChange={(value) => form.setValue("territory", value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="worldwide">Worldwide</SelectItem>
-                        <SelectItem value="us">United States</SelectItem>
-                        <SelectItem value="north_america">North America</SelectItem>
-                        <SelectItem value="europe">Europe</SelectItem>
-                        <SelectItem value="uk">United Kingdom</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
+                  {/* Deal Terms */}
+                  <div className="border-t pt-4">
+                    <h4 className="font-medium mb-3">Deal Terms</h4>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="usage">Usage</Label>
+                        <Input
+                          id="usage"
+                          {...form.register("usage")}
+                          placeholder="e.g., Background music"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="sceneDescription">Scene Description</Label>
+                        <Textarea
+                          id="sceneDescription"
+                          {...form.register("sceneDescription")}
+                          placeholder="Describe how music is used in scene"
+                          rows={4}
+                          className="min-h-[100px]"
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-3 gap-4 mt-4">
+                      <div>
+                        <Label htmlFor="media">Media</Label>
+                        <Textarea
+                          id="media"
+                          {...form.register("media")}
+                          placeholder="e.g., TV, Film, Streaming, All media and devices..."
+                          rows={3}
+                          className="min-h-[80px]"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="term">Term</Label>
+                        <Input
+                          id="term"
+                          {...form.register("term")}
+                          placeholder="e.g., 5 years, In perpetuity"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="territory">Territory</Label>
+                        <Select
+                          value={form.watch("territory")}
+                          onValueChange={(value) => form.setValue("territory", value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="worldwide">Worldwide</SelectItem>
+                            <SelectItem value="us">United States</SelectItem>
+                            <SelectItem value="north_america">North America</SelectItem>
+                            <SelectItem value="europe">Europe</SelectItem>
+                            <SelectItem value="uk">United Kingdom</SelectItem>
+                            <SelectItem value="other">Other</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </CardContent>
           </Card>
 
