@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -36,6 +37,7 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
     composer: string;
     publisher: string;
     publishingOwnership: string;
+    isMine: boolean;
   }
   
   // Structure to store artist and their associated label and ownership
@@ -43,6 +45,7 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
     artist: string;
     label: string;
     labelOwnership: string;
+    isMine: boolean;
   }
   
   const [composerPublishers, setComposerPublishers] = useState<ComposerPublisher[]>(() => {
@@ -57,12 +60,13 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
         result.push({
           composer: composers[i] || '',
           publisher: publishers[i] || '',
-          publishingOwnership: ''
+          publishingOwnership: '',
+          isMine: false
         });
       }
-      return result.length > 0 ? result : [{ composer: '', publisher: '', publishingOwnership: '' }];
+      return result.length > 0 ? result : [{ composer: '', publisher: '', publishingOwnership: '', isMine: false }];
     }
-    return [{ composer: '', publisher: '', publishingOwnership: '' }];
+    return [{ composer: '', publisher: '', publishingOwnership: '', isMine: false }];
   });
   
   const [artistLabels, setArtistLabels] = useState<ArtistLabel[]>(() => {
@@ -77,12 +81,13 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
         result.push({
           artist: artists[i] || '',
           label: labels[i] || '',
-          labelOwnership: ''
+          labelOwnership: '',
+          isMine: false
         });
       }
-      return result.length > 0 ? result : [{ artist: '', label: '', labelOwnership: '' }];
+      return result.length > 0 ? result : [{ artist: '', label: '', labelOwnership: '', isMine: false }];
     }
-    return [{ artist: '', label: '', labelOwnership: '' }];
+    return [{ artist: '', label: '', labelOwnership: '', isMine: false }];
   });
   
   // Helper functions for managing legacy artist arrays (keeping for backward compatibility)
@@ -99,7 +104,7 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
   };
 
   // Helper functions for managing composer-publisher pairs
-  const addComposerPublisher = () => setComposerPublishers([...composerPublishers, { composer: '', publisher: '', publishingOwnership: '' }]);
+  const addComposerPublisher = () => setComposerPublishers([...composerPublishers, { composer: '', publisher: '', publishingOwnership: '', isMine: false }]);
   const removeComposerPublisher = (index: number) => {
     if (composerPublishers.length > 1) {
       setComposerPublishers(composerPublishers.filter((_, i) => i !== index));
@@ -120,9 +125,14 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
     newComposerPublishers[index].publishingOwnership = value;
     setComposerPublishers(newComposerPublishers);
   };
+  const updateComposerIsMine = (index: number, value: boolean) => {
+    const newComposerPublishers = [...composerPublishers];
+    newComposerPublishers[index].isMine = value;
+    setComposerPublishers(newComposerPublishers);
+  };
 
   // Helper functions for managing artist-label pairs
-  const addArtistLabel = () => setArtistLabels([...artistLabels, { artist: '', label: '', labelOwnership: '' }]);
+  const addArtistLabel = () => setArtistLabels([...artistLabels, { artist: '', label: '', labelOwnership: '', isMine: false }]);
   const removeArtistLabel = (index: number) => {
     if (artistLabels.length > 1) {
       setArtistLabels(artistLabels.filter((_, i) => i !== index));
@@ -141,6 +151,11 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
   const updateLabelOwnership = (index: number, value: string) => {
     const newArtistLabels = [...artistLabels];
     newArtistLabels[index].labelOwnership = value;
+    setArtistLabels(newArtistLabels);
+  };
+  const updateArtistIsMine = (index: number, value: boolean) => {
+    const newArtistLabels = [...artistLabels];
+    newArtistLabels[index].isMine = value;
     setArtistLabels(newArtistLabels);
   };
   
@@ -358,21 +373,22 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
                       </div>
                       <div className="space-y-3">
                         <div className="grid grid-cols-12 gap-2 text-sm font-medium text-green-700">
-                          <div className="col-span-4">Composer Name</div>
-                          <div className="col-span-4">Publisher</div>
+                          <div className="col-span-3">Composer Name</div>
+                          <div className="col-span-3">Publisher</div>
                           <div className="col-span-2">Ownership (%)</div>
+                          <div className="col-span-2">Mine</div>
                           <div className="col-span-2">Actions</div>
                         </div>
                         {composerPublishers.map((item, index) => (
                           <div key={index} className="grid grid-cols-12 gap-2">
-                            <div className="col-span-4">
+                            <div className="col-span-3">
                               <Input
                                 value={item.composer}
                                 onChange={(e) => updateComposer(index, e.target.value)}
                                 placeholder="Composer name"
                               />
                             </div>
-                            <div className="col-span-4">
+                            <div className="col-span-3">
                               <Input
                                 value={item.publisher}
                                 onChange={(e) => updatePublisher(index, e.target.value)}
@@ -388,6 +404,12 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
                                 value={item.publishingOwnership}
                                 onChange={(e) => updatePublishingOwnership(index, e.target.value)}
                                 placeholder="0.00"
+                              />
+                            </div>
+                            <div className="col-span-2 flex justify-center items-center">
+                              <Checkbox
+                                checked={item.isMine}
+                                onCheckedChange={(checked: boolean | string) => updateComposerIsMine(index, Boolean(checked))}
                               />
                             </div>
                             <div className="col-span-2 flex justify-center">
@@ -442,21 +464,22 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
                       </div>
                       <div className="space-y-3">
                         <div className="grid grid-cols-12 gap-2 text-sm font-medium text-blue-700">
-                          <div className="col-span-4">Artist Name</div>
-                          <div className="col-span-4">Label</div>
+                          <div className="col-span-3">Artist Name</div>
+                          <div className="col-span-3">Label</div>
                           <div className="col-span-2">Ownership (%)</div>
+                          <div className="col-span-2">Mine</div>
                           <div className="col-span-2">Actions</div>
                         </div>
                         {artistLabels.map((item, index) => (
                           <div key={index} className="grid grid-cols-12 gap-2">
-                            <div className="col-span-4">
+                            <div className="col-span-3">
                               <Input
                                 value={item.artist}
                                 onChange={(e) => updateArtist(index, e.target.value)}
                                 placeholder="Artist name"
                               />
                             </div>
-                            <div className="col-span-4">
+                            <div className="col-span-3">
                               <Input
                                 value={item.label}
                                 onChange={(e) => updateLabel(index, e.target.value)}
@@ -472,6 +495,12 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
                                 value={item.labelOwnership}
                                 onChange={(e) => updateLabelOwnership(index, e.target.value)}
                                 placeholder="0.00"
+                              />
+                            </div>
+                            <div className="col-span-2 flex justify-center items-center">
+                              <Checkbox
+                                checked={item.isMine}
+                                onCheckedChange={(checked: boolean | string) => updateArtistIsMine(index, Boolean(checked))}
                               />
                             </div>
                             <div className="col-span-2 flex justify-center">
@@ -787,8 +816,8 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
                     <div className="flex items-center space-x-2">
                       <Switch
                         id="explicitContent"
-                        checked={form.watch("explicitContent")}
-                        onCheckedChange={(checked) => form.setValue("explicitContent", checked)}
+                        checked={form.watch("explicitContent") || false}
+                        onCheckedChange={(checked) => form.setValue("explicitContent", !!checked)}
                       />
                       <Label htmlFor="explicitContent">Explicit Content</Label>
                     </div>
