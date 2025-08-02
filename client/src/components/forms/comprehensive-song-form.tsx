@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -89,6 +89,52 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
     }
     return [{ artist: '', label: '', labelOwnership: '', isMine: false }];
   });
+  
+  // Reset state when song prop changes
+  useEffect(() => {
+    // Reset legacy artists
+    setLegacyArtists(song?.artist ? song.artist.split(', ').filter(Boolean) : ['']);
+    
+    // Reset composer-publisher data
+    if (song?.composer || song?.publisher) {
+      const composers = song?.composer ? song.composer.split(', ').filter(Boolean) : [''];
+      const publishers = song?.publisher ? song.publisher.split(', ').filter(Boolean) : [''];
+      
+      const maxLength = Math.max(composers.length, publishers.length);
+      const result: ComposerPublisher[] = [];
+      for (let i = 0; i < maxLength; i++) {
+        result.push({
+          composer: composers[i] || '',
+          publisher: publishers[i] || '',
+          publishingOwnership: '',
+          isMine: false
+        });
+      }
+      setComposerPublishers(result.length > 0 ? result : [{ composer: '', publisher: '', publishingOwnership: '', isMine: false }]);
+    } else {
+      setComposerPublishers([{ composer: '', publisher: '', publishingOwnership: '', isMine: false }]);
+    }
+    
+    // Reset artist-label data
+    if (song?.artist || song?.producer) {
+      const artists = song?.artist ? song.artist.split(', ').filter(Boolean) : [''];
+      const labels = song?.producer ? [song.producer] : [''];
+      
+      const maxLength = Math.max(artists.length, labels.length);
+      const result: ArtistLabel[] = [];
+      for (let i = 0; i < maxLength; i++) {
+        result.push({
+          artist: artists[i] || '',
+          label: labels[i] || '',
+          labelOwnership: '',
+          isMine: false
+        });
+      }
+      setArtistLabels(result.length > 0 ? result : [{ artist: '', label: '', labelOwnership: '', isMine: false }]);
+    } else {
+      setArtistLabels([{ artist: '', label: '', labelOwnership: '', isMine: false }]);
+    }
+  }, [song]);
   
   // Helper functions for managing legacy artist arrays (keeping for backward compatibility)
   const addLegacyArtist = () => setLegacyArtists([...legacyArtists, '']);
@@ -208,6 +254,98 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
       restrictions: song?.restrictions || "",
     },
   });
+
+  // Reset form when song prop changes
+  useEffect(() => {
+    if (song) {
+      form.reset({
+        title: song.title || "",
+        artist: song.artist || "",
+        album: song.album || "",
+        composer: song.composer || "",
+        producer: song.producer || "",
+        publisher: song.publisher || "",
+        irc: song.irc || "",
+        isrc: song.isrc || "",
+        upcEan: song.upcEan || "",
+        pNumbers: song.pNumbers || "",
+        proCueSheetId: song.proCueSheetId || "",
+        genreSubGenre: song.genreSubGenre || "",
+        moodTheme: song.moodTheme || "",
+        bpmKey: song.bpmKey || "",
+        vocalInstrumentation: song.vocalInstrumentation || "",
+        explicitContent: song.explicitContent ?? false,
+        lyrics: song.lyrics || "",
+        durationFormatted: song.durationFormatted || "",
+        version: song.version || "",
+        coverArtDescription: song.coverArtDescription || "",
+        fileTypeSampleRate: song.fileTypeSampleRate || "",
+        contentRepresentationCode: song.contentRepresentationCode || "",
+        masterRightsContact: song.masterRightsContact || "",
+        publishingRightsContact: song.publishingRightsContact || "",
+        syncRepresentation: song.syncRepresentation || "",
+        contentRepresented: song.contentRepresented || "",
+        smartLinkQrCode: song.smartLinkQrCode || "",
+        genre: song.genre || "",
+        mood: song.mood || "",
+        tempo: song.tempo || undefined,
+        duration: song.duration || undefined,
+        key: song.key || "",
+        bpm: song.bpm || undefined,
+        description: song.description || "",
+        tags: song.tags || [],
+        filePath: song.filePath || "",
+        publishingOwnership: song.publishingOwnership || undefined,
+        masterOwnership: song.masterOwnership || undefined,
+        splitDetails: song.splitDetails || "",
+        restrictions: song.restrictions || "",
+      });
+    } else {
+      // Reset to empty form when no song is provided
+      form.reset({
+        title: "",
+        artist: "",
+        album: "",
+        composer: "",
+        producer: "",
+        publisher: "",
+        irc: "",
+        isrc: "",
+        upcEan: "",
+        pNumbers: "",
+        proCueSheetId: "",
+        genreSubGenre: "",
+        moodTheme: "",
+        bpmKey: "",
+        vocalInstrumentation: "",
+        explicitContent: false,
+        lyrics: "",
+        durationFormatted: "",
+        version: "",
+        coverArtDescription: "",
+        fileTypeSampleRate: "",
+        contentRepresentationCode: "",
+        masterRightsContact: "",
+        publishingRightsContact: "",
+        syncRepresentation: "",
+        contentRepresented: "",
+        smartLinkQrCode: "",
+        genre: "",
+        mood: "",
+        tempo: undefined,
+        duration: undefined,
+        key: "",
+        bpm: undefined,
+        description: "",
+        tags: [],
+        filePath: "",
+        publishingOwnership: undefined,
+        masterOwnership: undefined,
+        splitDetails: "",
+        restrictions: "",
+      });
+    }
+  }, [song, form]);
 
   const createSongMutation = useMutation({
     mutationFn: async (data: InsertSong) => {
