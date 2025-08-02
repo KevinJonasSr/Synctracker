@@ -158,6 +158,8 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
     newArtistLabels[index].isMine = value;
     setArtistLabels(newArtistLabels);
   };
+
+
   
   const form = useForm<InsertSong>({
     resolver: zodResolver(insertSongSchema),
@@ -332,20 +334,43 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
                       </div>
                     </div>
                     
-                    {/* Second line: Master Recording Ownership */}
-                    <div className="grid grid-cols-1 gap-4">
+                    {/* Second line: Jonas's Ownership Summary */}
+                    <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="masterOwnership">Master Recording Ownership (%)</Label>
+                        <Label htmlFor="publishingOwnership">Publishing Ownership (%)</Label>
+                        <Input
+                          id="publishingOwnership"
+                          type="number"
+                          min="0"
+                          max="100"
+                          step="0.01"
+                          value={composerPublishers
+                            .filter(cp => cp.isMine && cp.publishingOwnership)
+                            .reduce((total, cp) => total + parseFloat(cp.publishingOwnership || '0'), 0)
+                            .toFixed(2)}
+                          readOnly
+                          className="bg-purple-25 cursor-not-allowed"
+                          placeholder="0.00"
+                        />
+                        <p className="text-xs text-purple-600 mt-1">Auto-calculated from Jonas's checked composers</p>
+                      </div>
+                      <div>
+                        <Label htmlFor="masterOwnership">Label Recording Ownership (%)</Label>
                         <Input
                           id="masterOwnership"
                           type="number"
                           min="0"
                           max="100"
                           step="0.01"
-                          {...form.register("masterOwnership")}
-                          placeholder="e.g., 50.00"
+                          value={artistLabels
+                            .filter(al => al.isMine && al.labelOwnership)
+                            .reduce((total, al) => total + parseFloat(al.labelOwnership || '0'), 0)
+                            .toFixed(2)}
+                          readOnly
+                          className="bg-purple-25 cursor-not-allowed"
+                          placeholder="0.00"
                         />
-                        <p className="text-xs text-purple-600 mt-1">Your master recording ownership percentage (0-100%)</p>
+                        <p className="text-xs text-purple-600 mt-1">Auto-calculated from Jonas's checked artists</p>
                       </div>
                     </div>
 
