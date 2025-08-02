@@ -26,8 +26,8 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
   const { toast } = useToast();
   const isEditing = !!song;
   
-  // State for managing multiple artists and composers with publishers
-  const [artists, setArtists] = useState<string[]>(
+  // State for managing multiple artists 
+  const [legacyArtists, setLegacyArtists] = useState<string[]>(
     song?.artist ? song.artist.split(', ').filter(Boolean) : ['']
   );
   
@@ -36,6 +36,13 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
     composer: string;
     publisher: string;
     publishingOwnership: string;
+  }
+  
+  // Structure to store artist and their associated label and ownership
+  interface ArtistLabel {
+    artist: string;
+    label: string;
+    labelOwnership: string;
   }
   
   const [composerPublishers, setComposerPublishers] = useState<ComposerPublisher[]>(() => {
@@ -58,17 +65,37 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
     return [{ composer: '', publisher: '', publishingOwnership: '' }];
   });
   
-  // Helper functions for managing artist arrays
-  const addArtist = () => setArtists([...artists, '']);
-  const removeArtist = (index: number) => {
-    if (artists.length > 1) {
-      setArtists(artists.filter((_, i) => i !== index));
+  const [artistLabels, setArtistLabels] = useState<ArtistLabel[]>(() => {
+    if (song?.artist || song?.producer) {
+      const artists = song?.artist ? song.artist.split(', ').filter(Boolean) : [''];
+      const labels = song?.producer ? [song.producer] : [''];
+      
+      // Match artists with labels, padding with empty strings if needed
+      const maxLength = Math.max(artists.length, labels.length);
+      const result: ArtistLabel[] = [];
+      for (let i = 0; i < maxLength; i++) {
+        result.push({
+          artist: artists[i] || '',
+          label: labels[i] || '',
+          labelOwnership: ''
+        });
+      }
+      return result.length > 0 ? result : [{ artist: '', label: '', labelOwnership: '' }];
+    }
+    return [{ artist: '', label: '', labelOwnership: '' }];
+  });
+  
+  // Helper functions for managing legacy artist arrays (keeping for backward compatibility)
+  const addLegacyArtist = () => setLegacyArtists([...legacyArtists, '']);
+  const removeLegacyArtist = (index: number) => {
+    if (legacyArtists.length > 1) {
+      setLegacyArtists(legacyArtists.filter((_, i) => i !== index));
     }
   };
-  const updateArtist = (index: number, value: string) => {
-    const newArtists = [...artists];
+  const updateLegacyArtist = (index: number, value: string) => {
+    const newArtists = [...legacyArtists];
     newArtists[index] = value;
-    setArtists(newArtists);
+    setLegacyArtists(newArtists);
   };
 
   // Helper functions for managing composer-publisher pairs
@@ -92,6 +119,29 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
     const newComposerPublishers = [...composerPublishers];
     newComposerPublishers[index].publishingOwnership = value;
     setComposerPublishers(newComposerPublishers);
+  };
+
+  // Helper functions for managing artist-label pairs
+  const addArtistLabel = () => setArtistLabels([...artistLabels, { artist: '', label: '', labelOwnership: '' }]);
+  const removeArtistLabel = (index: number) => {
+    if (artistLabels.length > 1) {
+      setArtistLabels(artistLabels.filter((_, i) => i !== index));
+    }
+  };
+  const updateArtist = (index: number, value: string) => {
+    const newArtistLabels = [...artistLabels];
+    newArtistLabels[index].artist = value;
+    setArtistLabels(newArtistLabels);
+  };
+  const updateLabel = (index: number, value: string) => {
+    const newArtistLabels = [...artistLabels];
+    newArtistLabels[index].label = value;
+    setArtistLabels(newArtistLabels);
+  };
+  const updateLabelOwnership = (index: number, value: string) => {
+    const newArtistLabels = [...artistLabels];
+    newArtistLabels[index].labelOwnership = value;
+    setArtistLabels(newArtistLabels);
   };
   
   const form = useForm<InsertSong>({
@@ -194,13 +244,15 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
     }
     
     // Combine multiple artists and composers into comma-separated strings
-    const combinedArtist = artists.filter(artist => artist.trim()).join(', ');
+    const combinedArtist = artistLabels.map(al => al.artist).filter(artist => artist.trim()).join(', ');
+    const combinedLabel = artistLabels.map(al => al.label).filter(label => label.trim()).join(', ');
     const combinedComposer = composerPublishers.map(cp => cp.composer).filter(composer => composer.trim()).join(', ');
     const combinedPublisher = composerPublishers.map(cp => cp.publisher).filter(publisher => publisher.trim()).join(', ');
     
     const processedData = {
       ...data,
       artist: combinedArtist,
+      producer: combinedLabel, // Label goes into producer field
       composer: combinedComposer,
       publisher: combinedPublisher,
       tags: processedTags,
@@ -265,55 +317,7 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
                       </div>
                     </div>
                     
-                    {/* Second line: Artist(s), Label */}
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <div className="flex items-center justify-between mb-2">
-                          <Label>Artist(s) *</Label>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={addArtist}
-                            className="h-6 px-2"
-                          >
-                            <Plus className="h-3 w-3" />
-                          </Button>
-                        </div>
-                        <div className="space-y-2">
-                          {artists.map((artist, index) => (
-                            <div key={index} className="flex gap-2">
-                              <Input
-                                value={artist}
-                                onChange={(e) => updateArtist(index, e.target.value)}
-                                placeholder="Artist name"
-                              />
-                              {artists.length > 1 && (
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => removeArtist(index)}
-                                  className="h-10 px-3 flex-shrink-0"
-                                >
-                                  <X className="h-4 w-4" />
-                                </Button>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                      <div>
-                        <Label htmlFor="producer">Label</Label>
-                        <Input
-                          id="producer"
-                          {...form.register("producer")}
-                          placeholder="Record label"
-                        />
-                      </div>
-                    </div>
-                    
-                    {/* Third line: Master Recording Ownership */}
+                    {/* Second line: Master Recording Ownership */}
                     <div className="grid grid-cols-1 gap-4">
                       <div>
                         <Label htmlFor="masterOwnership">Master Recording Ownership (%)</Label>
@@ -329,6 +333,7 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
                         <p className="text-xs text-purple-600 mt-1">Your master recording ownership percentage (0-100%)</p>
                       </div>
                     </div>
+
                   </CardContent>
                 </Card>
                 
@@ -416,7 +421,81 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
                   </CardContent>
                 </Card>
                 
-                {/* Part 3: Restrictions - Yellow */}
+                {/* Part 3: Label Information - Blue */}
+                <Card className="bg-blue-50 border-blue-200">
+                  <CardHeader className="bg-blue-100 border-b border-blue-200">
+                    <CardTitle className="text-blue-800">Label Information</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4 bg-blue-50">
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <Label className="text-base font-semibold">Artist(s), Label(s) & Ownership</Label>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={addArtistLabel}
+                          className="h-6 px-2"
+                        >
+                          <Plus className="h-3 w-3" />
+                        </Button>
+                      </div>
+                      <div className="space-y-3">
+                        <div className="grid grid-cols-12 gap-2 text-sm font-medium text-blue-700">
+                          <div className="col-span-4">Artist Name</div>
+                          <div className="col-span-4">Label</div>
+                          <div className="col-span-2">Ownership (%)</div>
+                          <div className="col-span-2">Actions</div>
+                        </div>
+                        {artistLabels.map((item, index) => (
+                          <div key={index} className="grid grid-cols-12 gap-2">
+                            <div className="col-span-4">
+                              <Input
+                                value={item.artist}
+                                onChange={(e) => updateArtist(index, e.target.value)}
+                                placeholder="Artist name"
+                              />
+                            </div>
+                            <div className="col-span-4">
+                              <Input
+                                value={item.label}
+                                onChange={(e) => updateLabel(index, e.target.value)}
+                                placeholder="Label name"
+                              />
+                            </div>
+                            <div className="col-span-2">
+                              <Input
+                                type="number"
+                                min="0"
+                                max="100"
+                                step="0.01"
+                                value={item.labelOwnership}
+                                onChange={(e) => updateLabelOwnership(index, e.target.value)}
+                                placeholder="0.00"
+                              />
+                            </div>
+                            <div className="col-span-2 flex justify-center">
+                              {artistLabels.length > 1 && (
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => removeArtistLabel(index)}
+                                  className="h-10 px-3 flex-shrink-0"
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                  </CardContent>
+                </Card>
+                
+                {/* Part 4: Restrictions - Yellow */}
                 <Card className="bg-yellow-50 border-yellow-200">
                   <CardHeader className="bg-yellow-100 border-b border-yellow-200">
                     <CardTitle className="text-yellow-800">Restrictions</CardTitle>
