@@ -26,15 +26,37 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
   const { toast } = useToast();
   const isEditing = !!song;
   
-  // State for managing multiple artists and composers
+  // State for managing multiple artists and composers with publishers
   const [artists, setArtists] = useState<string[]>(
     song?.artist ? song.artist.split(', ').filter(Boolean) : ['']
   );
-  const [composers, setComposers] = useState<string[]>(
-    song?.composer ? song.composer.split(', ').filter(Boolean) : ['']
-  );
   
-  // Helper functions for managing artist and composer arrays
+  // Structure to store composer and their associated publisher
+  interface ComposerPublisher {
+    composer: string;
+    publisher: string;
+  }
+  
+  const [composerPublishers, setComposerPublishers] = useState<ComposerPublisher[]>(() => {
+    if (song?.composer || song?.publisher) {
+      const composers = song?.composer ? song.composer.split(', ').filter(Boolean) : [''];
+      const publishers = song?.publisher ? song.publisher.split(', ').filter(Boolean) : [''];
+      
+      // Match composers with publishers, padding with empty strings if needed
+      const maxLength = Math.max(composers.length, publishers.length);
+      const result: ComposerPublisher[] = [];
+      for (let i = 0; i < maxLength; i++) {
+        result.push({
+          composer: composers[i] || '',
+          publisher: publishers[i] || ''
+        });
+      }
+      return result.length > 0 ? result : [{ composer: '', publisher: '' }];
+    }
+    return [{ composer: '', publisher: '' }];
+  });
+  
+  // Helper functions for managing artist arrays
   const addArtist = () => setArtists([...artists, '']);
   const removeArtist = (index: number) => {
     if (artists.length > 1) {
@@ -47,16 +69,22 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
     setArtists(newArtists);
   };
 
-  const addComposer = () => setComposers([...composers, '']);
-  const removeComposer = (index: number) => {
-    if (composers.length > 1) {
-      setComposers(composers.filter((_, i) => i !== index));
+  // Helper functions for managing composer-publisher pairs
+  const addComposerPublisher = () => setComposerPublishers([...composerPublishers, { composer: '', publisher: '' }]);
+  const removeComposerPublisher = (index: number) => {
+    if (composerPublishers.length > 1) {
+      setComposerPublishers(composerPublishers.filter((_, i) => i !== index));
     }
   };
   const updateComposer = (index: number, value: string) => {
-    const newComposers = [...composers];
-    newComposers[index] = value;
-    setComposers(newComposers);
+    const newComposerPublishers = [...composerPublishers];
+    newComposerPublishers[index].composer = value;
+    setComposerPublishers(newComposerPublishers);
+  };
+  const updatePublisher = (index: number, value: string) => {
+    const newComposerPublishers = [...composerPublishers];
+    newComposerPublishers[index].publisher = value;
+    setComposerPublishers(newComposerPublishers);
   };
   
   const form = useForm<InsertSong>({
@@ -160,12 +188,14 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
     
     // Combine multiple artists and composers into comma-separated strings
     const combinedArtist = artists.filter(artist => artist.trim()).join(', ');
-    const combinedComposer = composers.filter(composer => composer.trim()).join(', ');
+    const combinedComposer = composerPublishers.map(cp => cp.composer).filter(composer => composer.trim()).join(', ');
+    const combinedPublisher = composerPublishers.map(cp => cp.publisher).filter(publisher => publisher.trim()).join(', ');
     
     const processedData = {
       ...data,
       artist: combinedArtist,
       composer: combinedComposer,
+      publisher: combinedPublisher,
       tags: processedTags,
     };
     
@@ -301,50 +331,56 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
                     <CardTitle className="text-green-800">Publishing Information</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4 bg-green-50">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <div className="flex items-center justify-between mb-2">
-                          <Label>Composer(s)</Label>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={addComposer}
-                            className="h-6 px-2"
-                          >
-                            <Plus className="h-3 w-3" />
-                          </Button>
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <Label className="text-base font-semibold">Composer(s) & Publisher(s)</Label>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={addComposerPublisher}
+                          className="h-6 px-2"
+                        >
+                          <Plus className="h-3 w-3" />
+                        </Button>
+                      </div>
+                      <div className="space-y-3">
+                        <div className="grid grid-cols-12 gap-2 text-sm font-medium text-green-700">
+                          <div className="col-span-5">Composer Name</div>
+                          <div className="col-span-5">Publisher</div>
+                          <div className="col-span-2">Actions</div>
                         </div>
-                        <div className="space-y-2">
-                          {composers.map((composer, index) => (
-                            <div key={index} className="flex gap-2">
+                        {composerPublishers.map((item, index) => (
+                          <div key={index} className="grid grid-cols-12 gap-2">
+                            <div className="col-span-5">
                               <Input
-                                value={composer}
+                                value={item.composer}
                                 onChange={(e) => updateComposer(index, e.target.value)}
                                 placeholder="Composer name"
                               />
-                              {composers.length > 1 && (
+                            </div>
+                            <div className="col-span-5">
+                              <Input
+                                value={item.publisher}
+                                onChange={(e) => updatePublisher(index, e.target.value)}
+                                placeholder="Publisher name"
+                              />
+                            </div>
+                            <div className="col-span-2 flex justify-center">
+                              {composerPublishers.length > 1 && (
                                 <Button
                                   type="button"
                                   variant="outline"
                                   size="sm"
-                                  onClick={() => removeComposer(index)}
+                                  onClick={() => removeComposerPublisher(index)}
                                   className="h-10 px-3 flex-shrink-0"
                                 >
                                   <X className="h-4 w-4" />
                                 </Button>
                               )}
                             </div>
-                          ))}
-                        </div>
-                      </div>
-                      <div>
-                        <Label htmlFor="publisher">Publisher(s)</Label>
-                        <Input
-                          id="publisher"
-                          {...form.register("publisher")}
-                          placeholder="Publisher name(s)"
-                        />
+                          </div>
+                        ))}
                       </div>
                     </div>
                     
