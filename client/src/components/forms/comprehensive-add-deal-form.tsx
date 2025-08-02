@@ -480,17 +480,20 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                           form.setValue("publishingInfo", selectedSong.publisher);
                         }
                         
-                        // Use actual split details if available, otherwise default
+                        // Use actual split details if available, otherwise calculate from ownership data
                         if (selectedSong.splitDetails) {
                           form.setValue("splits", selectedSong.splitDetails);
-                        } else if (!form.watch("splits")) {
-                          form.setValue("splits", "50% Writer / 50% Publisher");
+                        } else {
+                          // Calculate splits from actual ownership percentages
+                          const publishingOwnership = selectedSong.publishingOwnership || 0;
+                          const publisherOwnership = 100 - publishingOwnership;
+                          form.setValue("splits", `${publishingOwnership}% Writer / ${publisherOwnership}% Publisher`);
                         }
                         
-                        // Artist/Label splits - default if not specified
-                        if (!form.watch("artistLabelSplits")) {
-                          form.setValue("artistLabelSplits", "50% Artist / 50% Label");
-                        }
+                        // Artist/Label splits from actual ownership data
+                        const masterOwnership = selectedSong.masterOwnership || 0;
+                        const labelOwnership = 100 - masterOwnership;
+                        form.setValue("artistLabelSplits", `${masterOwnership}% Artist / ${labelOwnership}% Label`);
                         
                         // Auto-populate restrictions if available
                         if (selectedSong.restrictions) {
