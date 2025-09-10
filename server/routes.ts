@@ -792,6 +792,394 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.delete('/api/workflow-automation/:id', async (req, res) => {
+    try {
+      await dbStorage.deleteWorkflowAutomation(parseInt(req.params.id));
+      res.status(204).send();
+    } catch (error) {
+      console.error('Error deleting workflow automation:', error);
+      res.status(500).json({ error: 'Failed to delete workflow automation' });
+    }
+  });
+
+  // Automation Execution endpoints
+  app.get('/api/automation-executions', async (req, res) => {
+    try {
+      const { automationId, status } = req.query;
+      const executions = await dbStorage.getAutomationExecutions(
+        automationId ? parseInt(automationId as string) : undefined,
+        status as string
+      );
+      res.json(executions);
+    } catch (error) {
+      console.error('Error fetching automation executions:', error);
+      res.status(500).json({ error: 'Failed to fetch automation executions' });
+    }
+  });
+
+  app.post('/api/automation-executions', async (req, res) => {
+    try {
+      const execution = await dbStorage.createAutomationExecution(req.body);
+      res.status(201).json(execution);
+    } catch (error) {
+      console.error('Error creating automation execution:', error);
+      res.status(500).json({ error: 'Failed to create automation execution' });
+    }
+  });
+
+  // Team Assignment Rules endpoints
+  app.get('/api/team-assignment-rules', async (req, res) => {
+    try {
+      const rules = await dbStorage.getTeamAssignmentRules();
+      res.json(rules);
+    } catch (error) {
+      console.error('Error fetching team assignment rules:', error);
+      res.status(500).json({ error: 'Failed to fetch team assignment rules' });
+    }
+  });
+
+  app.get('/api/team-assignment-rules/:id', async (req, res) => {
+    try {
+      const rule = await dbStorage.getTeamAssignmentRule(parseInt(req.params.id));
+      if (!rule) {
+        return res.status(404).json({ error: 'Team assignment rule not found' });
+      }
+      res.json(rule);
+    } catch (error) {
+      console.error('Error fetching team assignment rule:', error);
+      res.status(500).json({ error: 'Failed to fetch team assignment rule' });
+    }
+  });
+
+  app.post('/api/team-assignment-rules', async (req, res) => {
+    try {
+      const rule = await dbStorage.createTeamAssignmentRule(req.body);
+      res.status(201).json(rule);
+    } catch (error) {
+      console.error('Error creating team assignment rule:', error);
+      res.status(500).json({ error: 'Failed to create team assignment rule' });
+    }
+  });
+
+  app.put('/api/team-assignment-rules/:id', async (req, res) => {
+    try {
+      const rule = await dbStorage.updateTeamAssignmentRule(parseInt(req.params.id), req.body);
+      res.json(rule);
+    } catch (error) {
+      console.error('Error updating team assignment rule:', error);
+      res.status(500).json({ error: 'Failed to update team assignment rule' });
+    }
+  });
+
+  app.delete('/api/team-assignment-rules/:id', async (req, res) => {
+    try {
+      await dbStorage.deleteTeamAssignmentRule(parseInt(req.params.id));
+      res.status(204).send();
+    } catch (error) {
+      console.error('Error deleting team assignment rule:', error);
+      res.status(500).json({ error: 'Failed to delete team assignment rule' });
+    }
+  });
+
+  // Revenue Calculation Rules endpoints
+  app.get('/api/revenue-calculation-rules', async (req, res) => {
+    try {
+      const rules = await dbStorage.getRevenueCalculationRules();
+      res.json(rules);
+    } catch (error) {
+      console.error('Error fetching revenue calculation rules:', error);
+      res.status(500).json({ error: 'Failed to fetch revenue calculation rules' });
+    }
+  });
+
+  app.get('/api/revenue-calculation-rules/:id', async (req, res) => {
+    try {
+      const rule = await dbStorage.getRevenueCalculationRule(parseInt(req.params.id));
+      if (!rule) {
+        return res.status(404).json({ error: 'Revenue calculation rule not found' });
+      }
+      res.json(rule);
+    } catch (error) {
+      console.error('Error fetching revenue calculation rule:', error);
+      res.status(500).json({ error: 'Failed to fetch revenue calculation rule' });
+    }
+  });
+
+  app.post('/api/revenue-calculation-rules', async (req, res) => {
+    try {
+      const rule = await dbStorage.createRevenueCalculationRule(req.body);
+      res.status(201).json(rule);
+    } catch (error) {
+      console.error('Error creating revenue calculation rule:', error);
+      res.status(500).json({ error: 'Failed to create revenue calculation rule' });
+    }
+  });
+
+  app.put('/api/revenue-calculation-rules/:id', async (req, res) => {
+    try {
+      const rule = await dbStorage.updateRevenueCalculationRule(parseInt(req.params.id), req.body);
+      res.json(rule);
+    } catch (error) {
+      console.error('Error updating revenue calculation rule:', error);
+      res.status(500).json({ error: 'Failed to update revenue calculation rule' });
+    }
+  });
+
+  app.delete('/api/revenue-calculation-rules/:id', async (req, res) => {
+    try {
+      await dbStorage.deleteRevenueCalculationRule(parseInt(req.params.id));
+      res.status(204).send();
+    } catch (error) {
+      console.error('Error deleting revenue calculation rule:', error);
+      res.status(500).json({ error: 'Failed to delete revenue calculation rule' });
+    }
+  });
+
+  // Notification Templates endpoints
+  app.get('/api/notification-templates', async (req, res) => {
+    try {
+      const { category } = req.query;
+      const templates = await dbStorage.getNotificationTemplates(category as string);
+      res.json(templates);
+    } catch (error) {
+      console.error('Error fetching notification templates:', error);
+      res.status(500).json({ error: 'Failed to fetch notification templates' });
+    }
+  });
+
+  app.get('/api/notification-templates/:id', async (req, res) => {
+    try {
+      const template = await dbStorage.getNotificationTemplate(parseInt(req.params.id));
+      if (!template) {
+        return res.status(404).json({ error: 'Notification template not found' });
+      }
+      res.json(template);
+    } catch (error) {
+      console.error('Error fetching notification template:', error);
+      res.status(500).json({ error: 'Failed to fetch notification template' });
+    }
+  });
+
+  app.post('/api/notification-templates', async (req, res) => {
+    try {
+      const template = await dbStorage.createNotificationTemplate(req.body);
+      res.status(201).json(template);
+    } catch (error) {
+      console.error('Error creating notification template:', error);
+      res.status(500).json({ error: 'Failed to create notification template' });
+    }
+  });
+
+  app.put('/api/notification-templates/:id', async (req, res) => {
+    try {
+      const template = await dbStorage.updateNotificationTemplate(parseInt(req.params.id), req.body);
+      res.json(template);
+    } catch (error) {
+      console.error('Error updating notification template:', error);
+      res.status(500).json({ error: 'Failed to update notification template' });
+    }
+  });
+
+  app.delete('/api/notification-templates/:id', async (req, res) => {
+    try {
+      await dbStorage.deleteNotificationTemplate(parseInt(req.params.id));
+      res.status(204).send();
+    } catch (error) {
+      console.error('Error deleting notification template:', error);
+      res.status(500).json({ error: 'Failed to delete notification template' });
+    }
+  });
+
+  // Automation Logs endpoints
+  app.get('/api/automation-logs', async (req, res) => {
+    try {
+      const { automationId, level } = req.query;
+      const logs = await dbStorage.getAutomationLogs(
+        automationId ? parseInt(automationId as string) : undefined,
+        level as string
+      );
+      res.json(logs);
+    } catch (error) {
+      console.error('Error fetching automation logs:', error);
+      res.status(500).json({ error: 'Failed to fetch automation logs' });
+    }
+  });
+
+  app.post('/api/automation-logs', async (req, res) => {
+    try {
+      const log = await dbStorage.createAutomationLog(req.body);
+      res.status(201).json(log);
+    } catch (error) {
+      console.error('Error creating automation log:', error);
+      res.status(500).json({ error: 'Failed to create automation log' });
+    }
+  });
+
+  // Document Workflows endpoints
+  app.get('/api/document-workflows', async (req, res) => {
+    try {
+      const { documentType } = req.query;
+      const workflows = await dbStorage.getDocumentWorkflows(documentType as string);
+      res.json(workflows);
+    } catch (error) {
+      console.error('Error fetching document workflows:', error);
+      res.status(500).json({ error: 'Failed to fetch document workflows' });
+    }
+  });
+
+  app.get('/api/document-workflows/:id', async (req, res) => {
+    try {
+      const workflow = await dbStorage.getDocumentWorkflow(parseInt(req.params.id));
+      if (!workflow) {
+        return res.status(404).json({ error: 'Document workflow not found' });
+      }
+      res.json(workflow);
+    } catch (error) {
+      console.error('Error fetching document workflow:', error);
+      res.status(500).json({ error: 'Failed to fetch document workflow' });
+    }
+  });
+
+  app.post('/api/document-workflows', async (req, res) => {
+    try {
+      const workflow = await dbStorage.createDocumentWorkflow(req.body);
+      res.status(201).json(workflow);
+    } catch (error) {
+      console.error('Error creating document workflow:', error);
+      res.status(500).json({ error: 'Failed to create document workflow' });
+    }
+  });
+
+  app.put('/api/document-workflows/:id', async (req, res) => {
+    try {
+      const workflow = await dbStorage.updateDocumentWorkflow(parseInt(req.params.id), req.body);
+      res.json(workflow);
+    } catch (error) {
+      console.error('Error updating document workflow:', error);
+      res.status(500).json({ error: 'Failed to update document workflow' });
+    }
+  });
+
+  app.delete('/api/document-workflows/:id', async (req, res) => {
+    try {
+      await dbStorage.deleteDocumentWorkflow(parseInt(req.params.id));
+      res.status(204).send();
+    } catch (error) {
+      console.error('Error deleting document workflow:', error);
+      res.status(500).json({ error: 'Failed to delete document workflow' });
+    }
+  });
+
+  // Bulk Operations endpoints
+  app.get('/api/bulk-operations', async (req, res) => {
+    try {
+      const { status } = req.query;
+      const operations = await dbStorage.getBulkOperations(status as string);
+      res.json(operations);
+    } catch (error) {
+      console.error('Error fetching bulk operations:', error);
+      res.status(500).json({ error: 'Failed to fetch bulk operations' });
+    }
+  });
+
+  app.get('/api/bulk-operations/:id', async (req, res) => {
+    try {
+      const operation = await dbStorage.getBulkOperation(parseInt(req.params.id));
+      if (!operation) {
+        return res.status(404).json({ error: 'Bulk operation not found' });
+      }
+      res.json(operation);
+    } catch (error) {
+      console.error('Error fetching bulk operation:', error);
+      res.status(500).json({ error: 'Failed to fetch bulk operation' });
+    }
+  });
+
+  app.post('/api/bulk-operations', async (req, res) => {
+    try {
+      const operation = await dbStorage.createBulkOperation(req.body);
+      res.status(201).json(operation);
+    } catch (error) {
+      console.error('Error creating bulk operation:', error);
+      res.status(500).json({ error: 'Failed to create bulk operation' });
+    }
+  });
+
+  app.put('/api/bulk-operations/:id', async (req, res) => {
+    try {
+      const operation = await dbStorage.updateBulkOperation(parseInt(req.params.id), req.body);
+      res.json(operation);
+    } catch (error) {
+      console.error('Error updating bulk operation:', error);
+      res.status(500).json({ error: 'Failed to update bulk operation' });
+    }
+  });
+
+  // Automation Processing endpoints
+  app.post('/api/automation/process', async (req, res) => {
+    try {
+      await dbStorage.processAutomations();
+      res.json({ success: true, message: 'Automation processing started' });
+    } catch (error) {
+      console.error('Error processing automations:', error);
+      res.status(500).json({ error: 'Failed to process automations' });
+    }
+  });
+
+  app.post('/api/automation/execute/:id', async (req, res) => {
+    try {
+      const { entityId, entityType } = req.body;
+      await dbStorage.executeAutomation(parseInt(req.params.id), entityId, entityType);
+      res.json({ success: true, message: 'Automation executed successfully' });
+    } catch (error) {
+      console.error('Error executing automation:', error);
+      res.status(500).json({ error: 'Failed to execute automation' });
+    }
+  });
+
+  app.post('/api/automation/assign-deals', async (req, res) => {
+    try {
+      const { dealIds, ruleId } = req.body;
+      await dbStorage.assignDealsToTeam(dealIds, ruleId);
+      res.json({ success: true, message: 'Deals assigned successfully' });
+    } catch (error) {
+      console.error('Error assigning deals:', error);
+      res.status(500).json({ error: 'Failed to assign deals' });
+    }
+  });
+
+  app.post('/api/automation/calculate-revenue/:dealId', async (req, res) => {
+    try {
+      await dbStorage.calculateRevenue(parseInt(req.params.dealId));
+      res.json({ success: true, message: 'Revenue calculated successfully' });
+    } catch (error) {
+      console.error('Error calculating revenue:', error);
+      res.status(500).json({ error: 'Failed to calculate revenue' });
+    }
+  });
+
+  app.post('/api/automation/generate-document/:dealId', async (req, res) => {
+    try {
+      const { documentType } = req.body;
+      await dbStorage.generateDocument(parseInt(req.params.dealId), documentType);
+      res.json({ success: true, message: 'Document generated successfully' });
+    } catch (error) {
+      console.error('Error generating document:', error);
+      res.status(500).json({ error: 'Failed to generate document' });
+    }
+  });
+
+  app.post('/api/automation/send-notification', async (req, res) => {
+    try {
+      const { templateId, entityId, entityType } = req.body;
+      await dbStorage.sendNotification(templateId, entityId, entityType);
+      res.json({ success: true, message: 'Notification sent successfully' });
+    } catch (error) {
+      console.error('Error sending notification:', error);
+      res.status(500).json({ error: 'Failed to send notification' });
+    }
+  });
+
   // Saved Searches endpoints
   app.get('/api/saved-searches', async (req, res) => {
     try {

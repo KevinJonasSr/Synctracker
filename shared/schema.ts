@@ -284,14 +284,135 @@ export const clientProfiles = pgTable("client_profiles", {
 export const workflowAutomation = pgTable("workflow_automation", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
-  triggerType: text("trigger_type").notNull(), // 'date', 'status_change', 'time_elapsed'
-  triggerCondition: text("trigger_condition").notNull(), // JSON string
-  actionType: text("action_type").notNull(), // 'email', 'notification', 'status_update'
-  actionData: text("action_data").notNull(), // JSON string
+  description: text("description"),
+  category: text("category").notNull(), // 'status_automation', 'notifications', 'assignments', 'revenue', 'documents'
+  triggerType: text("trigger_type").notNull(), // 'date', 'status_change', 'time_elapsed', 'field_change', 'amount_threshold'
+  triggerCondition: jsonb("trigger_condition").notNull(), // Enhanced JSON object with complex conditions
+  actionType: text("action_type").notNull(), // 'email', 'notification', 'status_update', 'assignment', 'calculation', 'document_generation'
+  actionData: jsonb("action_data").notNull(), // Enhanced JSON object with detailed action parameters
   isActive: boolean("is_active").default(true),
-  entityType: text("entity_type").notNull(), // 'deal', 'pitch', 'payment'
+  entityType: text("entity_type").notNull(), // 'deal', 'pitch', 'payment', 'contact', 'song'
+  priority: integer("priority").default(1), // 1-10 for execution order
+  frequency: text("frequency").default("once"), // 'once', 'daily', 'weekly', 'monthly'
+  conditions: jsonb("conditions"), // Additional business rules and conditions
+  metadata: jsonb("metadata"), // Additional configuration data
+  executionCount: integer("execution_count").default(0),
+  lastExecuted: timestamp("last_executed"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Automation Execution History
+export const automationExecutions = pgTable("automation_executions", {
+  id: serial("id").primaryKey(),
+  automationId: integer("automation_id").references(() => workflowAutomation.id, { onDelete: 'cascade' }).notNull(),
+  entityType: text("entity_type").notNull(),
+  entityId: integer("entity_id").notNull(),
+  status: text("status").notNull(), // 'success', 'failed', 'skipped', 'pending'
+  result: jsonb("result"), // Execution result data
+  errorMessage: text("error_message"),
+  executionTime: integer("execution_time"), // milliseconds
+  metadata: jsonb("metadata"),
+  executedAt: timestamp("executed_at").defaultNow().notNull(),
+});
+
+// Team Assignment Rules
+export const teamAssignmentRules = pgTable("team_assignment_rules", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  isActive: boolean("is_active").default(true),
+  priority: integer("priority").default(1),
+  conditions: jsonb("conditions").notNull(), // Complex matching conditions
+  assignmentLogic: text("assignment_logic").notNull(), // 'round_robin', 'load_based', 'expertise', 'territory'
+  teamMembers: jsonb("team_members").notNull(), // Array of team member configurations
+  fallbackAssignee: text("fallback_assignee"),
+  workloadCap: integer("workload_cap"), // Maximum deals per member
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Revenue Calculation Rules
+export const revenueCalculationRules = pgTable("revenue_calculation_rules", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  ruleType: text("rule_type").notNull(), // 'fee_split', 'commission', 'royalty', 'flat_fee'
+  isActive: boolean("is_active").default(true),
+  conditions: jsonb("conditions").notNull(), // When this rule applies
+  calculationFormula: text("calculation_formula").notNull(), // Mathematical formula
+  variables: jsonb("variables"), // Available variables and their sources
+  basedOn: text("based_on").notNull(), // 'deal_value', 'publishing_share', 'master_share', 'usage_type'
+  percentage: decimal("percentage", { precision: 5, scale: 2 }),
+  fixedAmount: decimal("fixed_amount", { precision: 10, scale: 2 }),
+  minimumAmount: decimal("minimum_amount", { precision: 10, scale: 2 }),
+  maximumAmount: decimal("maximum_amount", { precision: 10, scale: 2 }),
+  appliesTo: text("applies_to").array(), // Which entities this applies to
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Notification Templates
+export const notificationTemplates = pgTable("notification_templates", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  category: text("category").notNull(), // 'reminder', 'alert', 'update', 'approval'
+  triggerEvent: text("trigger_event").notNull(),
+  subject: text("subject").notNull(),
+  body: text("body").notNull(),
+  messageType: text("message_type").default("email"), // 'email', 'sms', 'push', 'in_app'
+  variables: jsonb("variables"), // Available template variables
+  isActive: boolean("is_active").default(true),
+  priority: text("priority").default("normal"), // 'low', 'normal', 'high', 'urgent'
+  deliveryRules: jsonb("delivery_rules"), // When and how to deliver
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Automation Logs for Monitoring
+export const automationLogs = pgTable("automation_logs", {
+  id: serial("id").primaryKey(),
+  level: text("level").notNull(), // 'info', 'warning', 'error', 'debug'
+  message: text("message").notNull(),
+  automationId: integer("automation_id").references(() => workflowAutomation.id),
+  entityType: text("entity_type"),
+  entityId: integer("entity_id"),
+  metadata: jsonb("metadata"),
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+});
+
+// Document Generation Workflows
+export const documentWorkflows = pgTable("document_workflows", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  documentType: text("document_type").notNull(), // 'contract', 'quote', 'invoice', 'license'
+  templateId: integer("template_id").references(() => templates.id),
+  triggerConditions: jsonb("trigger_conditions").notNull(),
+  approvalRequired: boolean("approval_required").default(false),
+  approvers: jsonb("approvers"), // Array of approver configurations
+  autoSend: boolean("auto_send").default(false),
+  sendConditions: jsonb("send_conditions"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Bulk Operations Queue
+export const bulkOperations = pgTable("bulk_operations", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  operationType: text("operation_type").notNull(), // 'status_update', 'assignment', 'calculation', 'notification'
+  entityType: text("entity_type").notNull(),
+  entityIds: integer("entity_ids").array(),
+  filters: jsonb("filters"), // Selection criteria
+  action: jsonb("action").notNull(), // What action to perform
+  status: text("status").default("pending"), // 'pending', 'processing', 'completed', 'failed'
+  progress: integer("progress").default(0), // 0-100
+  totalItems: integer("total_items").default(0),
+  processedItems: integer("processed_items").default(0),
+  failedItems: integer("failed_items").default(0),
+  results: jsonb("results"),
+  errorLog: text("error_log"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  completedAt: timestamp("completed_at"),
 });
 
 export const analyticsEvents = pgTable("analytics_events", {
@@ -669,6 +790,47 @@ export const insertApprovalWorkflowSchema = createInsertSchema(approvalWorkflows
   createdAt: true,
 });
 
+// New workflow automation schemas
+export const insertAutomationExecutionSchema = createInsertSchema(automationExecutions).omit({
+  id: true,
+  executedAt: true,
+});
+
+export const insertTeamAssignmentRuleSchema = createInsertSchema(teamAssignmentRules).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertRevenueCalculationRuleSchema = createInsertSchema(revenueCalculationRules).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertNotificationTemplateSchema = createInsertSchema(notificationTemplates).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertAutomationLogSchema = createInsertSchema(automationLogs).omit({
+  id: true,
+  timestamp: true,
+});
+
+export const insertDocumentWorkflowSchema = createInsertSchema(documentWorkflows).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertBulkOperationSchema = createInsertSchema(bulkOperations).omit({
+  id: true,
+  createdAt: true,
+  completedAt: true,
+});
+
 // Types
 export type Song = typeof songs.$inferSelect;
 export type InsertSong = z.infer<typeof insertSongSchema>;
@@ -719,6 +881,22 @@ export type Message = typeof messages.$inferSelect;
 export type InsertMessage = z.infer<typeof insertMessageSchema>;
 export type ApprovalWorkflow = typeof approvalWorkflows.$inferSelect;
 export type InsertApprovalWorkflow = z.infer<typeof insertApprovalWorkflowSchema>;
+
+// New workflow automation types
+export type AutomationExecution = typeof automationExecutions.$inferSelect;
+export type InsertAutomationExecution = z.infer<typeof insertAutomationExecutionSchema>;
+export type TeamAssignmentRule = typeof teamAssignmentRules.$inferSelect;
+export type InsertTeamAssignmentRule = z.infer<typeof insertTeamAssignmentRuleSchema>;
+export type RevenueCalculationRule = typeof revenueCalculationRules.$inferSelect;
+export type InsertRevenueCalculationRule = z.infer<typeof insertRevenueCalculationRuleSchema>;
+export type NotificationTemplate = typeof notificationTemplates.$inferSelect;
+export type InsertNotificationTemplate = z.infer<typeof insertNotificationTemplateSchema>;
+export type AutomationLog = typeof automationLogs.$inferSelect;
+export type InsertAutomationLog = z.infer<typeof insertAutomationLogSchema>;
+export type DocumentWorkflow = typeof documentWorkflows.$inferSelect;
+export type InsertDocumentWorkflow = z.infer<typeof insertDocumentWorkflowSchema>;
+export type BulkOperation = typeof bulkOperations.$inferSelect;
+export type InsertBulkOperation = z.infer<typeof insertBulkOperationSchema>;
 
 // Extended types for API responses
 export type DealWithRelations = Deal & {
