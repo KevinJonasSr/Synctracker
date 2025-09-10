@@ -928,6 +928,186 @@ export type DashboardMetrics = {
   }>;
 };
 
+// Enhanced Analytics Types for Business Intelligence
+export type AdvancedMetrics = {
+  // Revenue Analytics
+  revenueAnalytics: {
+    currentMonth: number;
+    previousMonth: number;
+    monthlyGrowth: number;
+    currentQuarter: number;
+    previousQuarter: number;
+    quarterlyGrowth: number;
+    currentYear: number;
+    previousYear: number;
+    yearlyGrowth: number;
+    projectedMonthly: number;
+    projectedQuarterly: number;
+    projectedYearly: number;
+  };
+  
+  // Deal Performance
+  dealPerformance: {
+    conversionRate: number;
+    averageDealValue: number;
+    averageTimeToClose: number;
+    successRate: number;
+    pipelineVelocity: number;
+    dealsByStage: Array<{
+      stage: string;
+      count: number;
+      value: number;
+      avgTimeInStage: number;
+    }>;
+  };
+  
+  // Top Performers
+  topPerformers: {
+    songs: Array<{
+      id: number;
+      title: string;
+      artist: string;
+      dealCount: number;
+      totalRevenue: number;
+      successRate: number;
+    }>;
+    clients: Array<{
+      id: number;
+      name: string;
+      company: string;
+      dealCount: number;
+      totalRevenue: number;
+      avgDealValue: number;
+    }>;
+    musicSupervisors: Array<{
+      name: string;
+      dealCount: number;
+      totalRevenue: number;
+      avgDealValue: number;
+    }>;
+  };
+  
+  // Market Intelligence
+  marketIntelligence: {
+    industryBenchmarks: {
+      avgDealValue: number;
+      avgTimeToClose: number;
+      conversionRate: number;
+    };
+    trends: {
+      popularGenres: Array<{ genre: string; count: number; growth: number }>;
+      projectTypes: Array<{ type: string; count: number; growth: number }>;
+      territories: Array<{ territory: string; count: number; growth: number }>;
+    };
+    seasonality: {
+      month: string;
+      dealVolume: number;
+      revenue: number;
+      trends: string[];
+    }[];
+  };
+  
+  // Portfolio Analysis
+  portfolioAnalysis: {
+    songUtilization: {
+      totalSongs: number;
+      activeSongs: number;
+      utilizationRate: number;
+      underperformingSongs: number;
+    };
+    revenueDistribution: {
+      byGenre: Array<{ genre: string; revenue: number; percentage: number }>;
+      byProjectType: Array<{ type: string; revenue: number; percentage: number }>;
+      byTerritory: Array<{ territory: string; revenue: number; percentage: number }>;
+    };
+    riskAnalysis: {
+      overduePayments: number;
+      contractRenewals: number;
+      clientDependency: number;
+      portfolioRisk: string;
+    };
+  };
+  
+  // Predictive Analytics
+  predictiveAnalytics: {
+    dealProbability: Array<{
+      dealId: number;
+      projectName: string;
+      probability: number;
+      predictedValue: number;
+      factors: string[];
+    }>;
+    revenueForecasting: {
+      next30Days: number;
+      next60Days: number;
+      next90Days: number;
+      confidence: number;
+    };
+    recommendations: Array<{
+      type: string;
+      title: string;
+      description: string;
+      impact: 'high' | 'medium' | 'low';
+      effort: 'high' | 'medium' | 'low';
+    }>;
+  };
+};
+
+// Smart Alerts
+export type SmartAlert = {
+  id: string;
+  type: 'performance' | 'revenue' | 'deadline' | 'opportunity' | 'risk';
+  priority: 'urgent' | 'high' | 'medium' | 'low';
+  title: string;
+  message: string;
+  details?: string;
+  entityType?: string;
+  entityId?: number;
+  actionRequired: boolean;
+  suggestedActions?: string[];
+  createdAt: Date;
+  expiresAt?: Date;
+};
+
+// Market Intelligence
+export type MarketInsight = {
+  id: string;
+  category: 'trend' | 'competitor' | 'opportunity' | 'threat';
+  title: string;
+  description: string;
+  impact: 'high' | 'medium' | 'low';
+  confidence: number;
+  sourceType: 'internal' | 'industry' | 'ai_analysis';
+  dataPoints: Array<{
+    metric: string;
+    value: number;
+    change: number;
+    period: string;
+  }>;
+  recommendations: string[];
+  createdAt: Date;
+};
+
+// Client Relationship Score
+export type ClientRelationshipData = {
+  contactId: number;
+  name: string;
+  company: string;
+  relationshipScore: number;
+  clientValue: 'high' | 'medium' | 'low';
+  dealCount: number;
+  totalRevenue: number;
+  avgDealValue: number;
+  lastContactDate: Date;
+  successRate: number;
+  paymentHistory: 'excellent' | 'good' | 'fair' | 'poor';
+  communicationFrequency: number;
+  preferredGenres: string[];
+  riskFactors: string[];
+  opportunities: string[];
+  nextBestAction: string;
+};
+
 // Advanced Analytics Types
 export type AnalyticsTimeRange = '7d' | '30d' | '90d' | '1y' | '2y' | 'all';
 

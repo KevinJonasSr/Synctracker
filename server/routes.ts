@@ -4,7 +4,8 @@ import { storage as dbStorage } from "./storage";
 import { 
   insertSongSchema, insertContactSchema, insertDealSchema,
   insertPitchSchema, insertPaymentSchema, insertTemplateSchema,
-  insertEmailTemplateSchema, insertAttachmentSchema, insertCalendarEventSchema
+  insertEmailTemplateSchema, insertAttachmentSchema, insertCalendarEventSchema,
+  insertWorkflowAutomationSchema, insertAutomationExecutionSchema
 } from "@shared/schema";
 import { z } from "zod";
 import multer from "multer";
@@ -493,6 +494,114 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Business Intelligence Endpoints
+  app.get("/api/dashboard/advanced-metrics", async (req, res) => {
+    try {
+      const { timeRange = '30d' } = req.query;
+      const metrics = await dbStorage.getAdvancedMetrics(timeRange as string);
+      res.json(metrics);
+    } catch (error) {
+      console.error('Advanced metrics error:', error);
+      res.status(500).json({ error: "Failed to fetch advanced metrics" });
+    }
+  });
+
+  app.get("/api/dashboard/smart-alerts", async (req, res) => {
+    try {
+      const alerts = await dbStorage.getSmartAlerts();
+      res.json(alerts);
+    } catch (error) {
+      console.error('Smart alerts error:', error);
+      res.status(500).json({ error: "Failed to fetch smart alerts" });
+    }
+  });
+
+  app.get("/api/dashboard/market-insights", async (req, res) => {
+    try {
+      const { category } = req.query;
+      const insights = await dbStorage.getMarketInsights(category as string);
+      res.json(insights);
+    } catch (error) {
+      console.error('Market insights error:', error);
+      res.status(500).json({ error: "Failed to fetch market insights" });
+    }
+  });
+
+  app.get("/api/dashboard/client-relationships", async (req, res) => {
+    try {
+      const { contactId } = req.query;
+      const data = await dbStorage.getClientRelationshipData(
+        contactId ? parseInt(contactId as string) : undefined
+      );
+      res.json(data);
+    } catch (error) {
+      console.error('Client relationships error:', error);
+      res.status(500).json({ error: "Failed to fetch client relationship data" });
+    }
+  });
+
+  app.get("/api/dashboard/performance-benchmarks", async (req, res) => {
+    try {
+      const benchmarks = await dbStorage.getPerformanceBenchmarks();
+      res.json(benchmarks);
+    } catch (error) {
+      console.error('Performance benchmarks error:', error);
+      res.status(500).json({ error: "Failed to fetch performance benchmarks" });
+    }
+  });
+
+  app.get("/api/dashboard/recommendations", async (req, res) => {
+    try {
+      const recommendations = await dbStorage.generateBusinessRecommendations();
+      res.json(recommendations);
+    } catch (error) {
+      console.error('Business recommendations error:', error);
+      res.status(500).json({ error: "Failed to generate business recommendations" });
+    }
+  });
+
+  app.get("/api/dashboard/portfolio-risk", async (req, res) => {
+    try {
+      const riskAnalysis = await dbStorage.analyzePortfolioRisk();
+      res.json(riskAnalysis);
+    } catch (error) {
+      console.error('Portfolio risk error:', error);
+      res.status(500).json({ error: "Failed to analyze portfolio risk" });
+    }
+  });
+
+  app.get("/api/dashboard/growth-opportunities", async (req, res) => {
+    try {
+      const opportunities = await dbStorage.identifyGrowthOpportunities();
+      res.json(opportunities);
+    } catch (error) {
+      console.error('Growth opportunities error:', error);
+      res.status(500).json({ error: "Failed to identify growth opportunities" });
+    }
+  });
+
+  app.get("/api/dashboard/deal-probability/:id", async (req, res) => {
+    try {
+      const dealId = parseInt(req.params.id);
+      const probability = await dbStorage.calculateDealProbability(dealId);
+      res.json({ dealId, probability });
+    } catch (error) {
+      console.error('Deal probability error:', error);
+      res.status(500).json({ error: "Failed to calculate deal probability" });
+    }
+  });
+
+  app.get("/api/dashboard/revenue-forecast", async (req, res) => {
+    try {
+      const { period = '30d' } = req.query;
+      const forecast = await dbStorage.generateRevenueForecasting(period as '30d' | '60d' | '90d');
+      res.json(forecast);
+    } catch (error) {
+      console.error('Revenue forecast error:', error);
+      res.status(500).json({ error: "Failed to generate revenue forecast" });
+    }
+  });
+
   // Email Templates endpoints
   app.get("/api/email-templates", async (req, res) => {
     try {
@@ -774,9 +883,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/workflow-automation', async (req, res) => {
     try {
-      const automation = await dbStorage.createWorkflowAutomation(req.body);
+      const validatedData = insertWorkflowAutomationSchema.parse(req.body);
+      const automation = await dbStorage.createWorkflowAutomation(validatedData);
       res.status(201).json(automation);
     } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors });
+      }
       console.error('Error creating workflow automation:', error);
       res.status(500).json({ error: 'Failed to create workflow automation' });
     }
@@ -784,9 +897,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put('/api/workflow-automation/:id', async (req, res) => {
     try {
-      const automation = await dbStorage.updateWorkflowAutomation(parseInt(req.params.id), req.body);
+      const validatedData = insertWorkflowAutomationSchema.partial().parse(req.body);
+      const automation = await dbStorage.updateWorkflowAutomation(parseInt(req.params.id), validatedData);
       res.json(automation);
     } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors });
+      }
       console.error('Error updating workflow automation:', error);
       res.status(500).json({ error: 'Failed to update workflow automation' });
     }
@@ -819,9 +936,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/automation-executions', async (req, res) => {
     try {
-      const execution = await dbStorage.createAutomationExecution(req.body);
+      const validatedData = insertAutomationExecutionSchema.parse(req.body);
+      const execution = await dbStorage.createAutomationExecution(validatedData);
       res.status(201).json(execution);
     } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors });
+      }
       console.error('Error creating automation execution:', error);
       res.status(500).json({ error: 'Failed to create automation execution' });
     }
