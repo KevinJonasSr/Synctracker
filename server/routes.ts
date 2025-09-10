@@ -257,12 +257,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       res.json(deal);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating deal:", error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: error.errors });
       }
-      res.status(500).json({ error: "Failed to create deal", details: error.message });
+      res.status(500).json({ error: "Failed to create deal", details: error?.message || "Unknown error" });
     }
   });
 
@@ -280,13 +280,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("Updated deal:", deal);
       
       res.json(deal);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error updating deal:", error);
       if (error instanceof z.ZodError) {
         console.error("Validation errors:", error.errors);
         return res.status(400).json({ error: error.errors });
       }
-      res.status(500).json({ error: "Failed to update deal", details: error.message });
+      res.status(500).json({ error: "Failed to update deal", details: error?.message || "Unknown error" });
     }
   });
 
@@ -321,17 +321,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         completedDate: validatedData.completedDate && validatedData.completedDate !== '' ? new Date(validatedData.completedDate) : null,
       };
       
-      const deal = await dbStorage.updateDeal(id, processedData);
+      const deal = await dbStorage.updateDeal(id, processedData as any);
       console.log("Updated deal:", deal);
       
       res.json(deal);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error updating deal:", error);
       if (error instanceof z.ZodError) {
         console.error("Validation errors:", error.errors);
         return res.status(400).json({ error: error.errors });
       }
-      res.status(500).json({ error: "Failed to update deal", details: error.message });
+      res.status(500).json({ error: "Failed to update deal", details: error?.message || "Unknown error" });
     }
   });
 
@@ -383,9 +383,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const pitch = await dbStorage.createPitch(processedData);
       console.log("Created pitch:", pitch);
       res.json(pitch);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating pitch:", error);
-      res.status(500).json({ error: "Failed to create pitch", details: error.message });
+      res.status(500).json({ error: "Failed to create pitch", details: error?.message || "Unknown error" });
     }
   });
 
@@ -412,9 +412,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const pitch = await dbStorage.updatePitch(id, updateData);
       console.log("Updated pitch:", pitch);
       res.json(pitch);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error updating pitch:", error);
-      res.status(500).json({ error: "Failed to update pitch", details: error.message });
+      res.status(500).json({ error: "Failed to update pitch", details: error?.message || "Unknown error" });
     }
   });
 
@@ -702,7 +702,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (event.entityType === 'deal' && event.entityId && event.title.includes('Air Date:')) {
         try {
           await dbStorage.updateDeal(event.entityId, { 
-            airDate: event.startDate 
+            airDate: event.startDate as any
           });
         } catch (dealError) {
           console.error('Error updating deal air date:', dealError);
