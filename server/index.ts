@@ -47,15 +47,6 @@ app.use((req, res, next) => {
     throw err;
   });
 
-  // Add API 404 handler to prevent HTML responses for unmatched API routes
-  app.use("/api/*", (req, res) => {
-    res.status(404).json({ 
-      error: `API endpoint not found: ${req.originalUrl}`,
-      method: req.method,
-      path: req.path 
-    });
-  });
-
   // importantly only setup vite in development and after
   // setting up all the other routes so the catch-all route
   // doesn't interfere with the other routes

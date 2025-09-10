@@ -10,9 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import { Checkbox } from "@/components/ui/checkbox";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Brain, Target, Sparkles, Calendar, Heart, Users, Music, TrendingUp, Star, FileText, Download, Send, Zap, Filter } from "lucide-react";
+import { Brain, Target, Sparkles, Calendar, Heart, Users, Music, TrendingUp, Star } from "lucide-react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
@@ -47,17 +45,6 @@ interface ProjectBrief {
   sceneDescription?: string;
   desiredMood?: string;
   targetDemographics?: string;
-  budget?: string;
-  timeline?: string;
-  brandValues?: string;
-}
-
-interface LyricsAnalysis {
-  themes: string[];
-  emotions: string[];
-  narrative: string;
-  marketability: number;
-  syncPotential: string[];
 }
 
 export default function SmartPitchMatching() {
@@ -70,20 +57,13 @@ export default function SmartPitchMatching() {
     targetAudience: "",
     sceneDescription: "",
     desiredMood: "",
-    targetDemographics: "",
-    budget: "",
-    timeline: "",
-    brandValues: ""
+    targetDemographics: ""
   });
   const [recommendations, setRecommendations] = useState<PitchRecommendation[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [selectedSongs, setSelectedSongs] = useState<number[]>([]);
-  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
-  const [lyricsAnalysis, setLyricsAnalysis] = useState<Record<number, LyricsAnalysis>>({});
-  const [savedRecommendations, setSavedRecommendations] = useState<PitchRecommendation[]>([]);
   const { toast } = useToast();
 
-  const { data: songs = [] } = useQuery<Song[]>({
+  const { data: songs = [] } = useQuery({
     queryKey: ['/api/songs'],
   });
 
@@ -99,24 +79,18 @@ export default function SmartPitchMatching() {
 
     setIsAnalyzing(true);
     try {
-      const songsToAnalyze = selectedSongs.length > 0 
-        ? songs.filter((song: Song) => selectedSongs.includes(song.id))
-        : songs.slice(0, 15); // Increased from 10 to 15 songs
-      
       const response = await apiRequest('/api/smart-pitch-analyze', {
         method: 'POST',
         body: {
-          songs: songsToAnalyze,
+          songs: songs.slice(0, 10), // Limit to first 10 songs for demo
           projectBrief
         }
       });
-      const recommendations = await response.json() as PitchRecommendation[];
       
-      setRecommendations(recommendations);
+      setRecommendations(response);
       toast({
         title: "Analysis Complete",
-        description: `Generated AI recommendations for ${recommendations.length} songs`,
-        duration: 3000,
+        description: `Generated recommendations for ${response.length} songs`,
       });
     } catch (error) {
       toast({
@@ -127,79 +101,6 @@ export default function SmartPitchMatching() {
     } finally {
       setIsAnalyzing(false);
     }
-  };
-
-  const analyzeLyrics = async (songId: number, lyrics: string) => {
-    try {
-      const response = await apiRequest('/api/analyze-lyrics', {
-        method: 'POST',
-        body: { lyrics }
-      });
-      const analysis = await response.json() as LyricsAnalysis;
-      
-      setLyricsAnalysis(prev => ({
-        ...prev,
-        [songId]: analysis
-      }));
-      
-      toast({
-        title: "Lyrics Analysis Complete",
-        description: "AI analysis of song lyrics completed",
-      });
-    } catch (error) {
-      toast({
-        title: "Lyrics Analysis Failed",
-        description: "Could not analyze song lyrics",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const exportRecommendations = () => {
-    const data = {
-      projectBrief,
-      recommendations,
-      generatedAt: new Date().toISOString()
-    };
-    
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `pitch-recommendations-${projectBrief.title.replace(/\s+/g, '-').toLowerCase()}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    
-    toast({
-      title: "Export Complete",
-      description: "Recommendations exported successfully",
-    });
-  };
-
-  const saveRecommendations = () => {
-    setSavedRecommendations(recommendations);
-    toast({
-      title: "Recommendations Saved",
-      description: "Your recommendations have been saved for later use",
-    });
-  };
-
-  const toggleSongSelection = (songId: number) => {
-    setSelectedSongs(prev => 
-      prev.includes(songId) 
-        ? prev.filter(id => id !== songId)
-        : [...prev, songId]
-    );
-  };
-
-  const selectAllSongs = () => {
-    setSelectedSongs(songs.map((song: Song) => song.id));
-  };
-
-  const clearSelection = () => {
-    setSelectedSongs([]);
   };
 
   const getSuitabilityColor = (score: number) => {
@@ -298,7 +199,6 @@ export default function SmartPitchMatching() {
               <Label htmlFor="targetAudience">Target Audience</Label>
               <Input
                 id="targetAudience"
-                data-testid="input-target-audience"
                 value={projectBrief.targetAudience}
                 onChange={(e) => setProjectBrief({ ...projectBrief, targetAudience: e.target.value })}
                 placeholder="e.g., Families, Young Adults, Professionals"
@@ -308,7 +208,6 @@ export default function SmartPitchMatching() {
               <Label htmlFor="targetDemographics">Target Demographics</Label>
               <Input
                 id="targetDemographics"
-                data-testid="input-target-demographics"
                 value={projectBrief.targetDemographics}
                 onChange={(e) => setProjectBrief({ ...projectBrief, targetDemographics: e.target.value })}
                 placeholder="e.g., 25-45, Parents, Urban"
@@ -316,139 +215,14 @@ export default function SmartPitchMatching() {
             </div>
           </div>
 
-          {/* Advanced Fields */}
-          <div className="space-y-4">
-            <Button 
-              type="button"
-              variant="ghost" 
-              onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-              className="text-sm text-blue-600 hover:text-blue-800"
-              data-testid="button-toggle-advanced"
-            >
-              <Filter className="h-4 w-4 mr-2" />
-              {showAdvancedFilters ? 'Hide' : 'Show'} Advanced Options
-            </Button>
-            
-            {showAdvancedFilters && (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
-                <div className="space-y-2">
-                  <Label htmlFor="budget">Budget Range</Label>
-                  <Input
-                    id="budget"
-                    data-testid="input-budget"
-                    value={projectBrief.budget}
-                    onChange={(e) => setProjectBrief({ ...projectBrief, budget: e.target.value })}
-                    placeholder="e.g., $5,000 - $10,000"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="timeline">Timeline</Label>
-                  <Input
-                    id="timeline"
-                    data-testid="input-timeline"
-                    value={projectBrief.timeline}
-                    onChange={(e) => setProjectBrief({ ...projectBrief, timeline: e.target.value })}
-                    placeholder="e.g., 2 weeks, ASAP"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="brandValues">Brand Values</Label>
-                  <Input
-                    id="brandValues"
-                    data-testid="input-brand-values"
-                    value={projectBrief.brandValues}
-                    onChange={(e) => setProjectBrief({ ...projectBrief, brandValues: e.target.value })}
-                    placeholder="e.g., Sustainable, Inclusive"
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Song Selection */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <Label className="text-sm font-medium">Song Selection (Optional)</Label>
-              <div className="flex gap-2">
-                <Button type="button" variant="outline" size="sm" onClick={selectAllSongs} data-testid="button-select-all">
-                  Select All ({songs.length})
-                </Button>
-                <Button type="button" variant="outline" size="sm" onClick={clearSelection} data-testid="button-clear-selection">
-                  Clear
-                </Button>
-              </div>
-            </div>
-            
-            {selectedSongs.length > 0 && (
-              <div className="text-sm text-blue-600 bg-blue-50 p-2 rounded">
-                {selectedSongs.length} songs selected for analysis
-              </div>
-            )}
-            
-            <ScrollArea className="h-32 w-full border rounded-md p-2">
-              <div className="grid grid-cols-1 gap-2">
-                {songs.slice(0, 20).map((song: Song) => (
-                  <div key={song.id} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={`song-${song.id}`}
-                      checked={selectedSongs.includes(song.id)}
-                      onCheckedChange={() => toggleSongSelection(song.id)}
-                      data-testid={`checkbox-song-${song.id}`}
-                    />
-                    <label htmlFor={`song-${song.id}`} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                      {song.title} - {song.artist}
-                    </label>
-                    {song.lyrics && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => analyzeLyrics(song.id, song.lyrics!)}
-                        className="ml-auto text-xs"
-                        data-testid={`button-analyze-lyrics-${song.id}`}
-                      >
-                        <Zap className="h-3 w-3 mr-1" />
-                        Analyze Lyrics
-                      </Button>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </ScrollArea>
-          </div>
-
-          <div className="flex gap-3">
-            <Button 
-              onClick={analyzeMatch} 
-              disabled={isAnalyzing}
-              className="flex-1"
-              data-testid="button-generate-recommendations"
-            >
-              {isAnalyzing ? "Analyzing..." : "Generate AI Recommendations"}
-              <Sparkles className="ml-2 h-4 w-4" />
-            </Button>
-            
-            {recommendations.length > 0 && (
-              <div className="flex gap-2">
-                <Button 
-                  variant="outline" 
-                  onClick={saveRecommendations}
-                  data-testid="button-save-recommendations"
-                >
-                  <Heart className="h-4 w-4 mr-2" />
-                  Save
-                </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={exportRecommendations}
-                  data-testid="button-export-recommendations"
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  Export
-                </Button>
-              </div>
-            )}
-          </div>
+          <Button 
+            onClick={analyzeMatch} 
+            disabled={isAnalyzing}
+            className="w-full"
+          >
+            {isAnalyzing ? "Analyzing..." : "Generate AI Recommendations"}
+            <Sparkles className="ml-2 h-4 w-4" />
+          </Button>
         </CardContent>
       </Card>
 

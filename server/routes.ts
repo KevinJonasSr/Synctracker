@@ -4,8 +4,7 @@ import { storage as dbStorage } from "./storage";
 import { 
   insertSongSchema, insertContactSchema, insertDealSchema,
   insertPitchSchema, insertPaymentSchema, insertTemplateSchema,
-  insertEmailTemplateSchema, insertAttachmentSchema, insertCalendarEventSchema,
-  insertWorkflowAutomationSchema, insertAutomationExecutionSchema
+  insertEmailTemplateSchema, insertAttachmentSchema, insertCalendarEventSchema
 } from "@shared/schema";
 import { z } from "zod";
 import multer from "multer";
@@ -29,33 +28,17 @@ const multerStorage = multer.diskStorage({
 
 const upload = multer({ 
   storage: multerStorage,
-  limits: { 
-    fileSize: 10 * 1024 * 1024, // 10MB limit
-    files: 5, // Maximum 5 files per request
-    fields: 10 // Maximum 10 form fields
-  },
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
   fileFilter: (req, file, cb) => {
-    // Hardened file type validation for sync licensing
-    const allowedTypes = /^(jpeg|jpg|png|gif|pdf|doc|docx|txt|mp3|wav|aiff|flac|m4a|zip|rar)$/i;
-    const allowedMimeTypes = /^(image\/(jpeg|jpg|png|gif)|application\/(pdf|msword|vnd\.openxmlformats-officedocument\.wordprocessingml\.document)|text\/plain|audio\/(mpeg|wav|x-aiff|flac|mp4)|application\/(zip|x-rar-compressed))$/i;
-    
-    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase().slice(1));
-    const mimetype = allowedMimeTypes.test(file.mimetype);
-    
-    // Reject files with suspicious names or double extensions
-    if (file.originalname.includes('..') || file.originalname.includes('/') || file.originalname.includes('\\')) {
-      return cb(new Error('Invalid file name'));
-    }
-    
-    // Ensure filename is not empty and has valid characters
-    if (!file.originalname || !/^[a-zA-Z0-9._-]+$/.test(file.originalname.replace(/\.[^.]+$/, ''))) {
-      return cb(new Error('Invalid file name format'));
-    }
+    // Allow most file types for sync licensing
+    const allowedTypes = /jpeg|jpg|png|gif|pdf|doc|docx|txt|mp3|wav|aiff|flac|m4a|zip|rar/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
     
     if (mimetype && extname) {
       return cb(null, true);
     } else {
-      cb(new Error(`File type not allowed: ${file.mimetype}`));
+      cb(new Error('Invalid file type'));
     }
   }
 });
@@ -274,12 +257,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       res.json(deal);
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error creating deal:", error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: error.errors });
       }
-      res.status(500).json({ error: "Failed to create deal", details: error?.message || "Unknown error" });
+      res.status(500).json({ error: "Failed to create deal", details: error.message });
     }
   });
 
@@ -297,13 +280,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("Updated deal:", deal);
       
       res.json(deal);
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error updating deal:", error);
       if (error instanceof z.ZodError) {
         console.error("Validation errors:", error.errors);
         return res.status(400).json({ error: error.errors });
       }
-      res.status(500).json({ error: "Failed to update deal", details: error?.message || "Unknown error" });
+      res.status(500).json({ error: "Failed to update deal", details: error.message });
     }
   });
 
@@ -338,17 +321,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         completedDate: validatedData.completedDate && validatedData.completedDate !== '' ? new Date(validatedData.completedDate) : null,
       };
       
-      const deal = await dbStorage.updateDeal(id, processedData as any);
+      const deal = await dbStorage.updateDeal(id, processedData);
       console.log("Updated deal:", deal);
       
       res.json(deal);
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error updating deal:", error);
       if (error instanceof z.ZodError) {
         console.error("Validation errors:", error.errors);
         return res.status(400).json({ error: error.errors });
       }
-      res.status(500).json({ error: "Failed to update deal", details: error?.message || "Unknown error" });
+      res.status(500).json({ error: "Failed to update deal", details: error.message });
     }
   });
 
@@ -400,9 +383,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const pitch = await dbStorage.createPitch(processedData);
       console.log("Created pitch:", pitch);
       res.json(pitch);
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error creating pitch:", error);
-      res.status(500).json({ error: "Failed to create pitch", details: error?.message || "Unknown error" });
+      res.status(500).json({ error: "Failed to create pitch", details: error.message });
     }
   });
 
@@ -429,9 +412,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const pitch = await dbStorage.updatePitch(id, updateData);
       console.log("Updated pitch:", pitch);
       res.json(pitch);
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error updating pitch:", error);
-      res.status(500).json({ error: "Failed to update pitch", details: error?.message || "Unknown error" });
+      res.status(500).json({ error: "Failed to update pitch", details: error.message });
     }
   });
 
@@ -507,114 +490,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(metrics);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch dashboard metrics" });
-    }
-  });
-
-  // Business Intelligence Endpoints
-  app.get("/api/dashboard/advanced-metrics", async (req, res) => {
-    try {
-      const { timeRange = '30d' } = req.query;
-      const metrics = await dbStorage.getAdvancedMetrics(timeRange as string);
-      res.json(metrics);
-    } catch (error) {
-      console.error('Advanced metrics error:', error);
-      res.status(500).json({ error: "Failed to fetch advanced metrics" });
-    }
-  });
-
-  app.get("/api/dashboard/smart-alerts", async (req, res) => {
-    try {
-      const alerts = await dbStorage.getSmartAlerts();
-      res.json(alerts);
-    } catch (error) {
-      console.error('Smart alerts error:', error);
-      res.status(500).json({ error: "Failed to fetch smart alerts" });
-    }
-  });
-
-  app.get("/api/dashboard/market-insights", async (req, res) => {
-    try {
-      const { category } = req.query;
-      const insights = await dbStorage.getMarketInsights(category as string);
-      res.json(insights);
-    } catch (error) {
-      console.error('Market insights error:', error);
-      res.status(500).json({ error: "Failed to fetch market insights" });
-    }
-  });
-
-  app.get("/api/dashboard/client-relationships", async (req, res) => {
-    try {
-      const { contactId } = req.query;
-      const data = await dbStorage.getClientRelationshipData(
-        contactId ? parseInt(contactId as string) : undefined
-      );
-      res.json(data);
-    } catch (error) {
-      console.error('Client relationships error:', error);
-      res.status(500).json({ error: "Failed to fetch client relationship data" });
-    }
-  });
-
-  app.get("/api/dashboard/performance-benchmarks", async (req, res) => {
-    try {
-      const benchmarks = await dbStorage.getPerformanceBenchmarks();
-      res.json(benchmarks);
-    } catch (error) {
-      console.error('Performance benchmarks error:', error);
-      res.status(500).json({ error: "Failed to fetch performance benchmarks" });
-    }
-  });
-
-  app.get("/api/dashboard/recommendations", async (req, res) => {
-    try {
-      const recommendations = await dbStorage.generateBusinessRecommendations();
-      res.json(recommendations);
-    } catch (error) {
-      console.error('Business recommendations error:', error);
-      res.status(500).json({ error: "Failed to generate business recommendations" });
-    }
-  });
-
-  app.get("/api/dashboard/portfolio-risk", async (req, res) => {
-    try {
-      const riskAnalysis = await dbStorage.analyzePortfolioRisk();
-      res.json(riskAnalysis);
-    } catch (error) {
-      console.error('Portfolio risk error:', error);
-      res.status(500).json({ error: "Failed to analyze portfolio risk" });
-    }
-  });
-
-  app.get("/api/dashboard/growth-opportunities", async (req, res) => {
-    try {
-      const opportunities = await dbStorage.identifyGrowthOpportunities();
-      res.json(opportunities);
-    } catch (error) {
-      console.error('Growth opportunities error:', error);
-      res.status(500).json({ error: "Failed to identify growth opportunities" });
-    }
-  });
-
-  app.get("/api/dashboard/deal-probability/:id", async (req, res) => {
-    try {
-      const dealId = parseInt(req.params.id);
-      const probability = await dbStorage.calculateDealProbability(dealId);
-      res.json({ dealId, probability });
-    } catch (error) {
-      console.error('Deal probability error:', error);
-      res.status(500).json({ error: "Failed to calculate deal probability" });
-    }
-  });
-
-  app.get("/api/dashboard/revenue-forecast", async (req, res) => {
-    try {
-      const { period = '30d' } = req.query;
-      const forecast = await dbStorage.generateRevenueForecasting(period as '30d' | '60d' | '90d');
-      res.json(forecast);
-    } catch (error) {
-      console.error('Revenue forecast error:', error);
-      res.status(500).json({ error: "Failed to generate revenue forecast" });
     }
   });
 
@@ -827,7 +702,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (event.entityType === 'deal' && event.entityId && event.title.includes('Air Date:')) {
         try {
           await dbStorage.updateDeal(event.entityId, { 
-            airDate: event.startDate as any
+            airDate: event.startDate 
           });
         } catch (dealError) {
           console.error('Error updating deal air date:', dealError);
@@ -899,13 +774,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/workflow-automation', async (req, res) => {
     try {
-      const validatedData = insertWorkflowAutomationSchema.parse(req.body);
-      const automation = await dbStorage.createWorkflowAutomation(validatedData);
+      const automation = await dbStorage.createWorkflowAutomation(req.body);
       res.status(201).json(automation);
     } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: error.errors });
-      }
       console.error('Error creating workflow automation:', error);
       res.status(500).json({ error: 'Failed to create workflow automation' });
     }
@@ -913,407 +784,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put('/api/workflow-automation/:id', async (req, res) => {
     try {
-      const validatedData = insertWorkflowAutomationSchema.partial().parse(req.body);
-      const automation = await dbStorage.updateWorkflowAutomation(parseInt(req.params.id), validatedData);
+      const automation = await dbStorage.updateWorkflowAutomation(parseInt(req.params.id), req.body);
       res.json(automation);
     } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: error.errors });
-      }
       console.error('Error updating workflow automation:', error);
       res.status(500).json({ error: 'Failed to update workflow automation' });
-    }
-  });
-
-  app.delete('/api/workflow-automation/:id', async (req, res) => {
-    try {
-      await dbStorage.deleteWorkflowAutomation(parseInt(req.params.id));
-      res.status(204).send();
-    } catch (error) {
-      console.error('Error deleting workflow automation:', error);
-      res.status(500).json({ error: 'Failed to delete workflow automation' });
-    }
-  });
-
-  // Automation Execution endpoints
-  app.get('/api/automation-executions', async (req, res) => {
-    try {
-      const { automationId, status } = req.query;
-      const executions = await dbStorage.getAutomationExecutions(
-        automationId ? parseInt(automationId as string) : undefined,
-        status as string
-      );
-      res.json(executions);
-    } catch (error) {
-      console.error('Error fetching automation executions:', error);
-      res.status(500).json({ error: 'Failed to fetch automation executions' });
-    }
-  });
-
-  app.post('/api/automation-executions', async (req, res) => {
-    try {
-      const validatedData = insertAutomationExecutionSchema.parse(req.body);
-      const execution = await dbStorage.createAutomationExecution(validatedData);
-      res.status(201).json(execution);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: error.errors });
-      }
-      console.error('Error creating automation execution:', error);
-      res.status(500).json({ error: 'Failed to create automation execution' });
-    }
-  });
-
-  // Team Assignment Rules endpoints
-  app.get('/api/team-assignment-rules', async (req, res) => {
-    try {
-      const rules = await dbStorage.getTeamAssignmentRules();
-      res.json(rules);
-    } catch (error) {
-      console.error('Error fetching team assignment rules:', error);
-      res.status(500).json({ error: 'Failed to fetch team assignment rules' });
-    }
-  });
-
-  app.get('/api/team-assignment-rules/:id', async (req, res) => {
-    try {
-      const rule = await dbStorage.getTeamAssignmentRule(parseInt(req.params.id));
-      if (!rule) {
-        return res.status(404).json({ error: 'Team assignment rule not found' });
-      }
-      res.json(rule);
-    } catch (error) {
-      console.error('Error fetching team assignment rule:', error);
-      res.status(500).json({ error: 'Failed to fetch team assignment rule' });
-    }
-  });
-
-  app.post('/api/team-assignment-rules', async (req, res) => {
-    try {
-      const rule = await dbStorage.createTeamAssignmentRule(req.body);
-      res.status(201).json(rule);
-    } catch (error) {
-      console.error('Error creating team assignment rule:', error);
-      res.status(500).json({ error: 'Failed to create team assignment rule' });
-    }
-  });
-
-  app.put('/api/team-assignment-rules/:id', async (req, res) => {
-    try {
-      const rule = await dbStorage.updateTeamAssignmentRule(parseInt(req.params.id), req.body);
-      res.json(rule);
-    } catch (error) {
-      console.error('Error updating team assignment rule:', error);
-      res.status(500).json({ error: 'Failed to update team assignment rule' });
-    }
-  });
-
-  app.delete('/api/team-assignment-rules/:id', async (req, res) => {
-    try {
-      await dbStorage.deleteTeamAssignmentRule(parseInt(req.params.id));
-      res.status(204).send();
-    } catch (error) {
-      console.error('Error deleting team assignment rule:', error);
-      res.status(500).json({ error: 'Failed to delete team assignment rule' });
-    }
-  });
-
-  // Revenue Calculation Rules endpoints
-  app.get('/api/revenue-calculation-rules', async (req, res) => {
-    try {
-      const rules = await dbStorage.getRevenueCalculationRules();
-      res.json(rules);
-    } catch (error) {
-      console.error('Error fetching revenue calculation rules:', error);
-      res.status(500).json({ error: 'Failed to fetch revenue calculation rules' });
-    }
-  });
-
-  app.get('/api/revenue-calculation-rules/:id', async (req, res) => {
-    try {
-      const rule = await dbStorage.getRevenueCalculationRule(parseInt(req.params.id));
-      if (!rule) {
-        return res.status(404).json({ error: 'Revenue calculation rule not found' });
-      }
-      res.json(rule);
-    } catch (error) {
-      console.error('Error fetching revenue calculation rule:', error);
-      res.status(500).json({ error: 'Failed to fetch revenue calculation rule' });
-    }
-  });
-
-  app.post('/api/revenue-calculation-rules', async (req, res) => {
-    try {
-      const rule = await dbStorage.createRevenueCalculationRule(req.body);
-      res.status(201).json(rule);
-    } catch (error) {
-      console.error('Error creating revenue calculation rule:', error);
-      res.status(500).json({ error: 'Failed to create revenue calculation rule' });
-    }
-  });
-
-  app.put('/api/revenue-calculation-rules/:id', async (req, res) => {
-    try {
-      const rule = await dbStorage.updateRevenueCalculationRule(parseInt(req.params.id), req.body);
-      res.json(rule);
-    } catch (error) {
-      console.error('Error updating revenue calculation rule:', error);
-      res.status(500).json({ error: 'Failed to update revenue calculation rule' });
-    }
-  });
-
-  app.delete('/api/revenue-calculation-rules/:id', async (req, res) => {
-    try {
-      await dbStorage.deleteRevenueCalculationRule(parseInt(req.params.id));
-      res.status(204).send();
-    } catch (error) {
-      console.error('Error deleting revenue calculation rule:', error);
-      res.status(500).json({ error: 'Failed to delete revenue calculation rule' });
-    }
-  });
-
-  // Notification Templates endpoints
-  app.get('/api/notification-templates', async (req, res) => {
-    try {
-      const { category } = req.query;
-      const templates = await dbStorage.getNotificationTemplates(category as string);
-      res.json(templates);
-    } catch (error) {
-      console.error('Error fetching notification templates:', error);
-      res.status(500).json({ error: 'Failed to fetch notification templates' });
-    }
-  });
-
-  app.get('/api/notification-templates/:id', async (req, res) => {
-    try {
-      const template = await dbStorage.getNotificationTemplate(parseInt(req.params.id));
-      if (!template) {
-        return res.status(404).json({ error: 'Notification template not found' });
-      }
-      res.json(template);
-    } catch (error) {
-      console.error('Error fetching notification template:', error);
-      res.status(500).json({ error: 'Failed to fetch notification template' });
-    }
-  });
-
-  app.post('/api/notification-templates', async (req, res) => {
-    try {
-      const template = await dbStorage.createNotificationTemplate(req.body);
-      res.status(201).json(template);
-    } catch (error) {
-      console.error('Error creating notification template:', error);
-      res.status(500).json({ error: 'Failed to create notification template' });
-    }
-  });
-
-  app.put('/api/notification-templates/:id', async (req, res) => {
-    try {
-      const template = await dbStorage.updateNotificationTemplate(parseInt(req.params.id), req.body);
-      res.json(template);
-    } catch (error) {
-      console.error('Error updating notification template:', error);
-      res.status(500).json({ error: 'Failed to update notification template' });
-    }
-  });
-
-  app.delete('/api/notification-templates/:id', async (req, res) => {
-    try {
-      await dbStorage.deleteNotificationTemplate(parseInt(req.params.id));
-      res.status(204).send();
-    } catch (error) {
-      console.error('Error deleting notification template:', error);
-      res.status(500).json({ error: 'Failed to delete notification template' });
-    }
-  });
-
-  // Automation Logs endpoints
-  app.get('/api/automation-logs', async (req, res) => {
-    try {
-      const { automationId, level } = req.query;
-      const logs = await dbStorage.getAutomationLogs(
-        automationId ? parseInt(automationId as string) : undefined,
-        level as string
-      );
-      res.json(logs);
-    } catch (error) {
-      console.error('Error fetching automation logs:', error);
-      res.status(500).json({ error: 'Failed to fetch automation logs' });
-    }
-  });
-
-  app.post('/api/automation-logs', async (req, res) => {
-    try {
-      const log = await dbStorage.createAutomationLog(req.body);
-      res.status(201).json(log);
-    } catch (error) {
-      console.error('Error creating automation log:', error);
-      res.status(500).json({ error: 'Failed to create automation log' });
-    }
-  });
-
-  // Document Workflows endpoints
-  app.get('/api/document-workflows', async (req, res) => {
-    try {
-      const { documentType } = req.query;
-      const workflows = await dbStorage.getDocumentWorkflows(documentType as string);
-      res.json(workflows);
-    } catch (error) {
-      console.error('Error fetching document workflows:', error);
-      res.status(500).json({ error: 'Failed to fetch document workflows' });
-    }
-  });
-
-  app.get('/api/document-workflows/:id', async (req, res) => {
-    try {
-      const workflow = await dbStorage.getDocumentWorkflow(parseInt(req.params.id));
-      if (!workflow) {
-        return res.status(404).json({ error: 'Document workflow not found' });
-      }
-      res.json(workflow);
-    } catch (error) {
-      console.error('Error fetching document workflow:', error);
-      res.status(500).json({ error: 'Failed to fetch document workflow' });
-    }
-  });
-
-  app.post('/api/document-workflows', async (req, res) => {
-    try {
-      const workflow = await dbStorage.createDocumentWorkflow(req.body);
-      res.status(201).json(workflow);
-    } catch (error) {
-      console.error('Error creating document workflow:', error);
-      res.status(500).json({ error: 'Failed to create document workflow' });
-    }
-  });
-
-  app.put('/api/document-workflows/:id', async (req, res) => {
-    try {
-      const workflow = await dbStorage.updateDocumentWorkflow(parseInt(req.params.id), req.body);
-      res.json(workflow);
-    } catch (error) {
-      console.error('Error updating document workflow:', error);
-      res.status(500).json({ error: 'Failed to update document workflow' });
-    }
-  });
-
-  app.delete('/api/document-workflows/:id', async (req, res) => {
-    try {
-      await dbStorage.deleteDocumentWorkflow(parseInt(req.params.id));
-      res.status(204).send();
-    } catch (error) {
-      console.error('Error deleting document workflow:', error);
-      res.status(500).json({ error: 'Failed to delete document workflow' });
-    }
-  });
-
-  // Bulk Operations endpoints
-  app.get('/api/bulk-operations', async (req, res) => {
-    try {
-      const { status } = req.query;
-      const operations = await dbStorage.getBulkOperations(status as string);
-      res.json(operations);
-    } catch (error) {
-      console.error('Error fetching bulk operations:', error);
-      res.status(500).json({ error: 'Failed to fetch bulk operations' });
-    }
-  });
-
-  app.get('/api/bulk-operations/:id', async (req, res) => {
-    try {
-      const operation = await dbStorage.getBulkOperation(parseInt(req.params.id));
-      if (!operation) {
-        return res.status(404).json({ error: 'Bulk operation not found' });
-      }
-      res.json(operation);
-    } catch (error) {
-      console.error('Error fetching bulk operation:', error);
-      res.status(500).json({ error: 'Failed to fetch bulk operation' });
-    }
-  });
-
-  app.post('/api/bulk-operations', async (req, res) => {
-    try {
-      const operation = await dbStorage.createBulkOperation(req.body);
-      res.status(201).json(operation);
-    } catch (error) {
-      console.error('Error creating bulk operation:', error);
-      res.status(500).json({ error: 'Failed to create bulk operation' });
-    }
-  });
-
-  app.put('/api/bulk-operations/:id', async (req, res) => {
-    try {
-      const operation = await dbStorage.updateBulkOperation(parseInt(req.params.id), req.body);
-      res.json(operation);
-    } catch (error) {
-      console.error('Error updating bulk operation:', error);
-      res.status(500).json({ error: 'Failed to update bulk operation' });
-    }
-  });
-
-  // Automation Processing endpoints
-  app.post('/api/automation/process', async (req, res) => {
-    try {
-      await dbStorage.processAutomations();
-      res.json({ success: true, message: 'Automation processing started' });
-    } catch (error) {
-      console.error('Error processing automations:', error);
-      res.status(500).json({ error: 'Failed to process automations' });
-    }
-  });
-
-  app.post('/api/automation/execute/:id', async (req, res) => {
-    try {
-      const { entityId, entityType } = req.body;
-      await dbStorage.executeAutomation(parseInt(req.params.id), entityId, entityType);
-      res.json({ success: true, message: 'Automation executed successfully' });
-    } catch (error) {
-      console.error('Error executing automation:', error);
-      res.status(500).json({ error: 'Failed to execute automation' });
-    }
-  });
-
-  app.post('/api/automation/assign-deals', async (req, res) => {
-    try {
-      const { dealIds, ruleId } = req.body;
-      await dbStorage.assignDealsToTeam(dealIds, ruleId);
-      res.json({ success: true, message: 'Deals assigned successfully' });
-    } catch (error) {
-      console.error('Error assigning deals:', error);
-      res.status(500).json({ error: 'Failed to assign deals' });
-    }
-  });
-
-  app.post('/api/automation/calculate-revenue/:dealId', async (req, res) => {
-    try {
-      await dbStorage.calculateRevenue(parseInt(req.params.dealId));
-      res.json({ success: true, message: 'Revenue calculated successfully' });
-    } catch (error) {
-      console.error('Error calculating revenue:', error);
-      res.status(500).json({ error: 'Failed to calculate revenue' });
-    }
-  });
-
-  app.post('/api/automation/generate-document/:dealId', async (req, res) => {
-    try {
-      const { documentType } = req.body;
-      await dbStorage.generateDocument(parseInt(req.params.dealId), documentType);
-      res.json({ success: true, message: 'Document generated successfully' });
-    } catch (error) {
-      console.error('Error generating document:', error);
-      res.status(500).json({ error: 'Failed to generate document' });
-    }
-  });
-
-  app.post('/api/automation/send-notification', async (req, res) => {
-    try {
-      const { templateId, entityId, entityType } = req.body;
-      await dbStorage.sendNotification(templateId, entityId, entityType);
-      res.json({ success: true, message: 'Notification sent successfully' });
-    } catch (error) {
-      console.error('Error sending notification:', error);
-      res.status(500).json({ error: 'Failed to send notification' });
     }
   });
 
@@ -1417,75 +892,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error creating expense:', error);
       res.status(500).json({ error: 'Failed to create expense' });
-    }
-  });
-
-  // Advanced Analytics endpoints
-  app.get('/api/analytics/revenue', async (req, res) => {
-    try {
-      const { timeRange = '1y', startDate, endDate } = req.query;
-      const start = startDate ? new Date(startDate as string) : undefined;
-      const end = endDate ? new Date(endDate as string) : undefined;
-      
-      const analytics = await dbStorage.getRevenueAnalytics(timeRange as string, start, end);
-      res.json(analytics);
-    } catch (error) {
-      console.error('Error fetching revenue analytics:', error);
-      res.status(500).json({ error: 'Failed to fetch revenue analytics' });
-    }
-  });
-
-  app.get('/api/analytics/deal-performance', async (req, res) => {
-    try {
-      const { timeRange = '1y', startDate, endDate } = req.query;
-      const start = startDate ? new Date(startDate as string) : undefined;
-      const end = endDate ? new Date(endDate as string) : undefined;
-      
-      const analytics = await dbStorage.getDealPerformanceAnalytics(timeRange as string, start, end);
-      res.json(analytics);
-    } catch (error) {
-      console.error('Error fetching deal performance analytics:', error);
-      res.status(500).json({ error: 'Failed to fetch deal performance analytics' });
-    }
-  });
-
-  app.get('/api/analytics/music-catalog', async (req, res) => {
-    try {
-      const { timeRange = '1y', startDate, endDate } = req.query;
-      const start = startDate ? new Date(startDate as string) : undefined;
-      const end = endDate ? new Date(endDate as string) : undefined;
-      
-      const analytics = await dbStorage.getMusicCatalogAnalytics(timeRange as string, start, end);
-      res.json(analytics);
-    } catch (error) {
-      console.error('Error fetching music catalog analytics:', error);
-      res.status(500).json({ error: 'Failed to fetch music catalog analytics' });
-    }
-  });
-
-  app.get('/api/analytics/forecast', async (req, res) => {
-    try {
-      const { timeRange = '1y' } = req.query;
-      
-      const analytics = await dbStorage.getFinancialForecastAnalytics(timeRange as string);
-      res.json(analytics);
-    } catch (error) {
-      console.error('Error fetching financial forecast analytics:', error);
-      res.status(500).json({ error: 'Failed to fetch financial forecast analytics' });
-    }
-  });
-
-  app.get('/api/analytics/comprehensive', async (req, res) => {
-    try {
-      const { timeRange = '1y', startDate, endDate } = req.query;
-      const start = startDate ? new Date(startDate as string) : undefined;
-      const end = endDate ? new Date(endDate as string) : undefined;
-      
-      const analytics = await dbStorage.getComprehensiveAnalytics(timeRange as string, start, end);
-      res.json(analytics);
-    } catch (error) {
-      console.error('Error fetching comprehensive analytics:', error);
-      res.status(500).json({ error: 'Failed to fetch comprehensive analytics' });
     }
   });
 

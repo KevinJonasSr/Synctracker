@@ -266,13 +266,12 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
     onSuccess: async (response) => {
       console.log("Deal update successful:", response);
       
-      // Extract JSON data from response
-      const newDeal = await response.json();
-      
       // Invalidate multiple cache keys
       await queryClient.invalidateQueries({ queryKey: ['/api/deals'] });
       await queryClient.invalidateQueries({ queryKey: ['/api/dashboard'] });
       await queryClient.invalidateQueries({ queryKey: ['/api/deals', deal?.id] });
+      
+      const newDeal = response;
       
       // Auto-create calendar event if air date is provided
       if (newDeal.airDate && !isEditing) {
@@ -611,13 +610,13 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                           form.setValue("splits", song.splitDetails);
                         } else {
                           // Calculate splits from actual ownership percentages
-                          const publishingOwnership = Number(song.publishingOwnership) || 0;
+                          const publishingOwnership = song.publishingOwnership || 0;
                           const publisherOwnership = 100 - publishingOwnership;
                           form.setValue("splits", `${publishingOwnership}% Writer / ${publisherOwnership}% Publisher`);
                         }
                         
                         // Artist/Label splits from actual ownership data
-                        const masterOwnership = Number(song.masterOwnership) || 0;
+                        const masterOwnership = song.masterOwnership || 0;
                         const labelOwnership = 100 - masterOwnership;
                         form.setValue("artistLabelSplits", `${masterOwnership}% Artist / ${labelOwnership}% Label`);
                         
@@ -865,7 +864,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                       <div>
                         <Label htmlFor="territory">Territory</Label>
                         <Select
-                          value={form.watch("territory") || ""}
+                          value={form.watch("territory")}
                           onValueChange={(value) => form.setValue("territory", value)}
                         >
                           <SelectTrigger>
@@ -910,7 +909,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                       
                       // Auto-calculate our fee based on actual publishing ownership percentage
                       if (selectedSong && selectedSong.publishingOwnership) {
-                        const ourFee = calculateOurFeeFromOwnership(numericValue, Number(selectedSong.publishingOwnership));
+                        const ourFee = calculateOurFeeFromOwnership(numericValue, selectedSong.publishingOwnership);
                         form.setValue("ourFee", Math.round(ourFee * 100) / 100);
                       } else {
                         // Fallback to splits text parsing if no ownership data
@@ -952,7 +951,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                       
                       // Auto-calculate our recording fee based on actual master ownership percentage
                       if (selectedSong && selectedSong.masterOwnership) {
-                        const ourRecordingFee = calculateOurFeeFromOwnership(numericValue, Number(selectedSong.masterOwnership));
+                        const ourRecordingFee = calculateOurFeeFromOwnership(numericValue, selectedSong.masterOwnership);
                         form.setValue("ourRecordingFee", Math.round(ourRecordingFee * 100) / 100);
                       } else {
                         // Fallback to artist/label splits text parsing if no ownership data
@@ -985,7 +984,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                 <div className="flex items-center space-x-2">
                   <Switch
                     id="exclusivity"
-                    checked={form.watch("exclusivity") || false}
+                    checked={form.watch("exclusivity")}
                     onCheckedChange={(checked) => form.setValue("exclusivity", checked)}
                   />
                   <Label htmlFor="exclusivity">Exclusive Deal</Label>
