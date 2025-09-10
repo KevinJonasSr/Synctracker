@@ -390,13 +390,9 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
       <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto p-2">
         <DialogHeader>
           <DialogTitle>{isEditing ? "Edit Deal" : "Add New Deal"}</DialogTitle>
-          <DialogDescription>
-            Complete all sections to create a new sync licensing deal.
-          </DialogDescription>
         </DialogHeader>
         
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-1 pb-16">
-          <div className="grid grid-cols-2 gap-2 auto-rows-min xl:grid-cols-3">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pb-16">
           {/* Section 1: Project Information */}
           <Card className="bg-purple-50 border-purple-200">
             <CardHeader className="bg-purple-100 border-b border-purple-200 py-1">
@@ -1333,7 +1329,6 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
               </div>
             </CardContent>
           </Card>
-          </div>
 
           <div className="sticky bottom-0 bg-background border-t pt-2 mt-2 flex justify-end space-x-2 z-10">
             <Button type="button" variant="outline" onClick={onClose}>
