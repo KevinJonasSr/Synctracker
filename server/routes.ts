@@ -895,6 +895,75 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Advanced Analytics endpoints
+  app.get('/api/analytics/revenue', async (req, res) => {
+    try {
+      const { timeRange = '1y', startDate, endDate } = req.query;
+      const start = startDate ? new Date(startDate as string) : undefined;
+      const end = endDate ? new Date(endDate as string) : undefined;
+      
+      const analytics = await dbStorage.getRevenueAnalytics(timeRange as string, start, end);
+      res.json(analytics);
+    } catch (error) {
+      console.error('Error fetching revenue analytics:', error);
+      res.status(500).json({ error: 'Failed to fetch revenue analytics' });
+    }
+  });
+
+  app.get('/api/analytics/deal-performance', async (req, res) => {
+    try {
+      const { timeRange = '1y', startDate, endDate } = req.query;
+      const start = startDate ? new Date(startDate as string) : undefined;
+      const end = endDate ? new Date(endDate as string) : undefined;
+      
+      const analytics = await dbStorage.getDealPerformanceAnalytics(timeRange as string, start, end);
+      res.json(analytics);
+    } catch (error) {
+      console.error('Error fetching deal performance analytics:', error);
+      res.status(500).json({ error: 'Failed to fetch deal performance analytics' });
+    }
+  });
+
+  app.get('/api/analytics/music-catalog', async (req, res) => {
+    try {
+      const { timeRange = '1y', startDate, endDate } = req.query;
+      const start = startDate ? new Date(startDate as string) : undefined;
+      const end = endDate ? new Date(endDate as string) : undefined;
+      
+      const analytics = await dbStorage.getMusicCatalogAnalytics(timeRange as string, start, end);
+      res.json(analytics);
+    } catch (error) {
+      console.error('Error fetching music catalog analytics:', error);
+      res.status(500).json({ error: 'Failed to fetch music catalog analytics' });
+    }
+  });
+
+  app.get('/api/analytics/forecast', async (req, res) => {
+    try {
+      const { timeRange = '1y' } = req.query;
+      
+      const analytics = await dbStorage.getFinancialForecastAnalytics(timeRange as string);
+      res.json(analytics);
+    } catch (error) {
+      console.error('Error fetching financial forecast analytics:', error);
+      res.status(500).json({ error: 'Failed to fetch financial forecast analytics' });
+    }
+  });
+
+  app.get('/api/analytics/comprehensive', async (req, res) => {
+    try {
+      const { timeRange = '1y', startDate, endDate } = req.query;
+      const start = startDate ? new Date(startDate as string) : undefined;
+      const end = endDate ? new Date(endDate as string) : undefined;
+      
+      const analytics = await dbStorage.getComprehensiveAnalytics(timeRange as string, start, end);
+      res.json(analytics);
+    } catch (error) {
+      console.error('Error fetching comprehensive analytics:', error);
+      res.status(500).json({ error: 'Failed to fetch comprehensive analytics' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

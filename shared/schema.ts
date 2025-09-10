@@ -749,3 +749,203 @@ export type DashboardMetrics = {
     metadata?: any;
   }>;
 };
+
+// Advanced Analytics Types
+export type AnalyticsTimeRange = '7d' | '30d' | '90d' | '1y' | '2y' | 'all';
+
+export type RevenueAnalytics = {
+  total: number;
+  growth: number; // percentage growth
+  byPeriod: Array<{
+    period: string;
+    revenue: number;
+    deals: number;
+    growth: number;
+  }>;
+  byProjectType: Array<{
+    type: string;
+    revenue: number;
+    count: number;
+    percentage: number;
+    avgDealValue: number;
+  }>;
+  byGenre: Array<{
+    genre: string;
+    revenue: number;
+    count: number;
+    percentage: number;
+    trend: 'up' | 'down' | 'stable';
+  }>;
+  byTerritory: Array<{
+    territory: string;
+    revenue: number;
+    deals: number;
+    percentage: number;
+  }>;
+  byClient: Array<{
+    client: string;
+    revenue: number;
+    deals: number;
+    avgDealValue: number;
+    successRate: number;
+  }>;
+  profitMargins: {
+    grossProfit: number;
+    netProfit: number;
+    margin: number;
+    costs: Array<{
+      category: string;
+      amount: number;
+      percentage: number;
+    }>;
+  };
+};
+
+export type DealPerformanceAnalytics = {
+  closureRate: number;
+  averageDealValue: number;
+  averageTimeToClose: number; // in days
+  successRateByStatus: Record<string, number>;
+  velocity: {
+    byStage: Array<{
+      stage: string;
+      averageDays: number;
+      deals: number;
+    }>;
+    trends: Array<{
+      period: string;
+      averageDays: number;
+    }>;
+  };
+  topPerformers: {
+    supervisors: Array<{
+      name: string;
+      deals: number;
+      revenue: number;
+      successRate: number;
+      avgDealValue: number;
+    }>;
+    clients: Array<{
+      name: string;
+      deals: number;
+      revenue: number;
+      successRate: number;
+      avgResponseTime: number;
+    }>;
+  };
+  conversionFunnel: Array<{
+    stage: string;
+    count: number;
+    percentage: number;
+    dropOffRate: number;
+  }>;
+};
+
+export type MusicCatalogAnalytics = {
+  totalSongs: number;
+  utilizationRate: number; // percentage of songs with deals
+  topPerformingSongs: Array<{
+    id: number;
+    title: string;
+    artist: string;
+    genre: string;
+    deals: number;
+    revenue: number;
+    revenuePerDeal: number;
+    lastUsed: Date;
+  }>;
+  genrePerformance: Array<{
+    genre: string;
+    songs: number;
+    deals: number;
+    revenue: number;
+    utilizationRate: number;
+    marketTrend: 'hot' | 'stable' | 'declining';
+    avgRevenuePerSong: number;
+  }>;
+  artistPerformance: Array<{
+    artist: string;
+    songs: number;
+    deals: number;
+    revenue: number;
+    avgRevenuePerSong: number;
+    mostSuccessfulGenre: string;
+  }>;
+  underperformingSongs: Array<{
+    id: number;
+    title: string;
+    artist: string;
+    genre: string;
+    daysSinceAdded: number;
+    timesQueried: number;
+    timesLicensed: number;
+  }>;
+};
+
+export type FinancialForecastAnalytics = {
+  revenueProjection: {
+    nextMonth: number;
+    nextQuarter: number;
+    nextYear: number;
+    confidence: number; // percentage
+    projectionBasis: string;
+  };
+  pipelineValue: {
+    total: number;
+    weightedValue: number; // based on probability
+    byStage: Array<{
+      stage: string;
+      value: number;
+      deals: number;
+      probability: number;
+    }>;
+  };
+  seasonalTrends: Array<{
+    month: string;
+    historicalRevenue: number;
+    projectedRevenue: number;
+    variance: number;
+  }>;
+  budgetAnalysis: {
+    planned: number;
+    actual: number;
+    variance: number;
+    variancePercentage: number;
+    categories: Array<{
+      category: string;
+      planned: number;
+      actual: number;
+      variance: number;
+    }>;
+  };
+  cashFlowForecast: Array<{
+    period: string;
+    expectedInflow: number;
+    expectedOutflow: number;
+    netCashFlow: number;
+    cumulativeCash: number;
+  }>;
+};
+
+export type ComprehensiveAnalytics = {
+  timeRange: AnalyticsTimeRange;
+  lastUpdated: Date;
+  revenue: RevenueAnalytics;
+  dealPerformance: DealPerformanceAnalytics;
+  musicCatalog: MusicCatalogAnalytics;
+  forecast: FinancialForecastAnalytics;
+  keyMetrics: {
+    averageMonthlyRevenue: number;
+    dealWinRate: number;
+    customerLifetimeValue: number;
+    revenuePerContact: number;
+    monthlyRecurringRevenue: number;
+    churnRate: number;
+  };
+  benchmarks: {
+    industryAverageDealValue: number;
+    industrySuccessRate: number;
+    performanceRating: 'excellent' | 'good' | 'average' | 'below_average';
+    recommendations: string[];
+  };
+};

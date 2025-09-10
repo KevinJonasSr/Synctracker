@@ -5,118 +5,33 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, TrendingDown, DollarSign, Music, Users, Target, Calendar, BarChart3 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { TrendingUp, TrendingDown, DollarSign, Music, Users, Target, Calendar, BarChart3, Download, RefreshCw } from "lucide-react";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, BarChart, Bar, PieChart, Pie, Cell } from "recharts";
+import type { ComprehensiveAnalytics, AnalyticsTimeRange } from "@shared/schema";
 
-interface AnalyticsData {
-  revenue: {
-    total: number;
-    monthly: Array<{ month: string; amount: number; deals: number }>;
-    byGenre: Array<{ genre: string; amount: number; percentage: number }>;
-    byClient: Array<{ client: string; amount: number; deals: number }>;
-  };
-  performance: {
-    pitchSuccess: number;
-    averageDealValue: number;
-    averageTimeToClose: number;
-    topPerformingSongs: Array<{ song: string; artist: string; deals: number; revenue: number }>;
-    clientSuccess: Array<{ client: string; successRate: number; totalPitches: number }>;
-  };
-  trends: {
-    genrePopularity: Array<{ genre: string; count: number; trend: 'up' | 'down' | 'stable' }>;
-    seasonalTrends: Array<{ month: string; activity: number }>;
-    dealStages: Array<{ stage: string; count: number; averageDays: number }>;
-  };
-}
-
-const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#00ff00', '#ff00ff'];
+const COLORS = ['#2563EB', '#059669', '#7C3AED', '#EF4444', '#F59E0B', '#8B5CF6'];
 
 export default function Analytics() {
-  const [timeRange, setTimeRange] = useState("12months");
+  const [timeRange, setTimeRange] = useState<AnalyticsTimeRange>("1y");
+  const [refreshing, setRefreshing] = useState(false);
   
-  // Mock data - in real app, this would come from API
-  const mockAnalytics: AnalyticsData = {
-    revenue: {
-      total: 45750,
-      monthly: [
-        { month: "Jan", amount: 3200, deals: 4 },
-        { month: "Feb", amount: 2800, deals: 3 },
-        { month: "Mar", amount: 4100, deals: 5 },
-        { month: "Apr", amount: 3800, deals: 4 },
-        { month: "May", amount: 5200, deals: 6 },
-        { month: "Jun", amount: 4600, deals: 5 },
-        { month: "Jul", amount: 3900, deals: 4 },
-        { month: "Aug", amount: 4800, deals: 6 },
-        { month: "Sep", amount: 5100, deals: 5 },
-        { month: "Oct", amount: 4200, deals: 4 },
-        { month: "Nov", amount: 4800, deals: 5 },
-        { month: "Dec", amount: 5150, deals: 6 },
-      ],
-      byGenre: [
-        { genre: "Electronic", amount: 15200, percentage: 33.2 },
-        { genre: "Pop", amount: 12300, percentage: 26.9 },
-        { genre: "Cinematic", amount: 8900, percentage: 19.5 },
-        { genre: "Rock", amount: 6100, percentage: 13.3 },
-        { genre: "Hip Hop", amount: 3250, percentage: 7.1 },
-      ],
-      byClient: [
-        { client: "Netflix Studios", amount: 12500, deals: 8 },
-        { client: "Sony Pictures", amount: 9800, deals: 6 },
-        { client: "Universal Music", amount: 7200, deals: 5 },
-        { client: "Warner Bros", amount: 6100, deals: 4 },
-        { client: "Apple Music", amount: 4850, deals: 3 },
-      ],
-    },
-    performance: {
-      pitchSuccess: 18.5,
-      averageDealValue: 1850,
-      averageTimeToClose: 45,
-      topPerformingSongs: [
-        { song: "Urban Sunrise", artist: "Maya Chen", deals: 3, revenue: 8400 },
-        { song: "Midnight Drive", artist: "The Neon Collective", deals: 2, revenue: 6200 },
-        { song: "Digital Dreams", artist: "Alex Rivera", deals: 2, revenue: 4800 },
-        { song: "City Lights", artist: "Luna Park", deals: 1, revenue: 3200 },
-        { song: "Electric Soul", artist: "Maya Chen", deals: 1, revenue: 2800 },
-      ],
-      clientSuccess: [
-        { client: "Netflix Studios", successRate: 25.0, totalPitches: 32 },
-        { client: "Sony Pictures", successRate: 22.2, totalPitches: 27 },
-        { client: "Universal Music", successRate: 19.2, totalPitches: 26 },
-        { client: "Warner Bros", successRate: 16.7, totalPitches: 24 },
-        { client: "Apple Music", successRate: 15.0, totalPitches: 20 },
-      ],
-    },
-    trends: {
-      genrePopularity: [
-        { genre: "Electronic", count: 45, trend: 'up' },
-        { genre: "Pop", count: 38, trend: 'up' },
-        { genre: "Cinematic", count: 32, trend: 'stable' },
-        { genre: "Rock", count: 28, trend: 'down' },
-        { genre: "Hip Hop", count: 22, trend: 'up' },
-      ],
-      seasonalTrends: [
-        { month: "Jan", activity: 15 },
-        { month: "Feb", activity: 12 },
-        { month: "Mar", activity: 18 },
-        { month: "Apr", activity: 22 },
-        { month: "May", activity: 28 },
-        { month: "Jun", activity: 25 },
-        { month: "Jul", activity: 20 },
-        { month: "Aug", activity: 24 },
-        { month: "Sep", activity: 30 },
-        { month: "Oct", activity: 26 },
-        { month: "Nov", activity: 22 },
-        { month: "Dec", activity: 19 },
-      ],
-      dealStages: [
-        { stage: "Initial Contact", count: 45, averageDays: 7 },
-        { stage: "Pitch Sent", count: 38, averageDays: 14 },
-        { stage: "Under Review", count: 22, averageDays: 21 },
-        { stage: "Negotiating", count: 15, averageDays: 12 },
-        { stage: "Contract Sent", count: 8, averageDays: 8 },
-        { stage: "Closed Won", count: 5, averageDays: 3 },
-      ],
-    },
+  // Fetch comprehensive analytics data
+  const { data: analytics, isLoading, error, refetch } = useQuery<ComprehensiveAnalytics>({
+    queryKey: ["/api/analytics/comprehensive", timeRange],
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await refetch();
+    setRefreshing(false);
+  };
+
+  const exportData = (type: 'pdf' | 'excel') => {
+    // Implementation for export functionality
+    console.log(`Exporting ${type} report for ${timeRange}`);
   };
 
   const getTrendIcon = (trend: string) => {
@@ -126,6 +41,71 @@ export default function Analytics() {
       default: return <BarChart3 className="h-4 w-4 text-gray-600" />;
     }
   };
+
+  const getTrendColor = (value: number) => {
+    return value > 0 ? 'text-green-600' : value < 0 ? 'text-red-600' : 'text-gray-600';
+  };
+
+  if (isLoading) {
+    return (
+      <div>
+        <Header
+          title="Analytics & Reports"
+          description="Comprehensive insights into your sync licensing performance"
+        />
+        <div className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            {[...Array(4)].map((_, i) => (
+              <Card key={i}>
+                <CardContent className="p-6">
+                  <Skeleton className="h-12 w-full mb-4" />
+                  <Skeleton className="h-6 w-3/4" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {[...Array(4)].map((_, i) => (
+              <Card key={i}>
+                <CardHeader>
+                  <Skeleton className="h-6 w-1/3" />
+                </CardHeader>
+                <CardContent>
+                  <Skeleton className="h-64 w-full" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div>
+        <Header
+          title="Analytics & Reports"
+          description="Comprehensive insights into your sync licensing performance"
+        />
+        <div className="p-6">
+          <Card>
+            <CardContent className="p-6 text-center">
+              <div className="text-red-600 mb-4">
+                <BarChart3 className="h-12 w-12 mx-auto" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Failed to load analytics</h3>
+              <p className="text-gray-600 mb-4">There was an error loading the analytics data.</p>
+              <Button onClick={handleRefresh} disabled={refreshing}>
+                <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+                Try Again
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -137,17 +117,33 @@ export default function Analytics() {
       <div className="p-6">
         <div className="flex justify-between items-center mb-6">
           <div className="flex space-x-4">
-            <Select value={timeRange} onValueChange={setTimeRange}>
+            <Select value={timeRange} onValueChange={(value) => setTimeRange(value as AnalyticsTimeRange)}>
               <SelectTrigger className="w-40">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="3months">Last 3 Months</SelectItem>
-                <SelectItem value="6months">Last 6 Months</SelectItem>
-                <SelectItem value="12months">Last 12 Months</SelectItem>
-                <SelectItem value="24months">Last 24 Months</SelectItem>
+                <SelectItem value="7d">Last 7 Days</SelectItem>
+                <SelectItem value="30d">Last 30 Days</SelectItem>
+                <SelectItem value="90d">Last 90 Days</SelectItem>
+                <SelectItem value="1y">Last Year</SelectItem>
+                <SelectItem value="2y">Last 2 Years</SelectItem>
+                <SelectItem value="all">All Time</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+          <div className="flex space-x-2">
+            <Button variant="outline" onClick={handleRefresh} disabled={refreshing}>
+              <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+              Refresh
+            </Button>
+            <Button variant="outline" onClick={() => exportData('excel')}>
+              <Download className="h-4 w-4 mr-2" />
+              Export Excel
+            </Button>
+            <Button variant="outline" onClick={() => exportData('pdf')}>
+              <Download className="h-4 w-4 mr-2" />
+              Export PDF
+            </Button>
           </div>
         </div>
 
@@ -156,7 +152,8 @@ export default function Analytics() {
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="revenue">Revenue</TabsTrigger>
             <TabsTrigger value="performance">Performance</TabsTrigger>
-            <TabsTrigger value="trends">Trends</TabsTrigger>
+            <TabsTrigger value="catalog">Music Catalog</TabsTrigger>
+            <TabsTrigger value="forecast">Forecast</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
@@ -167,7 +164,13 @@ export default function Analytics() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-gray-600">Total Revenue</p>
-                      <p className="text-2xl font-bold">${mockAnalytics.revenue.total.toLocaleString()}</p>
+                      <p className="text-2xl font-bold">${analytics?.revenue.total.toLocaleString()}</p>
+                      <div className="flex items-center mt-2">
+                        <span className={`text-sm ${getTrendColor(analytics?.revenue.growth || 0)}`}>
+                          {(analytics?.revenue.growth || 0) > 0 ? '+' : ''}{(analytics?.revenue.growth || 0).toFixed(1)}%
+                        </span>
+                        <span className="text-gray-500 text-sm ml-1">vs previous period</span>
+                      </div>
                     </div>
                     <DollarSign className="h-8 w-8 text-green-600" />
                   </div>
@@ -178,8 +181,13 @@ export default function Analytics() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-gray-600">Success Rate</p>
-                      <p className="text-2xl font-bold">{mockAnalytics.performance.pitchSuccess}%</p>
+                      <p className="text-sm text-gray-600">Deal Win Rate</p>
+                      <p className="text-2xl font-bold">{analytics?.keyMetrics.dealWinRate.toFixed(1)}%</p>
+                      <div className="flex items-center mt-2">
+                        <Badge variant={analytics?.benchmarks.performanceRating === 'excellent' ? 'default' : 'secondary'}>
+                          {analytics?.benchmarks.performanceRating}
+                        </Badge>
+                      </div>
                     </div>
                     <Target className="h-8 w-8 text-blue-600" />
                   </div>
@@ -191,7 +199,12 @@ export default function Analytics() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-gray-600">Avg Deal Value</p>
-                      <p className="text-2xl font-bold">${mockAnalytics.performance.averageDealValue}</p>
+                      <p className="text-2xl font-bold">${analytics?.dealPerformance.averageDealValue.toLocaleString()}</p>
+                      <div className="flex items-center mt-2">
+                        <span className="text-sm text-gray-500">
+                          Industry avg: ${analytics?.benchmarks.industryAverageDealValue.toLocaleString()}
+                        </span>
+                      </div>
                     </div>
                     <BarChart3 className="h-8 w-8 text-purple-600" />
                   </div>
@@ -203,7 +216,12 @@ export default function Analytics() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-gray-600">Avg Time to Close</p>
-                      <p className="text-2xl font-bold">{mockAnalytics.performance.averageTimeToClose} days</p>
+                      <p className="text-2xl font-bold">{analytics?.dealPerformance.averageTimeToClose} days</p>
+                      <div className="flex items-center mt-2">
+                        <span className="text-sm text-gray-500">
+                          Catalog utilization: {analytics?.musicCatalog.utilizationRate.toFixed(1)}%
+                        </span>
+                      </div>
                     </div>
                     <Calendar className="h-8 w-8 text-orange-600" />
                   </div>
@@ -211,23 +229,62 @@ export default function Analytics() {
               </Card>
             </div>
 
-            {/* Revenue Chart */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Revenue Trend</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={mockAnalytics.revenue.monthly}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip formatter={(value) => [`$${value}`, 'Revenue']} />
-                    <Line type="monotone" dataKey="amount" stroke="#8884d8" strokeWidth={2} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
+            {/* Performance Overview */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Revenue by Project Type</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <PieChart>
+                      <Pie
+                        data={analytics?.revenue.byProjectType || []}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        label={({ type, percentage }) => `${type} ${percentage.toFixed(1)}%`}
+                        outerRadius={100}
+                        fill="#8884d8"
+                        dataKey="revenue"
+                      >
+                        {(analytics?.revenue.byProjectType || []).map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip formatter={(value) => [`$${Number(value).toLocaleString()}`, 'Revenue']} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Deal Conversion Funnel</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {(analytics?.dealPerformance.conversionFunnel || []).map((stage, index) => (
+                      <div key={stage.stage} className="space-y-2">
+                        <div className="flex justify-between">
+                          <span className="text-sm font-medium">{stage.stage}</span>
+                          <span className="text-sm text-gray-600">{stage.count} deals ({stage.percentage.toFixed(1)}%)</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div 
+                            className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+                            style={{ width: `${stage.percentage}%` }}
+                          />
+                        </div>
+                        {stage.dropOffRate > 0 && (
+                          <p className="text-xs text-red-500">Drop-off: {stage.dropOffRate}%</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
 
           <TabsContent value="revenue" className="space-y-6">
@@ -241,20 +298,20 @@ export default function Analytics() {
                   <ResponsiveContainer width="100%" height={300}>
                     <PieChart>
                       <Pie
-                        data={mockAnalytics.revenue.byGenre}
+                        data={analytics?.revenue.byGenre || []}
                         cx="50%"
                         cy="50%"
                         labelLine={false}
-                        label={({ genre, percentage }) => `${genre} ${percentage}%`}
+                        label={({ genre, percentage }: any) => `${genre} ${percentage}%`}
                         outerRadius={100}
                         fill="#8884d8"
-                        dataKey="amount"
+                        dataKey="revenue"
                       >
-                        {mockAnalytics.revenue.byGenre.map((entry, index) => (
+                        {(analytics?.revenue.byGenre || []).map((entry: any, index: number) => (
                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
                       </Pie>
-                      <Tooltip formatter={(value) => [`$${value}`, 'Revenue']} />
+                      <Tooltip formatter={(value: any) => [`$${Number(value).toLocaleString()}`, 'Revenue']} />
                     </PieChart>
                   </ResponsiveContainer>
                 </CardContent>
@@ -267,14 +324,14 @@ export default function Analytics() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {mockAnalytics.revenue.byClient.map((client, index) => (
-                      <div key={client.client} className="flex items-center justify-between">
+                    {(analytics?.revenue.byClient || []).map((client: any, index: number) => (
+                      <div key={client.client || index} className="flex items-center justify-between">
                         <div>
                           <p className="font-medium">{client.client}</p>
                           <p className="text-sm text-gray-600">{client.deals} deals</p>
                         </div>
                         <div className="text-right">
-                          <p className="font-bold">${client.amount.toLocaleString()}</p>
+                          <p className="font-bold">${(client.revenue || 0).toLocaleString()}</p>
                           <Badge variant="outline">#{index + 1}</Badge>
                         </div>
                       </div>
@@ -294,14 +351,14 @@ export default function Analytics() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {mockAnalytics.performance.topPerformingSongs.map((song, index) => (
-                      <div key={song.song} className="flex items-center justify-between">
+                    {(analytics?.musicCatalog.topPerformingSongs || []).map((song: any, index: number) => (
+                      <div key={song.title || index} className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
                           <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-800 text-sm font-medium">
                             {index + 1}
                           </div>
                           <div>
-                            <p className="font-medium">{song.song}</p>
+                            <p className="font-medium">{song.title}</p>
                             <p className="text-sm text-gray-600">{song.artist}</p>
                           </div>
                         </div>
@@ -322,19 +379,19 @@ export default function Analytics() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {mockAnalytics.performance.clientSuccess.map((client) => (
-                      <div key={client.client} className="space-y-2">
+                    {(analytics?.dealPerformance.topPerformers.clients || []).map((client: any) => (
+                      <div key={client.name} className="space-y-2">
                         <div className="flex justify-between">
-                          <span className="text-sm font-medium">{client.client}</span>
-                          <span className="text-sm text-gray-600">{client.successRate}%</span>
+                          <span className="text-sm font-medium">{client.name}</span>
+                          <span className="text-sm text-gray-600">{(client.successRate * 100).toFixed(1)}%</span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2">
                           <div 
                             className="bg-blue-600 h-2 rounded-full" 
-                            style={{ width: `${client.successRate}%` }}
+                            style={{ width: `${client.successRate * 100}%` }}
                           />
                         </div>
-                        <p className="text-xs text-gray-500">{client.totalPitches} total pitches</p>
+                        <p className="text-xs text-gray-500">{client.deals} total deals</p>
                       </div>
                     ))}
                   </div>
@@ -343,7 +400,7 @@ export default function Analytics() {
             </div>
           </TabsContent>
 
-          <TabsContent value="trends" className="space-y-6">
+          <TabsContent value="catalog" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Genre Popularity Trends */}
               <Card>
@@ -352,16 +409,16 @@ export default function Analytics() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {mockAnalytics.trends.genrePopularity.map((genre) => (
+                    {(analytics?.musicCatalog.genrePerformance || []).map((genre: any) => (
                       <div key={genre.genre} className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
-                          {getTrendIcon(genre.trend)}
+                          {getTrendIcon(genre.marketTrend === 'hot' ? 'up' : genre.marketTrend === 'declining' ? 'down' : 'stable')}
                           <span className="font-medium">{genre.genre}</span>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <span className="text-sm text-gray-600">{genre.count} songs</span>
-                          <Badge variant={genre.trend === 'up' ? 'default' : genre.trend === 'down' ? 'destructive' : 'secondary'}>
-                            {genre.trend}
+                          <span className="text-sm text-gray-600">{genre.songs} songs</span>
+                          <Badge variant={genre.marketTrend === 'hot' ? 'default' : genre.marketTrend === 'declining' ? 'destructive' : 'secondary'}>
+                            {genre.marketTrend}
                           </Badge>
                         </div>
                       </div>
@@ -377,12 +434,12 @@ export default function Analytics() {
                 </CardHeader>
                 <CardContent>
                   <ResponsiveContainer width="100%" height={250}>
-                    <BarChart data={mockAnalytics.trends.seasonalTrends}>
+                    <BarChart data={analytics?.forecast.seasonalTrends || []}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="month" />
                       <YAxis />
                       <Tooltip />
-                      <Bar dataKey="activity" fill="#8884d8" />
+                      <Bar dataKey="historicalRevenue" fill="#8884d8" />
                     </BarChart>
                   </ResponsiveContainer>
                 </CardContent>
