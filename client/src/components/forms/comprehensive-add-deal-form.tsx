@@ -387,21 +387,22 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-7xl p-2">
         <DialogHeader>
           <DialogTitle>{isEditing ? "Edit Deal" : "Add New Deal"}</DialogTitle>
         </DialogHeader>
         
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-1">
+          <div className="grid grid-cols-2 gap-2 auto-rows-min xl:grid-cols-3">
           {/* Section 1: Project Information */}
           <Card className="bg-purple-50 border-purple-200">
-            <CardHeader className="bg-purple-100 border-b border-purple-200">
+            <CardHeader className="bg-purple-100 border-b border-purple-200 py-1">
               <CardTitle className="flex items-center space-x-2 text-purple-800">
                 <FileText className="h-5 w-5" />
                 <span>Project Information</span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4 bg-purple-50">
+            <CardContent className="space-y-1 bg-purple-50 p-3">
               <div className="grid grid-cols-3 gap-4">
                 <div>
                   <Label htmlFor="projectName">Project Name *</Label>
@@ -456,11 +457,11 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                   id="projectDescription"
                   {...form.register("projectDescription")}
                   placeholder="Brief description of the project"
-                  rows={2}
+                  rows={1}
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-2">
                 <div>
                   <Label htmlFor="status">Status</Label>
                   <Select
@@ -530,14 +531,14 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
 
           {/* Section 2: Song Information */}
           <Card className="bg-blue-50 border-blue-200">
-            <CardHeader className="bg-blue-100 border-b border-blue-200">
+            <CardHeader className="bg-blue-100 border-b border-blue-200 py-1">
               <CardTitle className="flex items-center space-x-2 text-blue-800">
                 <span>🎵</span>
                 <span>Song Information</span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4 bg-blue-50">
-              <div className="grid grid-cols-1 gap-4">
+            <CardContent className="space-y-1 bg-blue-50 p-3">
+              <div className="grid grid-cols-1 gap-2">
                 <div>
                   <Label htmlFor="songId">Song Title *</Label>
                   <Select
@@ -645,15 +646,15 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
               </div>
 
               {selectedSong && (
-                <div className="space-y-4">
+                <div className="space-y-1">
                   {/* Basic Song Information */}
                   <Card className="bg-purple-50 border-purple-200">
                     <CardHeader className="bg-purple-100 border-b border-purple-200">
                       <CardTitle className="text-purple-800">Basic Song Information</CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-4 bg-purple-50">
+                    <CardContent className="space-y-1 bg-purple-50 p-2">
                       {/* First line: Title, Album */}
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-2 gap-2">
                         <div>
                           <Label>Title</Label>
                           <Input
@@ -674,7 +675,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                       </div>
                       
                       {/* Second line: Jonas's Ownership Summary */}
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-2 gap-2">
                         <div>
                           <Label>Publishing Ownership (%)</Label>
                           <Input
@@ -718,7 +719,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                     <CardHeader className="bg-green-100 border-b border-green-200">
                       <CardTitle className="text-green-800">Publishing Information</CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-4 bg-green-50">
+                    <CardContent className="space-y-1 bg-green-50 p-2">
                       <div>
                         <Label className="text-base font-semibold">Composer(s), Publisher(s) & Ownership</Label>
                         <div className="space-y-3 mt-3">
@@ -771,7 +772,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                     <CardHeader className="bg-blue-100 border-b border-blue-200">
                       <CardTitle className="text-blue-800">Label Information</CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-4 bg-blue-50">
+                    <CardContent className="space-y-1 bg-blue-50 p-2">
                       <div>
                         <Label className="text-base font-semibold">Artist(s), Label(s) & Ownership</Label>
                         <div className="space-y-3 mt-3">
@@ -822,7 +823,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                   {/* Deal Terms */}
                   <div className="border-t pt-4">
                     <h4 className="font-medium mb-3">Deal Terms</h4>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-2">
                       <div>
                         <Label htmlFor="usage">Usage</Label>
                         <Input
@@ -837,8 +838,8 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                           id="sceneDescription"
                           {...form.register("sceneDescription")}
                           placeholder="Describe how music is used in scene"
-                          rows={4}
-                          className="min-h-[100px]"
+                          rows={2}
+                          className="min-h-[60px]"
                         />
                       </div>
                     </div>
@@ -849,8 +850,8 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                           id="media"
                           {...form.register("media")}
                           placeholder="e.g., TV, Film, Streaming, All media and devices..."
-                          rows={3}
-                          className="min-h-[80px]"
+                          rows={2}
+                          className="min-h-[60px]"
                         />
                       </div>
                       <div>
@@ -889,14 +890,14 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
 
           {/* Fees Section */}
           <Card className="bg-green-50 border-green-200">
-            <CardHeader className="bg-green-100 border-b border-green-200">
+            <CardHeader className="bg-green-100 border-b border-green-200 py-1">
               <CardTitle className="flex items-center space-x-2 text-green-800">
                 <DollarSign className="h-5 w-5" />
                 <span>Fees</span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4 bg-green-50">
-              <div className="grid grid-cols-2 gap-4">
+            <CardContent className="space-y-1 bg-green-50 p-3">
+              <div className="grid grid-cols-2 gap-2">
                 <div>
                   <Label htmlFor="fullSongValue">100% Publishing Fee ($)</Label>
                   <Input
@@ -938,7 +939,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-2">
                 <div>
                   <Label htmlFor="fullRecordingFee">100% Recording Fee ($)</Label>
                   <Input
@@ -980,7 +981,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-2">
                 <div className="flex items-center space-x-2">
                   <Switch
                     id="exclusivity"
@@ -1006,7 +1007,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                     id="options"
                     {...form.register("options")}
                     placeholder="Additional options, notes, or special terms for this deal"
-                    rows={3}
+                    rows={2}
                   />
                 </div>
               </div>
@@ -1015,20 +1016,20 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
 
           {/* Section 3: Contacts */}
           <Card className="bg-yellow-50 border-yellow-200">
-            <CardHeader className="bg-yellow-100 border-b border-yellow-200">
+            <CardHeader className="bg-yellow-100 border-b border-yellow-200 py-1">
               <CardTitle className="flex items-center space-x-2 text-yellow-800">
                 <User className="h-5 w-5" />
                 <span>Contacts</span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4 bg-yellow-50">
+            <CardContent className="space-y-1 bg-yellow-50 p-3">
               {/* Music Supervisor */}
               <div>
-                <h4 className="font-medium mb-3 flex items-center space-x-2">
+                <h4 className="font-medium mb-1 flex items-center space-x-2">
                   <User className="h-4 w-4" />
                   <span>Music Supervisor</span>
                 </h4>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-2">
                   <div>
                     <Label htmlFor="contactId">Supervisor Name *</Label>
                     <div className="flex gap-2">
@@ -1096,7 +1097,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                     />
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4 mt-4">
+                <div className="grid grid-cols-2 gap-4 mt-2">
                   <div>
                     <Label htmlFor="musicSupervisorContactEmail">Email</Label>
                     <Input
@@ -1120,11 +1121,11 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
               {/* Licensee / Production Company */}
               <Separator />
               <div>
-                <h4 className="font-medium mb-3 flex items-center space-x-2">
+                <h4 className="font-medium mb-1 flex items-center space-x-2">
                   <Building className="h-4 w-4" />
                   <span>Licensee / Production Company</span>
                 </h4>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-2">
                   <div>
                     <Label htmlFor="licenseeCompanyName">Company Name</Label>
                     <Input
@@ -1174,11 +1175,11 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
               {/* Clearance Company */}
               <Separator />
               <div>
-                <h4 className="font-medium mb-3 flex items-center space-x-2">
+                <h4 className="font-medium mb-1 flex items-center space-x-2">
                   <Building className="h-4 w-4" />
                   <span>Clearance Company</span>
                 </h4>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-2">
                   <div>
                     <Label htmlFor="clearanceCompanyName">Company Name</Label>
                     <Input
@@ -1229,106 +1230,109 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
 
           {/* Section 4: Additional Information */}
           <Card className="bg-green-50 border-green-200">
-            <CardHeader className="bg-green-100 border-b border-green-200">
+            <CardHeader className="bg-green-100 border-b border-green-200 py-1">
               <CardTitle className="flex items-center space-x-2 text-green-800">
                 <FileText className="h-5 w-5" />
                 <span>Additional Information</span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4 bg-green-50">
+            <CardContent className="space-y-1 bg-green-50 p-3">
               <div>
                 <Label htmlFor="notes">Notes</Label>
                 <Textarea
                   id="notes"
                   {...form.register("notes")}
                   placeholder="Additional notes about the deal"
-                  rows={3}
+                  rows={2}
                 />
               </div>
 
               {/* Status Date Fields */}
-              <div className="border-t pt-4">
-                <h4 className="font-medium mb-3">Status Dates</h4>
-                <div className="grid grid-cols-2 gap-4">
+              <div className="border-t pt-2">
+                <h4 className="font-medium mb-2">Status Dates</h4>
+                <div className="grid grid-cols-4 gap-3">
                   <div>
-                    <Label htmlFor="pitchedDate">New Request Date</Label>
+                    <Label htmlFor="pitchedDate" className="text-sm">New Request</Label>
                     <Input
                       id="pitchedDate"
                       type="datetime-local"
                       {...form.register("pitchedDate")}
+                      className="text-sm"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="pendingApprovalDate">Pending Approval Date</Label>
+                    <Label htmlFor="pendingApprovalDate" className="text-sm">Pending Approval</Label>
                     <Input
                       id="pendingApprovalDate"
                       type="datetime-local"
                       {...form.register("pendingApprovalDate")}
+                      className="text-sm"
                     />
                   </div>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4 mt-4">
                   <div>
-                    <Label htmlFor="quotedDate">Quoted Date</Label>
+                    <Label htmlFor="quotedDate" className="text-sm">Quoted</Label>
                     <Input
                       id="quotedDate"
                       type="datetime-local"
                       {...form.register("quotedDate")}
+                      className="text-sm"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="useConfirmedDate">Use Confirmed Date</Label>
+                    <Label htmlFor="useConfirmedDate" className="text-sm">Use Confirmed</Label>
                     <Input
                       id="useConfirmedDate"
                       type="datetime-local"
                       {...form.register("useConfirmedDate")}
+                      className="text-sm"
                     />
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-2 gap-4 mt-4">
+                <div className="grid grid-cols-4 gap-3 mt-2">
                   <div>
-                    <Label htmlFor="beingDraftedDate">Being Drafted Date</Label>
+                    <Label htmlFor="beingDraftedDate" className="text-sm">Being Drafted</Label>
                     <Input
                       id="beingDraftedDate"
                       type="datetime-local"
                       {...form.register("beingDraftedDate")}
+                      className="text-sm"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="outForSignatureDate">Out for Signature Date</Label>
+                    <Label htmlFor="outForSignatureDate" className="text-sm">Out for Signature</Label>
                     <Input
                       id="outForSignatureDate"
                       type="datetime-local"
                       {...form.register("outForSignatureDate")}
+                      className="text-sm"
                     />
                   </div>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4 mt-4">
                   <div>
-                    <Label htmlFor="paymentReceivedDate">Payment Received Date</Label>
+                    <Label htmlFor="paymentReceivedDate" className="text-sm">Payment Received</Label>
                     <Input
                       id="paymentReceivedDate"
                       type="datetime-local"
                       {...form.register("paymentReceivedDate")}
+                      className="text-sm"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="completedDate">Completed Date</Label>
+                    <Label htmlFor="completedDate" className="text-sm">Completed</Label>
                     <Input
                       id="completedDate"
                       type="datetime-local"
                       {...form.register("completedDate")}
+                      className="text-sm"
                     />
                   </div>
                 </div>
               </div>
             </CardContent>
           </Card>
+          </div>
 
-          <div className="flex justify-end space-x-2 pt-4">
+          <div className="flex justify-end space-x-2 pt-2">
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
