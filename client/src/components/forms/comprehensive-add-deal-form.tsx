@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
@@ -387,12 +387,15 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-7xl p-2">
+      <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto p-2">
         <DialogHeader>
           <DialogTitle>{isEditing ? "Edit Deal" : "Add New Deal"}</DialogTitle>
+          <DialogDescription>
+            Complete all sections to create a new sync licensing deal.
+          </DialogDescription>
         </DialogHeader>
         
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-1">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-1 pb-16">
           <div className="grid grid-cols-2 gap-2 auto-rows-min xl:grid-cols-3">
           {/* Section 1: Project Information */}
           <Card className="bg-purple-50 border-purple-200">
@@ -1332,7 +1335,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
           </Card>
           </div>
 
-          <div className="flex justify-end space-x-2 pt-2">
+          <div className="sticky bottom-0 bg-background border-t pt-2 mt-2 flex justify-end space-x-2 z-10">
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
