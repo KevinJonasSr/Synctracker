@@ -685,6 +685,25 @@ export const insertPaymentSchema = createInsertSchema(payments).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+}).extend({
+  // Standardize amount to accept string or number, convert to number
+  amount: z.union([z.string(), z.number()]).transform((val) => {
+    if (typeof val === 'string') {
+      const parsed = parseFloat(val);
+      if (isNaN(parsed)) throw new Error('Invalid amount');
+      return parsed;
+    }
+    return val;
+  }).refine((val) => val > 0, "Amount must be greater than 0"),
+  
+  // Standardize date handling - accept string or Date, convert to Date
+  dueDate: z.union([z.string(), z.date()]).transform((val) => {
+    return typeof val === 'string' ? new Date(val) : val;
+  }),
+  
+  paidDate: z.union([z.string(), z.date()]).transform((val) => {
+    return typeof val === 'string' ? new Date(val) : val;
+  }).optional(),
 });
 
 export const insertTemplateSchema = createInsertSchema(templates).omit({

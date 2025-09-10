@@ -29,17 +29,33 @@ const multerStorage = multer.diskStorage({
 
 const upload = multer({ 
   storage: multerStorage,
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+  limits: { 
+    fileSize: 10 * 1024 * 1024, // 10MB limit
+    files: 5, // Maximum 5 files per request
+    fields: 10 // Maximum 10 form fields
+  },
   fileFilter: (req, file, cb) => {
-    // Allow most file types for sync licensing
-    const allowedTypes = /jpeg|jpg|png|gif|pdf|doc|docx|txt|mp3|wav|aiff|flac|m4a|zip|rar/;
-    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-    const mimetype = allowedTypes.test(file.mimetype);
+    // Hardened file type validation for sync licensing
+    const allowedTypes = /^(jpeg|jpg|png|gif|pdf|doc|docx|txt|mp3|wav|aiff|flac|m4a|zip|rar)$/i;
+    const allowedMimeTypes = /^(image\/(jpeg|jpg|png|gif)|application\/(pdf|msword|vnd\.openxmlformats-officedocument\.wordprocessingml\.document)|text\/plain|audio\/(mpeg|wav|x-aiff|flac|mp4)|application\/(zip|x-rar-compressed))$/i;
+    
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase().slice(1));
+    const mimetype = allowedMimeTypes.test(file.mimetype);
+    
+    // Reject files with suspicious names or double extensions
+    if (file.originalname.includes('..') || file.originalname.includes('/') || file.originalname.includes('\\')) {
+      return cb(new Error('Invalid file name'));
+    }
+    
+    // Ensure filename is not empty and has valid characters
+    if (!file.originalname || !/^[a-zA-Z0-9._-]+$/.test(file.originalname.replace(/\.[^.]+$/, ''))) {
+      return cb(new Error('Invalid file name format'));
+    }
     
     if (mimetype && extname) {
       return cb(null, true);
     } else {
-      cb(new Error('Invalid file type'));
+      cb(new Error(`File type not allowed: ${file.mimetype}`));
     }
   }
 });

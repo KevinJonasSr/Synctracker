@@ -24,7 +24,7 @@ export default function AddPaymentForm({ open, onClose }: AddPaymentFormProps) {
     resolver: zodResolver(insertPaymentSchema),
     defaultValues: {
       dealId: 0,
-      amount: "",
+      amount: 0, // Use number instead of string to match schema
       dueDate: new Date(),
       paidDate: undefined,
       status: "pending",
@@ -38,7 +38,10 @@ export default function AddPaymentForm({ open, onClose }: AddPaymentFormProps) {
 
   const createPaymentMutation = useMutation({
     mutationFn: async (data: InsertPayment) => {
-      const response = await apiRequest("POST", "/api/payments", data);
+      const response = await apiRequest("/api/payments", { 
+        method: "POST", 
+        body: data 
+      });
       return response.json();
     },
     onSuccess: () => {
@@ -61,11 +64,8 @@ export default function AddPaymentForm({ open, onClose }: AddPaymentFormProps) {
   });
 
   const onSubmit = (data: InsertPayment) => {
-    createPaymentMutation.mutate({
-      ...data,
-      dueDate: new Date(data.dueDate),
-      paidDate: data.paidDate ? new Date(data.paidDate) : undefined,
-    });
+    // Schema now handles date and amount conversion automatically
+    createPaymentMutation.mutate(data);
   };
 
   return (

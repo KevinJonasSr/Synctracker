@@ -161,9 +161,10 @@ export default function InteractiveCharts({ timeRange = '30d', onChartClick }: I
                   height={80}
                   fontSize={12}
                 />
-                <YAxis />
+                <YAxis yAxisId="left" />
+                <YAxis yAxisId="right" orientation="right" />
                 <Tooltip content={<CustomTooltip />} />
-                <Bar dataKey="count" fill="#3B82F6" name="Deal Count" />
+                <Bar dataKey="count" fill="#3B82F6" name="Deal Count" yAxisId="left" />
                 <Bar dataKey="value" fill="#10B981" name="Total Value ($)" yAxisId="right" />
               </BarChart>
             </ResponsiveContainer>
