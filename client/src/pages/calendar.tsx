@@ -44,7 +44,7 @@ export default function Calendar() {
     queryKey: ["/api/calendar-events"],
   });
 
-  const { data: deals = [] } = useQuery({
+  const { data: deals = [] } = useQuery<any[]>({
     queryKey: ["/api/deals"],
   });
 
@@ -188,14 +188,13 @@ export default function Calendar() {
   // Edit air date mutation
   const editAirDateMutation = useMutation({
     mutationFn: async ({ eventId, newDate }: { eventId: number; newDate: string }) => {
-      const response = await apiRequest(
-        'PUT',
-        `/api/calendar-events/${eventId}`,
-        {
+      return await apiRequest(`/api/calendar-events/${eventId}`, {
+        method: 'PUT',
+        body: {
           startDate: newDate,
           endDate: newDate,
         }
-      );
+      });
       return response.json();
     },
     onSuccess: () => {
