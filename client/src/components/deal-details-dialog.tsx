@@ -40,7 +40,7 @@ export default function DealDetailsDialog({ deal, open, onClose }: DealDetailsDi
   const deleteDealMutation = useMutation({
     mutationFn: async () => {
       if (!deal) return;
-      return apiRequest('DELETE', `/api/deals/${deal.id}`);
+      return apiRequest(`/api/deals/${deal.id}`, { method: 'DELETE' });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/deals'] });
