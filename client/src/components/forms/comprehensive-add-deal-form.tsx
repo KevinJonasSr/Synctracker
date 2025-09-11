@@ -258,20 +258,20 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
   }, [deal, form, songs]);
 
   const createDealMutation = useMutation({
-    mutationFn: (data: InsertDeal) => 
-      apiRequest(isEditing ? `/api/deals/${deal.id}` : '/api/deals', { 
+    mutationFn: async (data: InsertDeal) => {
+      const response = await apiRequest(isEditing ? `/api/deals/${deal.id}` : '/api/deals', { 
         method: isEditing ? 'PATCH' : 'POST', 
         body: data 
-      }),
-    onSuccess: async (response) => {
-      console.log("Deal update successful:", response);
+      });
+      return response.json();
+    },
+    onSuccess: async (newDeal) => {
+      console.log("Deal update successful:", newDeal);
       
       // Invalidate multiple cache keys
       await queryClient.invalidateQueries({ queryKey: ['/api/deals'] });
       await queryClient.invalidateQueries({ queryKey: ['/api/dashboard'] });
       await queryClient.invalidateQueries({ queryKey: ['/api/deals', deal?.id] });
-      
-      const newDeal = response;
       
       // Auto-create calendar event if air date is provided
       if (newDeal.airDate && !isEditing) {
