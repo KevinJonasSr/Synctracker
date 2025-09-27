@@ -38,10 +38,11 @@ export default function Header({
               <Input
                 type="text"
                 placeholder={searchPlaceholder}
+                aria-label={searchPlaceholder}
                 className="w-64 pl-10"
                 onChange={(e) => onSearch?.(e.target.value)}
               />
-              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" aria-hidden="true" />
             </div>
           )}
           {showNewButton && (

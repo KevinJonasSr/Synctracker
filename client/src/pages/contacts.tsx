@@ -38,7 +38,7 @@ export default function Contacts() {
           newItemLabel="Add Contact"
         />
         <div className="p-6">
-          <div className="grid gap-6">
+          <div className="grid gap-6" role="status" aria-live="polite" aria-label="Loading contacts">
             {[...Array(4)].map((_, i) => (
               <Card key={i} className="animate-pulse">
                 <CardContent className="p-6">
@@ -61,6 +61,7 @@ export default function Contacts() {
                 </CardContent>
               </Card>
             ))}
+            <span className="sr-only">Loading contacts, please wait...</span>
           </div>
         </div>
       </div>

@@ -56,7 +56,7 @@ export default function EmailTemplates() {
           title="Email Templates"
           description="Pre-written email templates for different stages of the licensing process"
         />
-        <div className="grid gap-4">
+        <div className="grid gap-4" role="status" aria-live="polite" aria-label="Loading email templates">
           {[...Array(5)].map((_, i) => (
             <Card key={i} className="animate-pulse">
               <CardHeader>
@@ -68,6 +68,7 @@ export default function EmailTemplates() {
               </CardContent>
             </Card>
           ))}
+          <span className="sr-only">Loading email templates, please wait...</span>
         </div>
       </div>
     );

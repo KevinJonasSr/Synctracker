@@ -322,15 +322,18 @@ export default function Pitches() {
                             Pitch: {getDealName(pitch)}
                           </h3>
                           <Badge className={getStatusColor(pitch.status)}>
+                            <span className="sr-only">Status: </span>
                             {getStatusLabel(pitch.status)}
                           </Badge>
                           {isFollowUpOverdue(pitch) && (
                             <Badge variant="outline" className="text-red-600 border-red-600 bg-red-50">
+                              <span className="sr-only">Follow-up is </span>
                               Overdue
                             </Badge>
                           )}
                           {isFollowUpDue(pitch) && !isFollowUpOverdue(pitch) && (
                             <Badge variant="outline" className="text-yellow-600 border-yellow-600 bg-yellow-50">
+                              <span className="sr-only">Follow-up is </span>
                               Due Today
                             </Badge>
                           )}

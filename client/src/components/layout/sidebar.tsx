@@ -104,7 +104,7 @@ export default function Sidebar() {
             data-testid="mobile-menu-button"
             aria-label="Open menu"
           >
-            <Menu className="h-4 w-4" />
+            <Menu className="h-4 w-4" aria-hidden="true" />
           </Button>
         </SheetTrigger>
         <SheetContent side="left" className="w-64 p-0">

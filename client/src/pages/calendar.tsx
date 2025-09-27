@@ -630,18 +630,20 @@ export default function Calendar() {
                 variant="outline"
                 size="sm"
                 onClick={() => navigateMonth('prev')}
+                aria-label="Go to previous month"
               >
-                <ChevronLeft className="h-4 w-4" />
+                <ChevronLeft className="h-4 w-4" aria-hidden="true" />
               </Button>
-              <CardTitle className="text-xl">
+              <CardTitle className="text-xl" aria-live="polite">
                 {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
               </CardTitle>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => navigateMonth('next')}
+                aria-label="Go to next month"
               >
-                <ChevronRight className="h-4 w-4" />
+                <ChevronRight className="h-4 w-4" aria-hidden="true" />
               </Button>
             </div>
           </CardHeader>
