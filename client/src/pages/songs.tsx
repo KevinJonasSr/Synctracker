@@ -37,8 +37,40 @@ export default function Songs() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <div className="text-lg text-gray-600">Loading songs...</div>
+      <div>
+        <Header
+          title="Song Database"
+          description="Manage your music catalog with comprehensive metadata"
+          searchPlaceholder="Search songs, artists, albums..."
+          newItemLabel="Add Song"
+        />
+        <div className="p-6">
+          <div className="grid gap-6">
+            {[...Array(4)].map((_, i) => (
+              <Card key={i} className="animate-pulse">
+                <CardContent className="p-6">
+                  <div className="flex items-start space-x-4">
+                    <div className="w-16 h-16 bg-gray-200 rounded-lg"></div>
+                    <div className="flex-1 space-y-3">
+                      <div className="h-5 bg-gray-200 rounded w-1/3"></div>
+                      <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+                      <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+                      <div className="flex space-x-2">
+                        <div className="h-6 bg-gray-200 rounded w-16"></div>
+                        <div className="h-6 bg-gray-200 rounded w-20"></div>
+                        <div className="h-6 bg-gray-200 rounded w-14"></div>
+                      </div>
+                    </div>
+                    <div className="flex space-x-2">
+                      <div className="h-8 w-8 bg-gray-200 rounded"></div>
+                      <div className="h-8 w-8 bg-gray-200 rounded"></div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }

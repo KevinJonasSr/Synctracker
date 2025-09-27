@@ -52,8 +52,41 @@ export default function Reports() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <div className="text-lg text-gray-600">Loading reports...</div>
+      <div>
+        <Header
+          title="Reports"
+          description="Analyze your sync licensing performance and revenue trends"
+        />
+        <div className="p-6">
+          <div className="flex items-center space-x-4 mb-6">
+            <div className="h-10 bg-gray-200 rounded w-48 animate-pulse"></div>
+            <div className="h-10 bg-gray-200 rounded w-48 animate-pulse"></div>
+          </div>
+          <div className="grid gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {[...Array(4)].map((_, i) => (
+                <Card key={i} className="animate-pulse">
+                  <CardContent className="p-6">
+                    <div className="h-8 bg-gray-200 rounded w-3/4 mb-2"></div>
+                    <div className="h-6 bg-gray-200 rounded w-1/2"></div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {[...Array(4)].map((_, i) => (
+                <Card key={i} className="animate-pulse">
+                  <CardHeader>
+                    <div className="h-6 bg-gray-200 rounded w-1/2"></div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-64 bg-gray-200 rounded"></div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

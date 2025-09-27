@@ -165,10 +165,10 @@ export default function Pitches() {
     }
 
     // Convert and validate data - send strings to server, not Date objects
-    const selectedSongTitles = data.selectedSongs?.map(songId => {
+    const selectedSongTitles = data.selectedSongs?.map((songId: string) => {
       const song = songs.find(s => s.id === parseInt(songId));
       return song ? `${song.title} by ${song.artist}` : '';
-    }).filter(title => title).join('\n') || '';
+    }).filter((title: string) => title).join('\n') || '';
 
     const processedData = {
       dealId: useCustomDeal ? null : parseInt(data.dealId),
@@ -241,8 +241,39 @@ export default function Pitches() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <div className="text-lg text-gray-600">Loading pitches...</div>
+      <div>
+        <Header
+          title="Sync Pitches"
+          description="Track your pitch submissions and follow-up schedules"
+          searchPlaceholder="Search pitches, projects..."
+          newItemLabel="New Pitch"
+        />
+        <div className="p-6">
+          <div className="grid gap-6">
+            {[...Array(3)].map((_, i) => (
+              <Card key={i} className="animate-pulse">
+                <CardContent className="p-6">
+                  <div className="flex items-start space-x-4">
+                    <div className="w-16 h-16 bg-gray-200 rounded-lg"></div>
+                    <div className="flex-1 space-y-3">
+                      <div className="h-5 bg-gray-200 rounded w-2/5"></div>
+                      <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="h-4 bg-gray-200 rounded w-full"></div>
+                        <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                      </div>
+                      <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                    </div>
+                    <div className="flex space-x-2">
+                      <div className="h-6 bg-gray-200 rounded w-16"></div>
+                      <div className="h-8 w-20 bg-gray-200 rounded"></div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
@@ -349,7 +380,7 @@ export default function Pitches() {
                                 }
                                 
                                 // Check if this line appears after "Additional Notes:"
-                                const noteLines = pitch.notes.split('\n');
+                                const noteLines = pitch.notes?.split('\n') || [];
                                 const additionalNotesIndex = noteLines.findIndex(l => l.trim() === 'Additional Notes:');
                                 const isAdditionalNote = additionalNotesIndex >= 0 && index > additionalNotesIndex;
                                 
@@ -492,7 +523,7 @@ export default function Pitches() {
               <Label htmlFor="selectedSongs">Songs to Pitch</Label>
               <Select
                 value=""
-                onValueChange={(value) => {
+                onValueChange={(value: string) => {
                   const currentSongs = form.watch("selectedSongs") || [];
                   if (!currentSongs.includes(value)) {
                     form.setValue("selectedSongs", [...currentSongs, value]);
@@ -624,7 +655,7 @@ export default function Pitches() {
                   if (selectedPitch && e.target.value) {
                     updatePitchMutation.mutate({
                       id: selectedPitch.id,
-                      data: { followUpDate: e.target.value }
+                      data: { followUpDate: new Date(e.target.value).toISOString() }
                     });
                   }
                 }}
