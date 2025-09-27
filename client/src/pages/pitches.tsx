@@ -406,10 +406,11 @@ export default function Pitches() {
                       </div>
                     </div>
                     
-                    <div className="flex space-x-2">
+                    <div className="flex flex-col sm:flex-row gap-2 sm:space-x-2">
                       <Button 
                         size="sm" 
                         variant="outline"
+                        className="w-full sm:w-auto"
                         onClick={() => {
                           setSelectedPitch(pitch);
                           setShowUpdateStatus(true);
@@ -420,7 +421,7 @@ export default function Pitches() {
                       {(pitch.status === "pitched" || pitch.status === "follow_up") && (
                         <Button 
                           size="sm" 
-                          className="bg-brand-secondary hover:bg-emerald-700"
+                          className="bg-brand-secondary hover:bg-emerald-700 w-full sm:w-auto"
                           onClick={() => {
                             setSelectedPitch(pitch);
                             setShowFollowUp(true);

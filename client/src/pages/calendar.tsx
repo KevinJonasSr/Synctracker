@@ -671,7 +671,7 @@ export default function Calendar() {
                   <div
                     key={index}
                     className={`
-                      min-h-[100px] p-2 border rounded-lg transition-colors
+                      min-h-[60px] md:min-h-[100px] p-1 md:p-2 border rounded-lg transition-colors
                       ${isCurrentMonthDay ? 'bg-background' : 'bg-muted/30'}
                       ${isTodayDay ? 'ring-2 ring-primary' : ''}
                       ${isDragOver ? 'ring-2 ring-blue-400 bg-blue-50 dark:bg-blue-900/20' : ''}
@@ -683,7 +683,7 @@ export default function Calendar() {
                   >
                     {/* Day number */}
                     <div className={`
-                      text-sm font-medium mb-1
+                      text-xs md:text-sm font-medium mb-1
                       ${isCurrentMonthDay ? 'text-foreground' : 'text-muted-foreground'}
                       ${isTodayDay ? 'text-primary font-bold' : ''}
                     `}>
@@ -692,7 +692,7 @@ export default function Calendar() {
 
                     {/* Events for this day */}
                     <div className="space-y-1">
-                      {dayEvents.slice(0, 3).map((event) => (
+                      {dayEvents.slice(0, 2).map((event) => (
                         <div
                           key={event.id}
                           className={`
@@ -712,14 +712,14 @@ export default function Calendar() {
                               {event.title.replace('Air Date: ', '')}
                             </span>
                             {event.entityType === 'deal' && (
-                              <Move className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity ml-1 flex-shrink-0" />
+                              <Move className="h-3 w-3 opacity-0 md:group-hover:opacity-100 transition-opacity ml-1 flex-shrink-0" />
                             )}
                           </div>
                         </div>
                       ))}
-                      {dayEvents.length > 3 && (
+                      {dayEvents.length > 2 && (
                         <div className="text-xs text-muted-foreground">
-                          +{dayEvents.length - 3} more
+                          +{dayEvents.length - 2} more
                         </div>
                       )}
                     </div>

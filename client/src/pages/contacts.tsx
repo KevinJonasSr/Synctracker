@@ -171,19 +171,26 @@ export default function Contacts() {
                       </div>
                     </div>
                     
-                    <div className="flex space-x-2">
+                    <div className="flex flex-col sm:flex-row gap-2 sm:space-x-2">
                       <Button 
                         size="sm" 
                         variant="outline"
+                        className="w-full sm:w-auto"
                         onClick={() => {
                           setEditingContact(contact);
                           setShowEditContact(true);
                         }}
                       >
-                        <Edit className="h-4 w-4" />
+                        <Edit className="h-4 w-4 mr-2 sm:mr-0" />
+                        <span className="sm:hidden">Edit</span>
                       </Button>
-                      <Button size="sm" variant="outline" className="text-red-600 hover:text-red-700">
-                        <Trash2 className="h-4 w-4" />
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="text-red-600 hover:text-red-700 w-full sm:w-auto"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2 sm:mr-0" />
+                        <span className="sm:hidden">Delete</span>
                       </Button>
                     </div>
                   </div>

@@ -1,7 +1,11 @@
 import { useLocation } from "wouter";
 import { Link } from "wouter";
-import { Music, BarChart3, Handshake, Send, Users, DollarSign, FileText, ChartBar, Mail, Calendar as CalendarIcon, Folder, TrendingUp } from "lucide-react";
+import { Music, BarChart3, Handshake, Send, Users, DollarSign, FileText, ChartBar, Mail, Calendar as CalendarIcon, Folder, TrendingUp, Menu } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetClose } from "@/components/ui/sheet";
+import { useState } from "react";
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: BarChart3 },
@@ -18,11 +22,11 @@ const navigation = [
   { name: "Reports", href: "/reports", icon: ChartBar },
 ];
 
-export default function Sidebar() {
+function SidebarContent({ isMobile, onNavigate }: { isMobile?: boolean; onNavigate?: () => void }) {
   const [location] = useLocation();
 
   return (
-    <aside className="w-64 bg-card shadow-sm border-r border-border flex flex-col">
+    <>
       <div className="p-6 border-b border-border">
         <div className="flex items-center justify-between">
           <div>
@@ -41,9 +45,8 @@ export default function Sidebar() {
           const Icon = item.icon;
           const isActive = location === item.href;
           
-          return (
+          const linkElement = (
             <Link
-              key={item.name}
               href={item.href}
               className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                 isActive
@@ -51,10 +54,22 @@ export default function Sidebar() {
                   : "text-card-foreground hover:bg-muted"
               }`}
               data-testid={`nav-${item.name.toLowerCase().replace(/\s+/g, '-')}`}
+              onClick={onNavigate}
             >
               <Icon className="mr-3" size={16} />
               {item.name}
             </Link>
+          );
+
+          // Only wrap with SheetClose on mobile
+          return isMobile ? (
+            <SheetClose key={item.name} asChild>
+              {linkElement}
+            </SheetClose>
+          ) : (
+            <div key={item.name}>
+              {linkElement}
+            </div>
           );
         })}
       </nav>
@@ -70,6 +85,43 @@ export default function Sidebar() {
           </div>
         </div>
       </div>
+    </>
+  );
+}
+
+export default function Sidebar() {
+  const isMobile = useIsMobile();
+  const [open, setOpen] = useState(false);
+
+  if (isMobile) {
+    return (
+      <Sheet open={open} onOpenChange={setOpen}>
+        <SheetTrigger asChild>
+          <Button
+            variant="outline"
+            size="icon"
+            className="fixed top-4 left-4 z-40 lg:hidden"
+            data-testid="mobile-menu-button"
+            aria-label="Open menu"
+          >
+            <Menu className="h-4 w-4" />
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="left" className="w-64 p-0">
+          <SheetHeader className="sr-only">
+            <SheetTitle>Navigation Menu</SheetTitle>
+          </SheetHeader>
+          <div className="bg-card h-full flex flex-col">
+            <SidebarContent isMobile={true} onNavigate={() => setOpen(false)} />
+          </div>
+        </SheetContent>
+      </Sheet>
+    );
+  }
+
+  return (
+    <aside className="hidden lg:flex w-64 bg-card shadow-sm border-r border-border flex-col">
+      <SidebarContent isMobile={false} />
     </aside>
   );
 }
