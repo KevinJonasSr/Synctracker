@@ -10,10 +10,10 @@ import type { Contact } from "@shared/schema";
 export default function Contacts() {
   const [showAddContact, setShowAddContact] = useState(false);
   const [showEditContact, setShowEditContact] = useState(false);
-  const [editingContact, setEditingContact] = useState<Contact | null>(null);
+  const [editingContact, setEditingContact] = useState<Contact | undefined>(undefined);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { data: contacts = [], isLoading } = useQuery<Contact[]>({
+  const { data: contacts = [], isLoading, error } = useQuery<Contact[]>({
     queryKey: ["/api/contacts", searchQuery],
     queryFn: async () => {
       const url = new URL("/api/contacts", window.location.origin);
@@ -21,6 +21,9 @@ export default function Contacts() {
         url.searchParams.set("search", searchQuery);
       }
       const response = await fetch(url.toString());
+      if (!response.ok) {
+        throw new Error('Failed to fetch contacts');
+      }
       return response.json();
     },
   });
@@ -29,6 +32,23 @@ export default function Contacts() {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="text-lg text-gray-600">Loading contacts...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="text-center">
+          <div className="text-lg text-red-600 mb-2">Failed to load contacts</div>
+          <p className="text-gray-600 mb-4">Please check your connection and try again.</p>
+          <Button 
+            onClick={() => window.location.reload()} 
+            className="bg-brand-primary hover:bg-blue-700"
+          >
+            Retry
+          </Button>
+        </div>
       </div>
     );
   }
@@ -149,7 +169,7 @@ export default function Contacts() {
         open={showEditContact} 
         onClose={() => {
           setShowEditContact(false);
-          setEditingContact(null);
+          setEditingContact(undefined);
         }}
         contact={editingContact}
       />

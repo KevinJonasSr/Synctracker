@@ -13,7 +13,7 @@ export default function Songs() {
   const [editingSong, setEditingSong] = useState<Song | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { data: songs = [], isLoading } = useQuery<Song[]>({
+  const { data: songs = [], isLoading, error } = useQuery<Song[]>({
     queryKey: ["/api/songs", searchQuery],
     queryFn: async () => {
       const url = new URL("/api/songs", window.location.origin);
@@ -21,6 +21,9 @@ export default function Songs() {
         url.searchParams.set("search", searchQuery);
       }
       const response = await fetch(url.toString());
+      if (!response.ok) {
+        throw new Error('Failed to fetch songs');
+      }
       return response.json();
     },
   });
@@ -36,6 +39,23 @@ export default function Songs() {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="text-lg text-gray-600">Loading songs...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="text-center">
+          <div className="text-lg text-red-600 mb-2">Failed to load songs</div>
+          <p className="text-gray-600 mb-4">Please check your connection and try again.</p>
+          <Button 
+            onClick={() => window.location.reload()} 
+            className="bg-brand-primary hover:bg-blue-700"
+          >
+            Retry
+          </Button>
+        </div>
       </div>
     );
   }

@@ -36,17 +36,18 @@ export default function Sidebar() {
           const isActive = location === item.href;
           
           return (
-            <Link key={item.name} href={item.href}>
-              <a
-                className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                  isActive
-                    ? "text-white bg-brand-primary"
-                    : "text-gray-700 hover:bg-gray-100"
-                }`}
-              >
-                <Icon className="mr-3" size={16} />
-                {item.name}
-              </a>
+            <Link
+              key={item.name}
+              href={item.href}
+              className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                isActive
+                  ? "text-white bg-brand-primary"
+                  : "text-gray-700 hover:bg-gray-100"
+              }`}
+              data-testid={`nav-${item.name.toLowerCase().replace(/\s+/g, '-')}`}
+            >
+              <Icon className="mr-3" size={16} />
+              {item.name}
             </Link>
           );
         })}

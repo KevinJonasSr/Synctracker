@@ -40,13 +40,30 @@ export default function Calendar() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: events = [], isLoading } = useQuery<CalendarEvent[]>({
+  const { data: events = [], isLoading: eventsLoading, error: eventsError } = useQuery<CalendarEvent[]>({
     queryKey: ["/api/calendar-events"],
+    queryFn: async () => {
+      const response = await fetch("/api/calendar-events");
+      if (!response.ok) {
+        throw new Error('Failed to fetch calendar events');
+      }
+      return response.json();
+    },
   });
 
-  const { data: deals = [] } = useQuery<any[]>({
+  const { data: deals = [], isLoading: dealsLoading, error: dealsError } = useQuery<any[]>({
     queryKey: ["/api/deals"],
+    queryFn: async () => {
+      const response = await fetch("/api/deals");
+      if (!response.ok) {
+        throw new Error('Failed to fetch deals');
+      }
+      return response.json();
+    },
   });
+
+  const isLoading = eventsLoading || dealsLoading;
+  const error = eventsError || dealsError;
 
   const getStatusColor = (status: string) => {
     const colors = {
@@ -68,8 +85,9 @@ export default function Calendar() {
     return colors[entityType as keyof typeof colors] || "bg-gray-100 text-gray-800";
   };
 
-  const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString('en-US', {
+  const formatDate = (date: string | Date) => {
+    const dateObj = date instanceof Date ? date : new Date(date);
+    return dateObj.toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
       year: 'numeric',
@@ -86,16 +104,18 @@ export default function Calendar() {
   const airDateEvents = deals
     .filter((deal: any) => deal.airDate)
     .map((deal: any) => ({
-      id: `deal-${deal.id}`,
+      id: parseInt(`${deal.id}000`), // Convert to number with suffix to avoid conflicts
       title: `Air Date: ${deal.projectName}`,
       description: `Project "${deal.projectName}" (${deal.projectType}) is scheduled to air.`,
-      startDate: deal.airDate,
-      endDate: deal.airDate,
+      startDate: new Date(deal.airDate),
+      endDate: new Date(deal.airDate),
       allDay: true,
       entityType: 'deal',
       entityId: deal.id,
       status: 'scheduled',
-      reminderMinutes: 1440
+      reminderMinutes: 1440,
+      createdAt: new Date(),
+      updatedAt: new Date()
     }));
 
   const allEvents = [...events, ...airDateEvents];
@@ -195,7 +215,6 @@ export default function Calendar() {
           endDate: newDate,
         }
       });
-      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/calendar-events'] });
@@ -303,6 +322,23 @@ export default function Calendar() {
     );
   }
 
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="text-center">
+          <div className="text-lg text-red-600 mb-2">Failed to load calendar data</div>
+          <p className="text-gray-600 mb-4">Please check your connection and try again.</p>
+          <Button 
+            onClick={() => window.location.reload()} 
+            className="bg-brand-primary hover:bg-blue-700"
+          >
+            Retry
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <Header
@@ -390,8 +426,8 @@ export default function Calendar() {
                       </Badge>
                     </div>
                   </div>
-                  <Badge className={getStatusColor(event.status)}>
-                    {event.status}
+                  <Badge className={getStatusColor(event.status || 'scheduled')}>
+                    {event.status || 'scheduled'}
                   </Badge>
                 </div>
               ))}
@@ -459,12 +495,12 @@ export default function Calendar() {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge className={getStatusColor(event.status)}>
-                        {event.status}
+                      <Badge className={getStatusColor(event.status || 'scheduled')}>
+                        {event.status || 'scheduled'}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-muted-foreground">
-                      {event.reminderMinutes > 0 ? (
+                      {(event.reminderMinutes || 0) > 0 ? (
                         `${event.reminderMinutes} min before`
                       ) : (
                         "No reminder"
@@ -563,8 +599,8 @@ export default function Calendar() {
                       )}
                     </div>
                     <div className="flex items-center space-x-2">
-                      <Badge className={getStatusColor(event.status)}>
-                        {event.status}
+                      <Badge className={getStatusColor(event.status || 'scheduled')}>
+                        {event.status || 'scheduled'}
                       </Badge>
                       {event.entityType === 'deal' && (
                         <Button 
