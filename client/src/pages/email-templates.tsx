@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo, useDeferredValue } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -19,16 +19,19 @@ import type { EmailTemplate } from "@shared/schema";
 export default function EmailTemplates() {
   const [isAddFormOpen, setIsAddFormOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const deferredSearchQuery = useDeferredValue(searchQuery);
 
   const { data: templates = [], isLoading } = useQuery<EmailTemplate[]>({
     queryKey: ["/api/email-templates"],
   });
 
-  const filteredTemplates = templates.filter(template =>
-    template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    template.stage.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    template.subject.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredTemplates = useMemo(() => {
+    return templates.filter(template =>
+      template.name.toLowerCase().includes(deferredSearchQuery.toLowerCase()) ||
+      template.stage.toLowerCase().includes(deferredSearchQuery.toLowerCase()) ||
+      template.subject.toLowerCase().includes(deferredSearchQuery.toLowerCase())
+    );
+  }, [templates, deferredSearchQuery]);
 
   const getStageColor = (stage: string) => {
     const colors = {
@@ -48,6 +51,26 @@ export default function EmailTemplates() {
       word.charAt(0).toUpperCase() + word.slice(1)
     ).join(' ');
   };
+
+  // Memoize expensive calculations to prevent unnecessary re-renders
+  const mostUsedStage = useMemo(() => {
+    if (templates.length === 0) return "N/A";
+    
+    const stageCounts = templates.reduce((acc: Record<string, number>, template) => {
+      acc[template.stage] = (acc[template.stage] || 0) + 1;
+      return acc;
+    }, {});
+    
+    const mostUsed = Object.entries(stageCounts).reduce((max, [stage, count]) => 
+      count > max[1] ? [stage, count] : max
+    )[0];
+    
+    return formatStage(mostUsed);
+  }, [templates]);
+
+  const availableStagesCount = useMemo(() => {
+    return new Set(templates.map(t => t.stage)).size;
+  }, [templates]);
 
   if (isLoading) {
     return (
@@ -103,13 +126,7 @@ export default function EmailTemplates() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {templates.length > 0 
-                ? formatStage(templates.reduce((acc, template) => 
-                    templates.filter(t => t.stage === template.stage).length > 
-                    templates.filter(t => t.stage === acc).length ? template.stage : acc
-                  , templates[0].stage))
-                : "N/A"
-              }
+              {mostUsedStage}
             </div>
           </CardContent>
         </Card>
@@ -120,7 +137,7 @@ export default function EmailTemplates() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {new Set(templates.map(t => t.stage)).size}
+              {availableStagesCount}
             </div>
           </CardContent>
         </Card>

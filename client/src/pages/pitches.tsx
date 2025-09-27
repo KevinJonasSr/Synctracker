@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -30,30 +30,32 @@ export default function Pitches() {
   });
 
   // Sort pitches by priority: overdue follow-ups first, then upcoming follow-ups, then others
-  const pitches = rawPitches.sort((a, b) => {
-    const now = new Date();
-    const aOverdue = a.followUpDate && new Date(a.followUpDate) <= now;
-    const bOverdue = b.followUpDate && new Date(b.followUpDate) <= now;
-    const aHasFollowUp = !!a.followUpDate;
-    const bHasFollowUp = !!b.followUpDate;
-    
-    // Priority 1: Overdue follow-ups first (earliest overdue first)
-    if (aOverdue && !bOverdue) return -1;
-    if (!aOverdue && bOverdue) return 1;
-    if (aOverdue && bOverdue) {
-      return new Date(a.followUpDate!).getTime() - new Date(b.followUpDate!).getTime();
-    }
-    
-    // Priority 2: Upcoming follow-ups (earliest first)
-    if (aHasFollowUp && !bHasFollowUp) return -1;
-    if (!aHasFollowUp && bHasFollowUp) return 1;
-    if (aHasFollowUp && bHasFollowUp) {
-      return new Date(a.followUpDate!).getTime() - new Date(b.followUpDate!).getTime();
-    }
-    
-    // Priority 3: Others by submission date (most recent first)
-    return new Date(b.submissionDate).getTime() - new Date(a.submissionDate).getTime();
-  });
+  const pitches = useMemo(() => {
+    return [...rawPitches].sort((a, b) => {
+      const now = new Date();
+      const aOverdue = a.followUpDate && new Date(a.followUpDate) <= now;
+      const bOverdue = b.followUpDate && new Date(b.followUpDate) <= now;
+      const aHasFollowUp = !!a.followUpDate;
+      const bHasFollowUp = !!b.followUpDate;
+      
+      // Priority 1: Overdue follow-ups first (earliest overdue first)
+      if (aOverdue && !bOverdue) return -1;
+      if (!aOverdue && bOverdue) return 1;
+      if (aOverdue && bOverdue) {
+        return new Date(a.followUpDate!).getTime() - new Date(b.followUpDate!).getTime();
+      }
+      
+      // Priority 2: Upcoming follow-ups (earliest first)
+      if (aHasFollowUp && !bHasFollowUp) return -1;
+      if (!aHasFollowUp && bHasFollowUp) return 1;
+      if (aHasFollowUp && bHasFollowUp) {
+        return new Date(a.followUpDate!).getTime() - new Date(b.followUpDate!).getTime();
+      }
+      
+      // Priority 3: Others by submission date (most recent first)
+      return new Date(b.submissionDate).getTime() - new Date(a.submissionDate).getTime();
+    });
+  }, [rawPitches]);
 
   const { data: deals = [] } = useQuery<Deal[]>({
     queryKey: ["/api/deals"],

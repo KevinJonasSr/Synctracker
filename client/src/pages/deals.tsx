@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo, useTransition } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Header from "@/components/layout/header";
 import ComprehensiveAddDealForm from "@/components/forms/comprehensive-add-deal-form";
@@ -13,6 +13,7 @@ import type { DealWithRelations } from "@shared/schema";
 export default function Deals() {
   const [showAddDeal, setShowAddDeal] = useState(false);
   const [activeTab, setActiveTab] = useState("all");
+  const [isPending, startTransition] = useTransition();
   const [selectedDeal, setSelectedDeal] = useState<DealWithRelations | null>(null);
   const [showDealDetails, setShowDealDetails] = useState(false);
   const [editingDeal, setEditingDeal] = useState<DealWithRelations | null>(null);
@@ -85,7 +86,9 @@ export default function Deals() {
     return formatDate(currentStatusDate);
   };
 
-  const filteredDeals = activeTab === "all" ? deals : deals.filter(deal => deal.status === activeTab);
+  const filteredDeals = useMemo(() => {
+    return activeTab === "all" ? deals : deals.filter(deal => deal.status === activeTab);
+  }, [deals, activeTab]);
 
   if (isLoading) {
     return (
@@ -106,7 +109,11 @@ export default function Deals() {
       />
       
       <div className="p-6">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
+        <Tabs value={activeTab} onValueChange={(value) => {
+          startTransition(() => {
+            setActiveTab(value);
+          });
+        }} className="mb-6">
           <TabsList>
             <TabsTrigger value="all" className="data-[state=active]:bg-gray-100">All Deals</TabsTrigger>
             <TabsTrigger value="new request" className="data-[state=active]:bg-red-100">

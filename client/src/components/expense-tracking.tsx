@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -52,11 +52,11 @@ export default function ExpenseTracking() {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const { toast } = useToast();
 
-  const { data: expenses = [] } = useQuery({
+  const { data: expenses = [] } = useQuery<Expense[]>({
     queryKey: ['/api/expenses'],
   });
 
-  const { data: songs = [] } = useQuery({
+  const { data: songs = [] } = useQuery<Song[]>({
     queryKey: ['/api/songs'],
   });
 
@@ -107,14 +107,22 @@ export default function ExpenseTracking() {
     });
   };
 
-  const filteredExpenses = expenses.filter((expense: Expense) => 
-    selectedCategory === "all" || expense.category === selectedCategory
-  );
+  const filteredExpenses = useMemo(() => {
+    return expenses.filter((expense: Expense) => 
+      selectedCategory === "all" || expense.category === selectedCategory
+    );
+  }, [expenses, selectedCategory]);
 
-  const totalExpenses = filteredExpenses.reduce((sum: number, expense: Expense) => sum + expense.amount, 0);
-  const taxDeductibleTotal = filteredExpenses
-    .filter((expense: Expense) => expense.taxDeductible)
-    .reduce((sum: number, expense: Expense) => sum + expense.amount, 0);
+  const expenseStats = useMemo(() => {
+    const totalExpenses = filteredExpenses.reduce((sum: number, expense: Expense) => sum + expense.amount, 0);
+    const taxDeductibleTotal = filteredExpenses
+      .filter((expense: Expense) => expense.taxDeductible)
+      .reduce((sum: number, expense: Expense) => sum + expense.amount, 0);
+    
+    return { totalExpenses, taxDeductibleTotal };
+  }, [filteredExpenses]);
+
+  const { totalExpenses, taxDeductibleTotal } = expenseStats;
 
   const getCategoryIcon = (categoryValue: string) => {
     const category = expenseCategories.find(cat => cat.value === categoryValue);
@@ -225,7 +233,11 @@ export default function ExpenseTracking() {
                       <Calendar
                         mode="single"
                         selected={date}
-                        onSelect={setDate}
+                        onSelect={(selectedDate) => {
+                          if (selectedDate) {
+                            setDate(selectedDate);
+                          }
+                        }}
                         initialFocus
                       />
                     </PopoverContent>
@@ -237,7 +249,11 @@ export default function ExpenseTracking() {
                 <Checkbox
                   id="taxDeductible"
                   checked={taxDeductible}
-                  onCheckedChange={setTaxDeductible}
+                  onCheckedChange={(checked) => {
+                    if (typeof checked === 'boolean') {
+                      setTaxDeductible(checked);
+                    }
+                  }}
                 />
                 <Label htmlFor="taxDeductible">Tax deductible</Label>
               </div>
