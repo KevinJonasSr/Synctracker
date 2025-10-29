@@ -63,6 +63,12 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
       notes: "",
       airDate: "",
       pitchDate: undefined,
+      
+      // Song information fields
+      songTitle: "",
+      songAlbum: "",
+      songPublishingOwnership: undefined,
+      songMasterOwnership: undefined,
     },
   });
 
@@ -98,6 +104,12 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
         notes: deal.notes || "",
         airDate: deal.airDate ? new Date(deal.airDate).toISOString().split('T')[0] : "",
         pitchDate: deal.pitchDate ? new Date(deal.pitchDate).toISOString().split('T')[0] : undefined,
+        
+        // Song information
+        songTitle: deal.song?.title || "",
+        songAlbum: deal.song?.album || "",
+        songPublishingOwnership: deal.song?.publishingOwnership ? parseFloat(deal.song.publishingOwnership.toString()) : undefined,
+        songMasterOwnership: deal.song?.masterOwnership ? parseFloat(deal.song.masterOwnership.toString()) : undefined,
       });
     }
   }, [deal, form]);
@@ -109,7 +121,7 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
   useEffect(() => {
     if (watchedStatus && watchedStatus !== previousStatus) {
       const now = new Date().toISOString().slice(0, 16); // Format for datetime-local
-      const fieldMap = {
+      const fieldMap: Record<string, string> = {
         "new request": "pitchedDate",
         "pending approval": "pendingApprovalDate",
         "quoted": "quotedDate",
@@ -141,7 +153,10 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
 
   const createContactMutation = useMutation({
     mutationFn: async (contactData: any) => {
-      const response = await apiRequest('POST', '/api/contacts', contactData);
+      const response = await apiRequest('/api/contacts', {
+        method: 'POST',
+        body: contactData,
+      });
       return response.json();
     },
     onSuccess: (newContact) => {
@@ -170,6 +185,30 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
     }
   });
 
+  const updateSongMutation = useMutation({
+    mutationFn: async ({ songId, songData }: { songId: number; songData: any }) => {
+      console.log("Making API request to update song:", songId);
+      const response = await apiRequest(`/api/songs/${songId}`, {
+        method: 'PUT',
+        body: songData,
+      });
+      console.log("Song update API response received:", response.status);
+      return response.json();
+    },
+    onSuccess: () => {
+      console.log("Song update successful");
+      queryClient.invalidateQueries({ queryKey: ['/api/songs'] });
+    },
+    onError: (error) => {
+      console.error("Song update mutation error:", error);
+      toast({
+        title: "Error updating song",
+        description: "Failed to update song information. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
+
   const updateDealMutation = useMutation({
     mutationFn: async (dealData: InsertDeal) => {
       if (!deal) {
@@ -177,7 +216,10 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
         return;
       }
       console.log("Making API request to update deal:", deal.id);
-      const response = await apiRequest('PUT', `/api/deals/${deal.id}`, dealData);
+      const response = await apiRequest(`/api/deals/${deal.id}`, {
+        method: 'PUT',
+        body: dealData,
+      });
       console.log("API response received:", response.status);
       return response.json();
     },
@@ -224,13 +266,44 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
     createContactMutation.mutate(contactData);
   };
 
-  const onSubmit = (data: any) => {
+  const onSubmit = async (data: any) => {
     console.log("Edit form submission data:", data);
     console.log("Form errors:", form.formState.errors);
     
-    // Clean and format the data properly
+    // Update song information if it has changed
+    const songId = data.songId;
+    if (songId) {
+      const songData = {
+        title: data.songTitle,
+        album: data.songAlbum || null,
+        publishingOwnership: data.songPublishingOwnership || null,
+        masterOwnership: data.songMasterOwnership || null,
+      };
+      
+      // Check if any song fields have changed
+      const currentSong = deal?.song;
+      const hasChanges = 
+        currentSong && (
+          data.songTitle !== currentSong.title ||
+          data.songAlbum !== currentSong.album ||
+          parseFloat(data.songPublishingOwnership || '0') !== parseFloat(currentSong.publishingOwnership?.toString() || '0') ||
+          parseFloat(data.songMasterOwnership || '0') !== parseFloat(currentSong.masterOwnership?.toString() || '0')
+        );
+      
+      if (hasChanges) {
+        console.log("Song data has changed, updating song:", songData);
+        await updateSongMutation.mutateAsync({ songId, songData });
+      }
+    }
+    
+    // Clean and format the deal data properly
     const formattedData = {
-      ...data,
+      projectName: data.projectName,
+      projectType: data.projectType,
+      projectDescription: data.projectDescription,
+      songId: data.songId,
+      contactId: data.contactId,
+      status: data.status,
       // Convert null values to undefined for proper schema validation
       fullSongValue: data.fullSongValue === null ? undefined : data.fullSongValue,
       ourFee: data.ourFee === null ? undefined : data.ourFee,
@@ -250,6 +323,12 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
       outForSignatureDate: data.outForSignatureDate && data.outForSignatureDate !== "" ? new Date(data.outForSignatureDate).toISOString() : null,
       paymentReceivedDate: data.paymentReceivedDate && data.paymentReceivedDate !== "" ? new Date(data.paymentReceivedDate).toISOString() : null,
       completedDate: data.completedDate && data.completedDate !== "" ? new Date(data.completedDate).toISOString() : null,
+      
+      usage: data.usage,
+      territory: data.territory,
+      term: data.term,
+      exclusivity: data.exclusivity,
+      notes: data.notes,
     };
 
     console.log("Formatted data being sent:", formattedData);
@@ -275,7 +354,7 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
                 placeholder="Project name"
               />
               {form.formState.errors.projectName && (
-                <p className="text-sm text-red-600 mt-1">{form.formState.errors.projectName.message}</p>
+                <p className="text-sm text-red-600 mt-1">{String(form.formState.errors.projectName.message)}</p>
               )}
             </div>
             <div>
@@ -318,7 +397,7 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="songId">Song *</Label>
+              <Label htmlFor="songId">Song Title *</Label>
               <Select
                 value={form.watch("songId")?.toString()}
                 onValueChange={(value) => form.setValue("songId", parseInt(value))}
@@ -364,6 +443,68 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
               </div>
             </div>
           </div>
+
+          {/* Song Information Section */}
+          {form.watch("songId") && (
+            <div className="space-y-4 p-4 bg-purple-50 dark:bg-purple-950/20 rounded-lg border border-purple-200 dark:border-purple-800">
+              <h3 className="text-lg font-semibold text-purple-900 dark:text-purple-100 flex items-center gap-2">
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"/>
+                </svg>
+                Song Information
+              </h3>
+              
+              <div className="space-y-3 bg-white dark:bg-gray-900 p-4 rounded-md border border-purple-100 dark:border-purple-900">
+                <h4 className="text-sm font-medium text-purple-800 dark:text-purple-300">Basic Song Information</h4>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="songTitle">Title</Label>
+                    <Input
+                      id="songTitle"
+                      {...form.register("songTitle")}
+                      placeholder="Song title"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="songAlbum">Album</Label>
+                    <Input
+                      id="songAlbum"
+                      {...form.register("songAlbum")}
+                      placeholder="Album name"
+                    />
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="songPublishingOwnership">Publishing Ownership (%)</Label>
+                    <Input
+                      id="songPublishingOwnership"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      max="100"
+                      {...form.register("songPublishingOwnership", { valueAsNumber: true })}
+                      placeholder="0.00"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="songMasterOwnership">Label Recording Ownership (%)</Label>
+                    <Input
+                      id="songMasterOwnership"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      max="100"
+                      {...form.register("songMasterOwnership", { valueAsNumber: true })}
+                      placeholder="0.00"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="grid grid-cols-2 gap-4">
             <div>
