@@ -472,11 +472,11 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
                 </h3>
               </div>
               
-              <div className="space-y-3 bg-white dark:bg-gray-900 p-4 rounded-md border border-purple-100 dark:border-purple-900 relative z-10">
+              <div className="space-y-3 bg-white dark:bg-gray-900 p-4 rounded-md border border-purple-100 dark:border-purple-900">
                 <p className="text-sm font-medium text-purple-800 dark:text-purple-300">Basic Song Information</p>
                 
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="relative z-20">
+                  <div>
                     <Label htmlFor="songTitleSelect">Title</Label>
                     <Select
                       value={form.watch("songId")?.toString()}
@@ -492,10 +492,10 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
                         }
                       }}
                     >
-                      <SelectTrigger id="songTitleSelect" className="relative z-20">
+                      <SelectTrigger id="songTitleSelect">
                         <SelectValue placeholder="Select song" />
                       </SelectTrigger>
-                      <SelectContent className="z-[200]">
+                      <SelectContent className="z-[100]">
                         {songs.map((song) => (
                           <SelectItem key={song.id} value={song.id.toString()}>
                             {song.title} - {song.artist}
