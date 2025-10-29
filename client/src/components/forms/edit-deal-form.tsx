@@ -462,7 +462,7 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
 
           {/* Song Information Section */}
           {form.watch("songId") && (
-            <div className="space-y-4 p-4 bg-purple-50 dark:bg-purple-950/20 rounded-lg border border-purple-200 dark:border-purple-800" style={{ pointerEvents: 'auto' }}>
+            <div className="space-y-4 p-4 bg-purple-50 dark:bg-purple-950/20 rounded-lg border border-purple-200 dark:border-purple-800 relative z-10">
               <h3 className="text-lg font-semibold text-purple-900 dark:text-purple-100 flex items-center gap-2">
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"/>
@@ -470,32 +470,50 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
                 Song Information
               </h3>
               
-              <div className="space-y-3 bg-white dark:bg-gray-900 p-4 rounded-md border border-purple-100 dark:border-purple-900" style={{ pointerEvents: 'auto' }}>
+              <div className="space-y-3 bg-white dark:bg-gray-900 p-4 rounded-md border border-purple-100 dark:border-purple-900">
                 <h4 className="text-sm font-medium text-purple-800 dark:text-purple-300">Basic Song Information</h4>
                 
-                <div className="grid grid-cols-2 gap-4" style={{ pointerEvents: 'auto' }}>
-                  <div style={{ pointerEvents: 'auto' }}>
-                    <Label htmlFor="songTitle">Title</Label>
-                    <Input
-                      id="songTitle"
-                      {...form.register("songTitle")}
-                      placeholder="Song title"
-                      style={{ pointerEvents: 'auto' }}
-                    />
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="songTitleSelect">Title</Label>
+                    <Select
+                      value={form.watch("songId")?.toString()}
+                      onValueChange={(value) => {
+                        const songId = parseInt(value);
+                        form.setValue("songId", songId);
+                        const selectedSong = songs.find(s => s.id === songId);
+                        if (selectedSong) {
+                          form.setValue("songTitle", selectedSong.title || "");
+                          form.setValue("songAlbum", selectedSong.album || "");
+                          form.setValue("songPublishingOwnership", selectedSong.publishingOwnership ? parseFloat(selectedSong.publishingOwnership.toString()) : undefined);
+                          form.setValue("songMasterOwnership", selectedSong.masterOwnership ? parseFloat(selectedSong.masterOwnership.toString()) : undefined);
+                        }
+                      }}
+                    >
+                      <SelectTrigger id="songTitleSelect">
+                        <SelectValue placeholder="Select song" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {songs.map((song) => (
+                          <SelectItem key={song.id} value={song.id.toString()}>
+                            {song.title} - {song.artist}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
-                  <div style={{ pointerEvents: 'auto' }}>
+                  <div>
                     <Label htmlFor="songAlbum">Album</Label>
                     <Input
                       id="songAlbum"
                       {...form.register("songAlbum")}
                       placeholder="Album name"
-                      style={{ pointerEvents: 'auto' }}
                     />
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-2 gap-4" style={{ pointerEvents: 'auto' }}>
-                  <div style={{ pointerEvents: 'auto' }}>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
                     <Label htmlFor="songPublishingOwnership">Publishing Ownership (%)</Label>
                     <Input
                       id="songPublishingOwnership"
@@ -505,10 +523,9 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
                       max="100"
                       {...form.register("songPublishingOwnership", { valueAsNumber: true })}
                       placeholder="0.00"
-                      style={{ pointerEvents: 'auto' }}
                     />
                   </div>
-                  <div style={{ pointerEvents: 'auto' }}>
+                  <div>
                     <Label htmlFor="songMasterOwnership">Label Recording Ownership (%)</Label>
                     <Input
                       id="songMasterOwnership"
@@ -518,7 +535,6 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
                       max="100"
                       {...form.register("songMasterOwnership", { valueAsNumber: true })}
                       placeholder="0.00"
-                      style={{ pointerEvents: 'auto' }}
                     />
                   </div>
                 </div>
