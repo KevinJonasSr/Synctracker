@@ -21,7 +21,8 @@ import {
   Users,
   Clock,
   CheckCircle,
-  XCircle
+  ChevronDown,
+  ChevronRight
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
@@ -36,6 +37,7 @@ interface DealDetailsDialogProps {
 export default function DealDetailsDialog({ deal, open, onClose }: DealDetailsDialogProps) {
   const { toast } = useToast();
   const [showEditForm, setShowEditForm] = useState(false);
+  const [expandedPitches, setExpandedPitches] = useState<Set<number>>(new Set());
   
   const deleteDealMutation = useMutation({
     mutationFn: async () => {
@@ -495,13 +497,84 @@ export default function DealDetailsDialog({ deal, open, onClose }: DealDetailsDi
               </CardHeader>
               <CardContent>
                 {deal.pitches && deal.pitches.length > 0 ? (
-                  <div className="space-y-4">
-                    {deal.pitches.map((pitch) => (
-                      <div key={pitch.id} className="p-4 border rounded-lg">
-                        <p className="font-medium">Pitch #{pitch.id}</p>
-                        <p className="text-sm text-gray-600">Created: {formatDateTime(pitch.createdAt)}</p>
-                      </div>
-                    ))}
+                  <div className="space-y-3">
+                    {deal.pitches.map((pitch) => {
+                      const isExpanded = expandedPitches.has(pitch.id);
+                      return (
+                        <div 
+                          key={pitch.id} 
+                          className="border rounded-lg overflow-hidden hover:border-purple-300 transition-colors"
+                        >
+                          <button
+                            onClick={() => {
+                              const newExpanded = new Set(expandedPitches);
+                              if (isExpanded) {
+                                newExpanded.delete(pitch.id);
+                              } else {
+                                newExpanded.add(pitch.id);
+                              }
+                              setExpandedPitches(newExpanded);
+                            }}
+                            className="w-full p-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-left"
+                            data-testid={`button-expand-pitch-${pitch.id}`}
+                          >
+                            <div className="flex items-center space-x-3">
+                              {isExpanded ? (
+                                <ChevronDown className="h-5 w-5 text-purple-600" />
+                              ) : (
+                                <ChevronRight className="h-5 w-5 text-gray-400" />
+                              )}
+                              <div>
+                                <p className="font-medium">Pitch #{pitch.id}</p>
+                                <p className="text-sm text-gray-600">Created: {formatDateTime(pitch.createdAt)}</p>
+                              </div>
+                            </div>
+                            <Badge className="bg-purple-100 text-purple-800">
+                              {pitch.status}
+                            </Badge>
+                          </button>
+                          
+                          {isExpanded && (
+                            <div className="px-4 pb-4 pt-2 bg-gray-50 dark:bg-gray-800 border-t">
+                              <div className="space-y-3">
+                                <div className="flex items-start space-x-3">
+                                  <Music className="h-5 w-5 text-purple-600 mt-0.5" />
+                                  <div className="flex-1">
+                                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Song Pitched</p>
+                                    {deal.song ? (
+                                      <>
+                                        <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                                          {deal.song.title}
+                                        </p>
+                                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                                          by {deal.song.artist}
+                                        </p>
+                                        {deal.song.album && (
+                                          <p className="text-sm text-gray-500 dark:text-gray-500">
+                                            Album: {deal.song.album}
+                                          </p>
+                                        )}
+                                      </>
+                                    ) : (
+                                      <p className="text-sm text-gray-500 dark:text-gray-500 italic">
+                                        No song information available
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                                
+                                <div className="pt-2 border-t">
+                                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</p>
+                                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                                    {pitch.notes || <span className="italic text-gray-400">No notes added</span>}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 ) : (
                   <p className="text-gray-500">No pitches recorded for this deal.</p>
