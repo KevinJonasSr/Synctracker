@@ -97,7 +97,7 @@ export default function AddEmailTemplateForm({ open, onClose }: AddEmailTemplate
     const matches = text.match(/\{\{(\w+)\}\}/g);
     if (matches) {
       const vars = matches.map(match => match.replace(/[{}]/g, ''));
-      setVariables([...new Set(vars)]);
+      setVariables(Array.from(new Set(vars)));
     }
   };
 
