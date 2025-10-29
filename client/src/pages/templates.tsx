@@ -67,11 +67,11 @@ export default function Templates() {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
           <TabsList>
             <TabsTrigger value="all">All Templates</TabsTrigger>
-            <TabsTrigger value="contract">Contracts</TabsTrigger>
+            <TabsTrigger value="approval_request">Approval Requests</TabsTrigger>
             <TabsTrigger value="quote">Quotes</TabsTrigger>
+            <TabsTrigger value="contract">Contracts</TabsTrigger>
             <TabsTrigger value="invoice">Invoices</TabsTrigger>
             <TabsTrigger value="license">Licenses</TabsTrigger>
-            <TabsTrigger value="approval_request">Approval Requests</TabsTrigger>
           </TabsList>
           
           <TabsContent value={activeTab} className="mt-6">
