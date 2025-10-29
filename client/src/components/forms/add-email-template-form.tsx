@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -26,13 +26,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { insertEmailTemplateSchema, type InsertEmailTemplate } from "@shared/schema";
+import { insertEmailTemplateSchema, type InsertEmailTemplate, type EmailTemplate } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
 interface AddEmailTemplateFormProps {
   open: boolean;
   onClose: () => void;
+  template?: EmailTemplate | null;
 }
 
 const stages = [
@@ -45,10 +46,11 @@ const stages = [
   { value: "thank_you", label: "Thank You" },
 ];
 
-export default function AddEmailTemplateForm({ open, onClose }: AddEmailTemplateFormProps) {
+export default function AddEmailTemplateForm({ open, onClose, template }: AddEmailTemplateFormProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [variables, setVariables] = useState<string[]>([]);
+  const isEditing = !!template;
 
   const form = useForm<InsertEmailTemplate>({
     resolver: zodResolver(insertEmailTemplateSchema),
@@ -61,18 +63,46 @@ export default function AddEmailTemplateForm({ open, onClose }: AddEmailTemplate
     },
   });
 
+  useEffect(() => {
+    if (template) {
+      form.reset({
+        name: template.name,
+        stage: template.stage,
+        subject: template.subject,
+        body: template.body,
+        variables: template.variables || [],
+      });
+      if (Array.isArray(template.variables)) {
+        setVariables(template.variables.map(v => typeof v === 'string' ? v : v.name));
+      }
+    } else {
+      form.reset({
+        name: "",
+        stage: "",
+        subject: "",
+        body: "",
+        variables: [],
+      });
+      setVariables([]);
+    }
+  }, [template, form]);
+
   const mutation = useMutation({
     mutationFn: async (data: InsertEmailTemplate) => {
-      return await apiRequest("/api/email-templates", {
-        method: "POST",
+      const url = isEditing ? `/api/email-templates/${template.id}` : "/api/email-templates";
+      const method = isEditing ? "PUT" : "POST";
+      return await apiRequest(url, {
+        method,
         body: JSON.stringify(data),
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/email-templates"] });
       toast({
-        title: "Email template created",
-        description: "The email template has been successfully created.",
+        title: isEditing ? "Email template updated" : "Email template created",
+        description: isEditing 
+          ? "The email template has been successfully updated."
+          : "The email template has been successfully created.",
       });
       onClose();
       form.reset();
@@ -80,7 +110,7 @@ export default function AddEmailTemplateForm({ open, onClose }: AddEmailTemplate
     onError: () => {
       toast({
         title: "Error",
-        description: "Failed to create email template. Please try again.",
+        description: `Failed to ${isEditing ? 'update' : 'create'} email template. Please try again.`,
         variant: "destructive",
       });
     },
@@ -105,7 +135,7 @@ export default function AddEmailTemplateForm({ open, onClose }: AddEmailTemplate
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Add Email Template</DialogTitle>
+          <DialogTitle>{isEditing ? 'Edit Email Template' : 'Add Email Template'}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -202,7 +232,10 @@ export default function AddEmailTemplateForm({ open, onClose }: AddEmailTemplate
                 Cancel
               </Button>
               <Button type="submit" disabled={mutation.isPending}>
-                {mutation.isPending ? "Creating..." : "Create Template"}
+                {mutation.isPending 
+                  ? (isEditing ? "Updating..." : "Creating...")
+                  : (isEditing ? "Update Template" : "Create Template")
+                }
               </Button>
             </div>
           </form>

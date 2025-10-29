@@ -18,6 +18,7 @@ import type { EmailTemplate } from "@shared/schema";
 
 export default function EmailTemplates() {
   const [isAddFormOpen, setIsAddFormOpen] = useState(false);
+  const [editingTemplate, setEditingTemplate] = useState<EmailTemplate | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const deferredSearchQuery = useDeferredValue(searchQuery);
 
@@ -207,7 +208,11 @@ export default function EmailTemplates() {
                       {new Date(template.createdAt).toLocaleDateString()}
                     </TableCell>
                     <TableCell>
-                      <Button variant="ghost" size="sm">
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => setEditingTemplate(template)}
+                      >
                         Edit
                       </Button>
                     </TableCell>
@@ -220,8 +225,12 @@ export default function EmailTemplates() {
       </Card>
 
       <AddEmailTemplateForm
-        open={isAddFormOpen}
-        onClose={() => setIsAddFormOpen(false)}
+        open={isAddFormOpen || !!editingTemplate}
+        onClose={() => {
+          setIsAddFormOpen(false);
+          setEditingTemplate(null);
+        }}
+        template={editingTemplate}
       />
     </div>
   );
