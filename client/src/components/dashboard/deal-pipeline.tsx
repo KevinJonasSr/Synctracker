@@ -119,7 +119,7 @@ export default function DealPipeline({ deals, dealsByStatus }: DealPipelineProps
       </CardHeader>
       <CardContent className="p-6">
         {/* Pipeline Stages */}
-        <div className="flex flex-wrap gap-3 mb-6">
+        <div className="flex flex-nowrap gap-3 mb-6 overflow-x-auto">
           <Badge 
             className={`cursor-pointer transition-all hover:shadow-md ${
               selectedStatus === "new request" 
