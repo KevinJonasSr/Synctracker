@@ -71,6 +71,7 @@ export default function Templates() {
             <TabsTrigger value="quote">Quotes</TabsTrigger>
             <TabsTrigger value="invoice">Invoices</TabsTrigger>
             <TabsTrigger value="license">Licenses</TabsTrigger>
+            <TabsTrigger value="approval_request">Approval Requests</TabsTrigger>
           </TabsList>
           
           <TabsContent value={activeTab} className="mt-6">
