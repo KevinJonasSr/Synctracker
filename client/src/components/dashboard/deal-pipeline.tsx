@@ -40,6 +40,8 @@ export default function DealPipeline({ deals, dealsByStatus }: DealPipelineProps
         return "bg-emerald-100 text-emerald-800";
       case "completed":
         return "bg-green-100 text-green-800";
+      case "not used":
+        return "bg-slate-100 text-slate-800";
       default:
         return "bg-gray-300/10 text-gray-600";
     }
@@ -63,6 +65,8 @@ export default function DealPipeline({ deals, dealsByStatus }: DealPipelineProps
         return "Payment Received";
       case "completed":
         return "Completed";
+      case "not used":
+        return "Not used";
       default:
         return status.charAt(0).toUpperCase() + status.slice(1);
     }
