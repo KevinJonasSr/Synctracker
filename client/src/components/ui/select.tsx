@@ -25,8 +25,10 @@ const SelectTrigger = React.forwardRef<
     {...props}
   >
     {children}
-    <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center z-[999] bg-red-500">
-      <ChevronDown className="h-4 w-4 text-white" />
+    <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center z-50">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground opacity-50">
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </svg>
     </span>
   </SelectPrimitive.Trigger>
 ))
