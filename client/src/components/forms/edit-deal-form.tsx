@@ -72,6 +72,15 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
     },
   });
 
+  // Get songs and contacts data
+  const { data: songs = [] } = useQuery<Song[]>({
+    queryKey: ["/api/songs"],
+  });
+
+  const { data: contacts = [] } = useQuery<Contact[]>({
+    queryKey: ["/api/contacts"],
+  });
+
   // Update form values when deal changes
   useEffect(() => {
     if (deal) {
@@ -114,6 +123,21 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
     }
   }, [deal, form]);
 
+  // Watch for song selection changes to update song fields
+  const watchedSongId = form.watch("songId");
+  
+  useEffect(() => {
+    if (watchedSongId && songs.length > 0) {
+      const selectedSong = songs.find(s => s.id === watchedSongId);
+      if (selectedSong) {
+        form.setValue("songTitle", selectedSong.title || "");
+        form.setValue("songAlbum", selectedSong.album || "");
+        form.setValue("songPublishingOwnership", selectedSong.publishingOwnership ? parseFloat(selectedSong.publishingOwnership.toString()) : undefined);
+        form.setValue("songMasterOwnership", selectedSong.masterOwnership ? parseFloat(selectedSong.masterOwnership.toString()) : undefined);
+      }
+    }
+  }, [watchedSongId, songs, form]);
+
   // Watch for status changes to auto-update dates
   const watchedStatus = form.watch("status");
   const [previousStatus, setPreviousStatus] = useState<string | null>(null);
@@ -142,14 +166,6 @@ export default function EditDealForm({ deal, open, onClose }: EditDealFormProps)
       setPreviousStatus(watchedStatus);
     }
   }, [watchedStatus, previousStatus, form]);
-
-  const { data: songs = [] } = useQuery<Song[]>({
-    queryKey: ["/api/songs"],
-  });
-
-  const { data: contacts = [] } = useQuery<Contact[]>({
-    queryKey: ["/api/contacts"],
-  });
 
   const createContactMutation = useMutation({
     mutationFn: async (contactData: any) => {
