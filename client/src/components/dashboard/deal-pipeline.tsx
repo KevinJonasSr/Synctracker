@@ -200,6 +200,16 @@ export default function DealPipeline({ deals, dealsByStatus }: DealPipelineProps
           >
             Completed ({dealsByStatus.completed || 0})
           </Badge>
+          <Badge 
+            className={`cursor-pointer transition-all hover:shadow-md ${
+              selectedStatus === "not used" 
+                ? "bg-slate-200 text-slate-900 border-slate-300 shadow-md" 
+                : "bg-slate-100 text-slate-800 border-slate-200 hover:bg-slate-150"
+            }`}
+            onClick={() => handleStatusFilter("not used")}
+          >
+            Not Used ({dealsByStatus["not used"] || 0})
+          </Badge>
         </div>
 
         {/* Deals Table */}
