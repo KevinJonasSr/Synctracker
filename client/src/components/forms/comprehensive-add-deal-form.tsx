@@ -511,6 +511,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                       <SelectItem value="out for signature">Out for Signature</SelectItem>
                       <SelectItem value="payment received">Payment Received</SelectItem>
                       <SelectItem value="completed">Completed</SelectItem>
+                      <SelectItem value="not used">Not Used</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
