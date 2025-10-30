@@ -184,6 +184,22 @@ export const emailTemplates = pgTable("email_templates", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const emailSends = pgTable("email_sends", {
+  id: serial("id").primaryKey(),
+  templateId: integer("template_id").references(() => emailTemplates.id),
+  dealId: integer("deal_id").references(() => deals.id),
+  contactId: integer("contact_id").references(() => contacts.id),
+  songId: integer("song_id").references(() => songs.id),
+  to: text("to").notNull(), // recipient email address
+  subject: text("subject").notNull(), // rendered subject with placeholders replaced
+  body: text("body").notNull(), // rendered body with placeholders replaced
+  status: text("status").notNull().default("sent"), // sent, delivered, failed, bounced
+  providerMessageId: text("provider_message_id"), // ID from email provider (Resend)
+  error: text("error"), // error message if failed
+  sentAt: timestamp("sent_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const attachments = pgTable("attachments", {
   id: serial("id").primaryKey(),
   filename: text("filename").notNull(),
@@ -578,6 +594,12 @@ export const insertEmailTemplateSchema = createInsertSchema(emailTemplates).omit
   updatedAt: true,
 });
 
+export const insertEmailSendSchema = createInsertSchema(emailSends).omit({
+  id: true,
+  createdAt: true,
+  sentAt: true,
+});
+
 export const insertAttachmentSchema = createInsertSchema(attachments).omit({
   id: true,
   createdAt: true,
@@ -684,6 +706,8 @@ export type Template = typeof templates.$inferSelect;
 export type InsertTemplate = z.infer<typeof insertTemplateSchema>;
 export type EmailTemplate = typeof emailTemplates.$inferSelect;
 export type InsertEmailTemplate = z.infer<typeof insertEmailTemplateSchema>;
+export type EmailSend = typeof emailSends.$inferSelect;
+export type InsertEmailSend = z.infer<typeof insertEmailSendSchema>;
 export type Attachment = typeof attachments.$inferSelect;
 export type InsertAttachment = z.infer<typeof insertAttachmentSchema>;
 export type CalendarEvent = typeof calendarEvents.$inferSelect;
