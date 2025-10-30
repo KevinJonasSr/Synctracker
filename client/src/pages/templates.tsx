@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import Header from "@/components/layout/header";
 import AddTemplateForm from "@/components/forms/add-template-form";
 import { Card, CardContent } from "@/components/ui/card";
@@ -7,16 +7,91 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileText, Edit, Trash2, Download, Copy } from "lucide-react";
-import type { Template } from "@shared/schema";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import type { Template, InsertTemplate } from "@shared/schema";
 
 export default function Templates() {
   const [showAddTemplate, setShowAddTemplate] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<Template | null>(null);
   const [activeTab, setActiveTab] = useState("all");
+  const { toast } = useToast();
 
   const { data: templates = [], isLoading } = useQuery<Template[]>({
     queryKey: ["/api/templates"],
   });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: number) => {
+      return await apiRequest(`/api/templates/${id}`, {
+        method: "DELETE",
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/templates"] });
+      toast({
+        title: "Template deleted",
+        description: "The template has been successfully deleted.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to delete template. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const copyMutation = useMutation({
+    mutationFn: async (template: Template) => {
+      const copyData: InsertTemplate = {
+        name: `${template.name} (Copy)`,
+        type: template.type,
+        content: template.content,
+      };
+      return await apiRequest("/api/templates", {
+        method: "POST",
+        body: copyData,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/templates"] });
+      toast({
+        title: "Template copied",
+        description: "A copy of the template has been created.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to copy template. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleDownload = (template: Template) => {
+    const blob = new Blob([template.content], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${template.name || 'template'}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    toast({
+      title: "Template downloaded",
+      description: `${template.name || 'Template'} has been downloaded.`,
+    });
+  };
+
+  const handleDelete = (template: Template) => {
+    if (confirm(`Are you sure you want to delete "${template.name || 'this template'}"? This action cannot be undone.`)) {
+      deleteMutation.mutate(template.id);
+    }
+  };
 
   const getTypeColor = (type: string) => {
     switch (type) {
@@ -129,20 +204,39 @@ export default function Templates() {
                         </div>
                         
                         <div className="flex space-x-2">
-                          <Button size="sm" variant="outline">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => copyMutation.mutate(template)}
+                            disabled={copyMutation.isPending}
+                            title="Copy template"
+                          >
                             <Copy className="h-4 w-4" />
                           </Button>
-                          <Button size="sm" variant="outline">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => handleDownload(template)}
+                            title="Download template"
+                          >
                             <Download className="h-4 w-4" />
                           </Button>
                           <Button 
                             size="sm" 
                             variant="outline"
                             onClick={() => setEditingTemplate(template)}
+                            title="Edit template"
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
-                          <Button size="sm" variant="outline" className="text-red-600 hover:text-red-700">
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="text-red-600 hover:text-red-700"
+                            onClick={() => handleDelete(template)}
+                            disabled={deleteMutation.isPending}
+                            title="Delete template"
+                          >
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
