@@ -118,7 +118,7 @@ export default function AddTemplateForm({ open, onClose }: AddTemplateFormProps)
     
     const newValue = currentValue.substring(0, start) + placeholder + currentValue.substring(end);
     
-    form.setValue("content", newValue);
+    form.setValue("content", newValue, { shouldValidate: true });
     
     setTimeout(() => {
       textarea.focus();
@@ -181,8 +181,9 @@ export default function AddTemplateForm({ open, onClose }: AddTemplateFormProps)
             <Label htmlFor="content">Template Content *</Label>
             <Textarea
               id="content"
-              {...form.register("content")}
               ref={textareaRef}
+              value={form.watch("content")}
+              onChange={(e) => form.setValue("content", e.target.value)}
               placeholder="Enter template content with placeholders. Click or drag placeholders below to insert them."
               rows={12}
               className="font-mono text-sm"
@@ -197,7 +198,7 @@ export default function AddTemplateForm({ open, onClose }: AddTemplateFormProps)
                 const currentValue = form.getValues("content") || "";
                 
                 const newValue = currentValue.substring(0, start) + placeholder + currentValue.substring(end);
-                form.setValue("content", newValue);
+                form.setValue("content", newValue, { shouldValidate: true });
                 
                 setTimeout(() => {
                   textarea.focus();
