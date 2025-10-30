@@ -49,3 +49,7 @@ Client requests made via TanStack Query are processed by Express routes, which i
 - **Vite**: Frontend build tool for development and production.
 - **ESBuild**: Backend bundler for optimizing server code.
 - **TypeScript**: Used across the full stack for type safety.
+
+## Pending Integrations
+
+- **Email Sending (Resend)**: Email sending functionality has been designed with schema and placeholders in place, but awaiting RESEND_API_KEY setup. The `emailSends` table tracks sent emails. When ready to implement, use Resend integration or manually configure with API key.

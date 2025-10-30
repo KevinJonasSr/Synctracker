@@ -104,7 +104,9 @@ export default function Templates() {
                           
                           <div className="flex-1">
                             <div className="flex items-center space-x-2 mb-2">
-                              <h3 className="text-lg font-semibold text-gray-900">{template.name}</h3>
+                              <h3 className="text-lg font-semibold text-gray-900">
+                                {template.name || "(Untitled Template)"}
+                              </h3>
                               <Badge className={getTypeColor(template.type)}>
                                 {template.type.charAt(0).toUpperCase() + template.type.slice(1)}
                               </Badge>

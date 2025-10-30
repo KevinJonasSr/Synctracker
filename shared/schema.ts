@@ -586,6 +586,10 @@ export const insertTemplateSchema = createInsertSchema(templates).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+}).extend({
+  name: z.string().min(1, "Template name is required"),
+  type: z.string().min(1, "Template type is required"),
+  content: z.string().min(1, "Template content is required"),
 });
 
 export const insertEmailTemplateSchema = createInsertSchema(emailTemplates).omit({
