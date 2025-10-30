@@ -11,6 +11,7 @@ import type { Template } from "@shared/schema";
 
 export default function Templates() {
   const [showAddTemplate, setShowAddTemplate] = useState(false);
+  const [editingTemplate, setEditingTemplate] = useState<Template | null>(null);
   const [activeTab, setActiveTab] = useState("all");
 
   const { data: templates = [], isLoading } = useQuery<Template[]>({
@@ -134,7 +135,11 @@ export default function Templates() {
                           <Button size="sm" variant="outline">
                             <Download className="h-4 w-4" />
                           </Button>
-                          <Button size="sm" variant="outline">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => setEditingTemplate(template)}
+                          >
                             <Edit className="h-4 w-4" />
                           </Button>
                           <Button size="sm" variant="outline" className="text-red-600 hover:text-red-700">
@@ -151,7 +156,14 @@ export default function Templates() {
         </Tabs>
       </div>
 
-      <AddTemplateForm open={showAddTemplate} onClose={() => setShowAddTemplate(false)} />
+      <AddTemplateForm 
+        open={showAddTemplate || !!editingTemplate} 
+        onClose={() => {
+          setShowAddTemplate(false);
+          setEditingTemplate(null);
+        }}
+        template={editingTemplate}
+      />
     </div>
   );
 }

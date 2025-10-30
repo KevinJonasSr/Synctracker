@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -12,11 +12,12 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 import { apiRequest } from "@/lib/queryClient";
-import { insertTemplateSchema, type InsertTemplate } from "@shared/schema";
+import { insertTemplateSchema, type InsertTemplate, type Template } from "@shared/schema";
 
 interface AddTemplateFormProps {
   open: boolean;
   onClose: () => void;
+  template?: Template | null;
 }
 
 const placeholders = [
@@ -65,9 +66,10 @@ const placeholders = [
   ]},
 ];
 
-export default function AddTemplateForm({ open, onClose }: AddTemplateFormProps) {
+export default function AddTemplateForm({ open, onClose, template }: AddTemplateFormProps) {
   const { toast } = useToast();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const isEditing = !!template;
   
   const form = useForm<InsertTemplate>({
     resolver: zodResolver(insertTemplateSchema),
@@ -78,17 +80,35 @@ export default function AddTemplateForm({ open, onClose }: AddTemplateFormProps)
     },
   });
 
+  useEffect(() => {
+    if (template) {
+      form.reset({
+        name: template.name,
+        type: template.type,
+        content: template.content,
+      });
+    } else {
+      form.reset({
+        name: "",
+        type: "",
+        content: "",
+      });
+    }
+  }, [template, form]);
+
   const createTemplateMutation = useMutation({
     mutationFn: async (data: InsertTemplate) => {
-      return await apiRequest("/api/templates", {
-        method: "POST",
+      const url = isEditing ? `/api/templates/${template.id}` : "/api/templates";
+      const method = isEditing ? "PUT" : "POST";
+      return await apiRequest(url, {
+        method,
         body: data,
       });
     },
     onSuccess: () => {
       toast({
         title: "Success",
-        description: "Template added successfully",
+        description: isEditing ? "Template updated successfully" : "Template added successfully",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/templates"] });
       form.reset();
@@ -97,7 +117,7 @@ export default function AddTemplateForm({ open, onClose }: AddTemplateFormProps)
     onError: (error) => {
       toast({
         title: "Error",
-        description: "Failed to add template",
+        description: isEditing ? "Failed to update template" : "Failed to add template",
         variant: "destructive",
       });
     },
@@ -140,7 +160,7 @@ export default function AddTemplateForm({ open, onClose }: AddTemplateFormProps)
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Add New Template</DialogTitle>
+          <DialogTitle>{isEditing ? 'Edit Template' : 'Add New Template'}</DialogTitle>
         </DialogHeader>
         
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -159,7 +179,10 @@ export default function AddTemplateForm({ open, onClose }: AddTemplateFormProps)
             
             <div>
               <Label htmlFor="type">Type *</Label>
-              <Select onValueChange={(value) => form.setValue("type", value)}>
+              <Select 
+                value={form.watch("type")}
+                onValueChange={(value) => form.setValue("type", value)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select template type" />
                 </SelectTrigger>
@@ -256,7 +279,10 @@ export default function AddTemplateForm({ open, onClose }: AddTemplateFormProps)
               className="flex-1 bg-brand-primary hover:bg-blue-700"
               disabled={createTemplateMutation.isPending}
             >
-              {createTemplateMutation.isPending ? "Adding..." : "Add Template"}
+              {createTemplateMutation.isPending 
+                ? (isEditing ? "Updating..." : "Adding...")
+                : (isEditing ? "Update Template" : "Add Template")
+              }
             </Button>
           </div>
         </form>

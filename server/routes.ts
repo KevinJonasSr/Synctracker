@@ -483,6 +483,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.put("/api/templates/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const validatedData = insertTemplateSchema.parse(req.body);
+      const template = await dbStorage.updateTemplate(id, validatedData);
+      if (!template) {
+        return res.status(404).json({ error: "Template not found" });
+      }
+      res.json(template);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors });
+      }
+      res.status(500).json({ error: "Failed to update template" });
+    }
+  });
+
   // Dashboard endpoint
   app.get("/api/dashboard", async (req, res) => {
     try {
