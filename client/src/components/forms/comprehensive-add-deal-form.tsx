@@ -115,7 +115,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
       usage: deal?.usage || "",
       sceneDescription: deal?.sceneDescription || "",
       media: deal?.media || "",
-      territory: deal?.territory || "worldwide",
+      territory: deal?.territory || "Worldwide",
       term: deal?.term || "",
       options: deal?.options || "",
       writers: deal?.writers || "",
@@ -239,7 +239,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
         usage: deal.usage || "",
         sceneDescription: deal.sceneDescription || "",
         media: deal.media || "",
-        territory: deal.territory || "worldwide",
+        territory: deal.territory || "Worldwide",
         term: deal.term || "",
         options: deal.options || "",
         writers: deal.writers || "",
@@ -864,22 +864,11 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                       </div>
                       <div>
                         <Label htmlFor="territory">Territory</Label>
-                        <Select
-                          value={form.watch("territory") || "worldwide"}
-                          onValueChange={(value) => form.setValue("territory", value)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="worldwide">Worldwide</SelectItem>
-                            <SelectItem value="us">United States</SelectItem>
-                            <SelectItem value="north_america">North America</SelectItem>
-                            <SelectItem value="europe">Europe</SelectItem>
-                            <SelectItem value="uk">United Kingdom</SelectItem>
-                            <SelectItem value="other">Other</SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <Input
+                          id="territory"
+                          {...form.register("territory")}
+                          placeholder="e.g., Worldwide, North America, etc."
+                        />
                       </div>
                     </div>
                   </div>
