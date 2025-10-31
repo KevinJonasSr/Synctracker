@@ -101,38 +101,31 @@ export default function Calendar() {
   };
 
   // Combine calendar events with air dates from deals
-  console.log("Calendar - Total deals:", deals.length);
-  console.log("Calendar - Deals with airDate:", deals.filter((deal: any) => deal.airDate).length);
-  deals.forEach((deal: any) => {
-    if (deal.airDate) {
-      console.log(`Deal "${deal.projectName}" has airDate:`, deal.airDate);
-    }
-  });
-  
   const airDateEvents = deals
     .filter((deal: any) => deal.airDate)
-    .map((deal: any) => ({
-      id: parseInt(`${deal.id}000`), // Convert to number with suffix to avoid conflicts
-      title: `Air Date: ${deal.projectName}`,
-      description: `Project "${deal.projectName}" (${deal.projectType}) is scheduled to air.`,
-      startDate: new Date(deal.airDate),
-      endDate: new Date(deal.airDate),
-      allDay: true,
-      entityType: 'deal',
-      entityId: deal.id,
-      status: 'scheduled',
-      reminderMinutes: 1440,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    }));
-
-  console.log("Calendar - Air date events created:", airDateEvents.length);
-  airDateEvents.forEach(event => {
-    console.log(`Air date event: "${event.title}" on`, event.startDate);
-  });
+    .map((deal: any) => {
+      // Parse date as local timezone to avoid timezone conversion issues
+      const airDateStr = deal.airDate.split('T')[0]; // Get YYYY-MM-DD
+      const [year, month, day] = airDateStr.split('-').map(Number);
+      const localDate = new Date(year, month - 1, day, 12, 0, 0); // Use noon to avoid timezone issues
+      
+      return {
+        id: parseInt(`${deal.id}000`), // Convert to number with suffix to avoid conflicts
+        title: `Air Date: ${deal.projectName}`,
+        description: `Project "${deal.projectName}" (${deal.projectType}) is scheduled to air.`,
+        startDate: localDate,
+        endDate: localDate,
+        allDay: true,
+        entityType: 'deal',
+        entityId: deal.id,
+        status: 'scheduled',
+        reminderMinutes: 1440,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+    });
 
   const allEvents = [...events, ...airDateEvents];
-  console.log("Calendar - Total events (calendar + air dates):", allEvents.length);
 
   const filteredEvents = allEvents.filter(event =>
     event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||

@@ -611,13 +611,13 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                           form.setValue("splits", song.splitDetails);
                         } else {
                           // Calculate splits from actual ownership percentages
-                          const publishingOwnership = song.publishingOwnership || 0;
+                          const publishingOwnership = parseFloat(song.publishingOwnership?.toString() || '0');
                           const publisherOwnership = 100 - publishingOwnership;
                           form.setValue("splits", `${publishingOwnership}% Writer / ${publisherOwnership}% Publisher`);
                         }
                         
                         // Artist/Label splits from actual ownership data
-                        const masterOwnership = song.masterOwnership || 0;
+                        const masterOwnership = parseFloat(song.masterOwnership?.toString() || '0');
                         const labelOwnership = 100 - masterOwnership;
                         form.setValue("artistLabelSplits", `${masterOwnership}% Artist / ${labelOwnership}% Label`);
                         
@@ -865,7 +865,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                       <div>
                         <Label htmlFor="territory">Territory</Label>
                         <Select
-                          value={form.watch("territory")}
+                          value={form.watch("territory") || "worldwide"}
                           onValueChange={(value) => form.setValue("territory", value)}
                         >
                           <SelectTrigger>
@@ -910,7 +910,8 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                       
                       // Auto-calculate our fee based on actual publishing ownership percentage
                       if (selectedSong && selectedSong.publishingOwnership) {
-                        const ourFee = calculateOurFeeFromOwnership(numericValue, selectedSong.publishingOwnership);
+                        const ownershipPct = parseFloat(selectedSong.publishingOwnership.toString());
+                        const ourFee = calculateOurFeeFromOwnership(numericValue, ownershipPct);
                         form.setValue("ourFee", Math.round(ourFee * 100) / 100);
                       } else {
                         // Fallback to splits text parsing if no ownership data
@@ -952,7 +953,8 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                       
                       // Auto-calculate our recording fee based on actual master ownership percentage
                       if (selectedSong && selectedSong.masterOwnership) {
-                        const ourRecordingFee = calculateOurFeeFromOwnership(numericValue, selectedSong.masterOwnership);
+                        const ownershipPct = parseFloat(selectedSong.masterOwnership.toString());
+                        const ourRecordingFee = calculateOurFeeFromOwnership(numericValue, ownershipPct);
                         form.setValue("ourRecordingFee", Math.round(ourRecordingFee * 100) / 100);
                       } else {
                         // Fallback to artist/label splits text parsing if no ownership data
@@ -985,7 +987,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                 <div className="flex items-center space-x-2">
                   <Switch
                     id="exclusivity"
-                    checked={form.watch("exclusivity")}
+                    checked={form.watch("exclusivity") ?? false}
                     onCheckedChange={(checked) => form.setValue("exclusivity", checked)}
                   />
                   <Label htmlFor="exclusivity">Exclusive Deal</Label>
