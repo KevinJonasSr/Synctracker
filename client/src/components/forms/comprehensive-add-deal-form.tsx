@@ -47,6 +47,8 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
   const [selectedSong, setSelectedSong] = useState<Song | null>(null);
   const [songSearchOpen, setSongSearchOpen] = useState(false);
   const [songSearchValue, setSongSearchValue] = useState("");
+  const [contactSearchOpen, setContactSearchOpen] = useState(false);
+  const [contactSearchValue, setContactSearchValue] = useState("");
 
   // State for managing composer-publisher and artist-label data from selected song
   interface ComposerPublisher {
@@ -378,10 +380,10 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
     console.log("Form submission data:", data);
     
     // Validate required fields manually
-    if (!data.projectName || !data.projectType || !data.songId || !data.contactId) {
+    if (!data.projectName || !data.projectType || !data.songId) {
       toast({
         title: "Missing required fields",
-        description: "Please fill in all required fields (Project Name, Project Type, Song Title, and Contact).",
+        description: "Please fill in all required fields (Project Name, Project Type, and Song Title).",
         variant: "destructive",
       });
       return;
@@ -1043,50 +1045,49 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                 </h4>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <Label htmlFor="contactId">Supervisor Name *</Label>
+                    <Label htmlFor="contactId">Supervisor Name</Label>
                     <div className="flex gap-2">
-                      <Select
-                        value={form.watch("contactId")?.toString() || ""}
-                        onValueChange={(value) => {
-                          const contactId = parseInt(value);
-                          form.setValue("contactId", contactId);
-                          
-                          // Auto-fill contact information when supervisor is selected
-                          const selectedContact = contacts.find(c => c.id === contactId);
-                          if (selectedContact) {
-                            form.setValue("musicSupervisorContactName", selectedContact.company || "");
-                            form.setValue("musicSupervisorContactEmail", selectedContact.email || "");
-                            form.setValue("musicSupervisorContactPhone", selectedContact.phone || "");
-                          }
-                        }}
-                      >
-                        <SelectTrigger className="flex-1">
-                          <SelectValue placeholder="Select supervisor" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {contacts.filter(contact => 
-                            contact.role && (
-                              contact.role.toLowerCase().includes('music supervisor') ||
-                              contact.role.toLowerCase().includes('supervisor')
-                            )
-                          ).map((contact) => (
-                            <SelectItem key={contact.id} value={contact.id.toString()}>
-                              {contact.name} {contact.company && `(${contact.company})`}
-                            </SelectItem>
-                          ))}
-                          <SelectItem value="all">--- Show All Contacts ---</SelectItem>
-                          {contacts.filter(contact => 
-                            !contact.role || !(
-                              contact.role.toLowerCase().includes('music supervisor') ||
-                              contact.role.toLowerCase().includes('supervisor')
-                            )
-                          ).map((contact) => (
-                            <SelectItem key={contact.id} value={contact.id.toString()}>
-                              {contact.name} {contact.company && `(${contact.company})`}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <div className="flex-1">
+                        <Command className="rounded-lg border shadow-md">
+                          <CommandInput 
+                            placeholder="Type to search contacts..."
+                            value={contactSearchValue}
+                            onValueChange={setContactSearchValue}
+                            onFocus={() => setContactSearchOpen(true)}
+                            onBlur={() => {
+                              setTimeout(() => {
+                                setContactSearchOpen(false);
+                              }, 200);
+                            }}
+                          />
+                          {contactSearchOpen && (
+                            <CommandList>
+                              <CommandEmpty>No contact found.</CommandEmpty>
+                              <CommandGroup>
+                                {contacts.map((contact) => (
+                                  <CommandItem
+                                    key={contact.id}
+                                    value={`${contact.name} ${contact.company || ''}`}
+                                    onSelect={() => {
+                                      const contactId = contact.id;
+                                      form.setValue("contactId", contactId);
+                                      setContactSearchValue(`${contact.name}${contact.company ? ` (${contact.company})` : ''}`);
+                                      setContactSearchOpen(false);
+                                      
+                                      // Auto-fill contact information when supervisor is selected
+                                      form.setValue("musicSupervisorContactName", contact.company || "");
+                                      form.setValue("musicSupervisorContactEmail", contact.email || "");
+                                      form.setValue("musicSupervisorContactPhone", contact.phone || "");
+                                    }}
+                                  >
+                                    {contact.name} {contact.company && `(${contact.company})`}
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </CommandList>
+                          )}
+                        </Command>
+                      </div>
                       <Button
                         type="button"
                         variant="outline"
