@@ -543,26 +543,28 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
             </CardHeader>
             <CardContent className="space-y-1 bg-blue-50 p-3">
               <div className="grid grid-cols-1 gap-2">
-                <div>
+                <div className="relative">
                   <Label htmlFor="songId">Song Title *</Label>
                   <Popover open={songSearchOpen} onOpenChange={setSongSearchOpen}>
                     <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        role="combobox"
-                        aria-expanded={songSearchOpen}
-                        className="w-full justify-between"
-                      >
-                        {form.watch("songId")
-                          ? (() => {
-                              const song = songs.find((s) => s.id === form.watch("songId"));
-                              return song ? `${song.title} - ${song.artist}` : "Select a song...";
-                            })()
-                          : "Select a song..."}
-                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                      </Button>
+                      <div className="w-full">
+                        <Input
+                          placeholder="Type to search songs..."
+                          value={(() => {
+                            const song = songs.find((s) => s.id === form.watch("songId"));
+                            return song ? `${song.title} - ${song.artist}` : "";
+                          })()}
+                          onFocus={() => setSongSearchOpen(true)}
+                          onChange={() => {}}
+                          className="w-full"
+                        />
+                      </div>
                     </PopoverTrigger>
-                    <PopoverContent className="w-[600px] p-0">
+                    <PopoverContent 
+                      className="w-full p-0" 
+                      align="start"
+                      onOpenAutoFocus={(e) => e.preventDefault()}
+                    >
                       <Command>
                         <CommandInput placeholder="Search songs..." />
                         <CommandList>
@@ -655,12 +657,6 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                                   }
                                 }}
                               >
-                                <Check
-                                  className={cn(
-                                    "mr-2 h-4 w-4",
-                                    form.watch("songId") === song.id ? "opacity-100" : "opacity-0"
-                                  )}
-                                />
                                 {song.title} - {song.artist}
                               </CommandItem>
                             ))}
