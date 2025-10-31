@@ -545,36 +545,24 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
               <div className="grid grid-cols-1 gap-2">
                 <div className="relative">
                   <Label htmlFor="songId">Song Title *</Label>
-                  <Popover open={songSearchOpen} onOpenChange={setSongSearchOpen}>
-                    <PopoverTrigger asChild>
-                      <div className="w-full">
-                        <Input
-                          placeholder="Type to search songs..."
-                          value={(() => {
-                            const song = songs.find((s) => s.id === form.watch("songId"));
-                            return song ? `${song.title} - ${song.artist}` : "";
-                          })()}
-                          onFocus={() => setSongSearchOpen(true)}
-                          onChange={() => {}}
-                          className="w-full"
-                        />
-                      </div>
-                    </PopoverTrigger>
-                    <PopoverContent 
-                      className="w-full p-0" 
-                      align="start"
-                      onOpenAutoFocus={(e) => e.preventDefault()}
-                    >
-                      <Command>
-                        <CommandInput placeholder="Search songs..." />
-                        <CommandList>
-                          <CommandEmpty>No song found.</CommandEmpty>
-                          <CommandGroup>
-                            {songs.map((song) => (
-                              <CommandItem
-                                key={song.id}
-                                value={`${song.title} ${song.artist}`}
-                                onSelect={() => {
+                  <Command className="rounded-lg border shadow-md">
+                    <CommandInput 
+                      placeholder="Type to search songs..."
+                      value={(() => {
+                        const song = songs.find((s) => s.id === form.watch("songId"));
+                        return song ? `${song.title} - ${song.artist}` : "";
+                      })()}
+                      onFocus={() => setSongSearchOpen(true)}
+                    />
+                    {songSearchOpen && (
+                      <CommandList>
+                        <CommandEmpty>No song found.</CommandEmpty>
+                        <CommandGroup>
+                          {songs.map((song) => (
+                            <CommandItem
+                              key={song.id}
+                              value={`${song.title} ${song.artist}`}
+                              onSelect={() => {
                                   const songId = song.id;
                                   form.setValue("songId", songId);
                                   setSongSearchOpen(false);
@@ -657,14 +645,13 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                                   }
                                 }}
                               >
-                                {song.title} - {song.artist}
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
+                              {song.title} - {song.artist}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    )}
+                  </Command>
                   {form.formState.errors.songId && (
                     <p className="text-sm text-red-600 mt-1">{form.formState.errors.songId.message}</p>
                   )}
