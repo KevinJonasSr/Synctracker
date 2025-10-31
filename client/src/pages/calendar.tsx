@@ -22,7 +22,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Header from "@/components/layout/header";
 import AddCalendarEventForm from "@/components/forms/add-calendar-event-form";
-import { Calendar as CalendarIcon, Clock, Plus, Edit, ChevronLeft, ChevronRight, Move } from "lucide-react";
+import { Calendar as CalendarIcon, Clock, Plus, Edit, ChevronLeft, ChevronRight, Move, Trash2 } from "lucide-react";
 import type { CalendarEvent } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -255,6 +255,44 @@ export default function Calendar() {
         newDate: new Date(editDate).toISOString(),
       });
     }
+  };
+
+  // Delete calendar event mutation
+  const deleteCalendarEventMutation = useMutation({
+    mutationFn: async (eventId: number) => {
+      return await apiRequest(`/api/calendar-events/${eventId}`, {
+        method: 'DELETE',
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/calendar-events'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/deals'] });
+      toast({
+        title: "Event deleted successfully",
+        description: "The calendar event has been removed.",
+      });
+    },
+    onError: (error) => {
+      console.error('Calendar event delete error:', error);
+      toast({
+        title: "Error deleting event",
+        description: "Failed to delete the calendar event. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const handleDeleteEvent = (eventId: number) => {
+    if (confirm("Are you sure you want to delete this calendar event?")) {
+      deleteCalendarEventMutation.mutate(eventId);
+    }
+  };
+
+  // Check if an event is a real calendar event (not auto-generated from deals)
+  const isRealCalendarEvent = (event: CalendarEvent) => {
+    // Real calendar events have IDs < 1000 or are from the events array
+    // Auto-generated deal events have IDs like dealId * 1000
+    return events.some(e => e.id === event.id);
   };
 
   // Drag and drop handlers
@@ -514,20 +552,24 @@ export default function Calendar() {
                       )}
                     </TableCell>
                     <TableCell>
-                      {event.entityType === 'deal' ? (
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={() => handleEditAirDate(event)}
-                        >
-                          <Edit className="h-4 w-4 mr-1" />
-                          Edit Date
-                        </Button>
-                      ) : (
-                        <Button variant="ghost" size="sm">
-                          Edit
-                        </Button>
-                      )}
+                      <div className="flex items-center space-x-2">
+                        {isRealCalendarEvent(event) ? (
+                          <>
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={() => handleDeleteEvent(event.id)}
+                              data-testid={`delete-event-${event.id}`}
+                            >
+                              <Trash2 className="h-4 w-4 text-red-600" />
+                            </Button>
+                          </>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">
+                            From Deal
+                          </span>
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))
