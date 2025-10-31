@@ -26,24 +26,28 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <TooltipProvider>
-          <Sidebar />
-          <Suspense fallback={<div>Loading...</div>}>
-            <Switch>
-              <Route path="/" component={Dashboard} />
-              <Route path="/songs" component={Songs} />
-              <Route path="/deals" component={Deals} />
-              <Route path="/pitches" component={Pitches} />
-              <Route path="/contacts" component={Contacts} />
-              <Route path="/income" component={Income} />
-              <Route path="/templates" component={Templates} />
-              <Route path="/reports" component={Reports} />
-              <Route path="/email-templates" component={EmailTemplates} />
-              <Route path="/calendar" component={Calendar} />
-              <Route path="/playlists" component={Playlists} />
-              <Route path="/analytics" component={Analytics} />
-              <Route component={NotFound} />
-            </Switch>
-          </Suspense>
+          <div className="flex min-h-screen bg-background">
+            <Sidebar />
+            <main className="flex-1 lg:ml-64 bg-background">
+              <Suspense fallback={<div className="p-6 text-muted-foreground">Loading...</div>}>
+                <Switch>
+                  <Route path="/" component={Dashboard} />
+                  <Route path="/songs" component={Songs} />
+                  <Route path="/deals" component={Deals} />
+                  <Route path="/pitches" component={Pitches} />
+                  <Route path="/contacts" component={Contacts} />
+                  <Route path="/income" component={Income} />
+                  <Route path="/templates" component={Templates} />
+                  <Route path="/reports" component={Reports} />
+                  <Route path="/email-templates" component={EmailTemplates} />
+                  <Route path="/calendar" component={Calendar} />
+                  <Route path="/playlists" component={Playlists} />
+                  <Route path="/analytics" component={Analytics} />
+                  <Route component={NotFound} />
+                </Switch>
+              </Suspense>
+            </main>
+          </div>
           <Toaster />
         </TooltipProvider>
       </ThemeProvider>
