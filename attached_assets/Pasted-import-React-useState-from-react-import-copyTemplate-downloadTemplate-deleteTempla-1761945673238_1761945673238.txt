@@ -1,0 +1,92 @@
+import React, { useState } from "react";
+import {
+  copyTemplate,
+  downloadTemplate,
+  deleteTemplate,
+  updateTemplate,
+} from "../utils/templateActions";
+
+export default function TemplateCard({ template, refresh }) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [newName, setNewName] = useState(template.name);
+  const [newContent, setNewContent] = useState(template.content);
+
+  const handleSave = async () => {
+    await updateTemplate(template.id, newName, newContent);
+    setIsEditing(false);
+    refresh();
+  };
+
+  return (
+    <div className="p-4 border rounded-2xl shadow-md hover:shadow-lg bg-white transition">
+      {isEditing ? (
+        <>
+          <input
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            className="w-full mb-2 p-2 border rounded"
+          />
+          <textarea
+            value={newContent}
+            onChange={(e) => setNewContent(e.target.value)}
+            className="w-full h-32 p-2 border rounded"
+          />
+          <div className="flex justify-end gap-2 mt-2">
+            <button
+              className="bg-green-600 text-white px-3 py-1 rounded"
+              onClick={handleSave}
+            >
+              Save
+            </button>
+            <button
+              className="bg-gray-300 px-3 py-1 rounded"
+              onClick={() => setIsEditing(false)}
+            >
+              Cancel
+            </button>
+          </div>
+        </>
+      ) : (
+        <>
+          <h2 className="font-semibold text-lg mb-1">
+            {template.name || "Untitled Template"}
+          </h2>
+          <p className="text-sm text-gray-600 line-clamp-3 mb-3">
+            {template.content?.substring(0, 120) || "No content"}
+          </p>
+
+          <div className="flex gap-2">
+            <button
+              title="Copy"
+              className="bg-blue-500 text-white px-3 py-1 rounded"
+              onClick={() => copyTemplate(template.id, refresh)}
+            >
+              Copy
+            </button>
+            <button
+              title="Download"
+              className="bg-purple-500 text-white px-3 py-1 rounded"
+              onClick={() => downloadTemplate(template.id)}
+            >
+              Download
+            </button>
+            <button
+              title="Edit"
+              className="bg-yellow-500 text-white px-3 py-1 rounded"
+              onClick={() => setIsEditing(true)}
+            >
+              Edit
+            </button>
+            <button
+              title="Delete"
+              className="bg-red-500 text-white px-3 py-1 rounded"
+              onClick={() => deleteTemplate(template.id, refresh)}
+            >
+              Delete
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
