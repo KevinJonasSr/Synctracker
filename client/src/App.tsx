@@ -38,13 +38,17 @@ function App() {
     localStorage.setItem('hasSeenSyncTrackerTour', 'true');
   };
 
+  const handleStartTour = () => {
+    setTourEnabled(true);
+  };
+
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <TooltipProvider>
           {tourEnabled && <OnboardingTour enabled={tourEnabled} onExit={handleTourExit} />}
           <div className="flex min-h-screen bg-background">
-            <Sidebar />
+            <Sidebar onStartTour={handleStartTour} />
             <main className="flex-1 lg:ml-64 bg-background">
               <Suspense fallback={<div className="p-6 text-muted-foreground">Loading...</div>}>
                 <Switch>

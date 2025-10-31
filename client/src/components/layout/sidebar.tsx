@@ -1,6 +1,6 @@
 import { useLocation } from "wouter";
 import { Link } from "wouter";
-import { Music, BarChart3, Handshake, Send, Users, DollarSign, FileText, ChartBar, Mail, Calendar as CalendarIcon, Folder, TrendingUp, Menu } from "lucide-react";
+import { Music, BarChart3, Handshake, Send, Users, DollarSign, FileText, ChartBar, Mail, Calendar as CalendarIcon, Folder, TrendingUp, Menu, GraduationCap } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
@@ -22,7 +22,7 @@ const navigation = [
   { name: "Reports", href: "/reports", icon: ChartBar },
 ];
 
-function SidebarContent({ isMobile, onNavigate }: { isMobile?: boolean; onNavigate?: () => void }) {
+function SidebarContent({ isMobile, onNavigate, onStartTour }: { isMobile?: boolean; onNavigate?: () => void; onStartTour?: () => void }) {
   const [location] = useLocation();
 
   return (
@@ -77,7 +77,19 @@ function SidebarContent({ isMobile, onNavigate }: { isMobile?: boolean; onNaviga
         })}
       </nav>
       
-      <div className="p-4 border-t border-border">
+      <div className="p-4 border-t border-border space-y-3">
+        {onStartTour && (
+          <Button
+            onClick={onStartTour}
+            variant="outline"
+            className="w-full justify-start"
+            data-testid="take-tour-button"
+          >
+            <GraduationCap className="mr-2" size={16} />
+            Take a Tour
+          </Button>
+        )}
+        
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 bg-brand-primary rounded-full flex items-center justify-center">
             <span className="text-white text-sm font-medium">JM</span>
@@ -92,7 +104,7 @@ function SidebarContent({ isMobile, onNavigate }: { isMobile?: boolean; onNaviga
   );
 }
 
-export default function Sidebar() {
+export default function Sidebar({ onStartTour }: { onStartTour?: () => void }) {
   const isMobile = useIsMobile();
   const [open, setOpen] = useState(false);
 
@@ -115,7 +127,7 @@ export default function Sidebar() {
             <SheetTitle>Navigation Menu</SheetTitle>
           </SheetHeader>
           <div className="bg-card h-full flex flex-col">
-            <SidebarContent isMobile={true} onNavigate={() => setOpen(false)} />
+            <SidebarContent isMobile={true} onNavigate={() => setOpen(false)} onStartTour={onStartTour} />
           </div>
         </SheetContent>
       </Sheet>
@@ -124,7 +136,7 @@ export default function Sidebar() {
 
   return (
     <aside className="hidden lg:flex w-64 bg-card shadow-sm border-r border-border flex-col">
-      <SidebarContent isMobile={false} />
+      <SidebarContent isMobile={false} onStartTour={onStartTour} />
     </aside>
   );
 }
