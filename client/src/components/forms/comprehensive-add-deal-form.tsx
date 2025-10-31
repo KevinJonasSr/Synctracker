@@ -46,6 +46,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
   const [showAddContact, setShowAddContact] = useState(false);
   const [selectedSong, setSelectedSong] = useState<Song | null>(null);
   const [songSearchOpen, setSongSearchOpen] = useState(false);
+  const [songSearchValue, setSongSearchValue] = useState("");
 
   // State for managing composer-publisher and artist-label data from selected song
   interface ComposerPublisher {
@@ -548,11 +549,17 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                   <Command className="rounded-lg border shadow-md">
                     <CommandInput 
                       placeholder="Type to search songs..."
-                      value={(() => {
-                        const song = songs.find((s) => s.id === form.watch("songId"));
-                        return song ? `${song.title} - ${song.artist}` : "";
-                      })()}
+                      value={songSearchValue}
+                      onValueChange={setSongSearchValue}
                       onFocus={() => setSongSearchOpen(true)}
+                      onBlur={() => {
+                        // Delay to allow click on item
+                        setTimeout(() => {
+                          if (!form.watch("songId")) {
+                            setSongSearchOpen(false);
+                          }
+                        }, 200);
+                      }}
                     />
                     {songSearchOpen && (
                       <CommandList>
@@ -565,6 +572,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                               onSelect={() => {
                                   const songId = song.id;
                                   form.setValue("songId", songId);
+                                  setSongSearchValue(`${song.title} - ${song.artist}`);
                                   setSongSearchOpen(false);
                                   
                                   // Auto-populate comprehensive song information from database
