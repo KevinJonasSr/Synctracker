@@ -100,16 +100,16 @@ export default function Templates() {
   return (
     <div className="p-6">
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">Templates</h1>
-        <p className="text-gray-600">Manage document templates for contracts, quotes, and licensing</p>
+        <h1 className="text-2xl font-semibold text-foreground">Templates</h1>
+        <p className="text-muted-foreground">Manage document templates for contracts, quotes, and licensing</p>
       </div>
 
       {loading ? (
-        <p className="text-gray-600">Loading templates...</p>
+        <p className="text-muted-foreground">Loading templates...</p>
       ) : templates.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-16">
-            <p className="text-gray-600">No templates found. Create your first template to get started.</p>
+            <p className="text-muted-foreground">No templates found. Create your first template to get started.</p>
           </CardContent>
         </Card>
       ) : (
@@ -145,7 +145,7 @@ export default function Templates() {
                 ) : (
                   <>
                     <div className="flex justify-between items-start mb-2">
-                      <h3 className="text-lg font-semibold text-gray-900">
+                      <h3 className="text-lg font-semibold text-foreground">
                         {template.name || "(Untitled Template)"}
                       </h3>
                       <div className="flex gap-1">
@@ -179,7 +179,7 @@ export default function Templates() {
                         <Button 
                           variant="ghost" 
                           size="sm"
-                          className="text-red-600 hover:text-red-700"
+                          className="text-destructive hover:text-destructive/90"
                           onClick={() => deleteTemplate(template.id)}
                           title="Delete template"
                           data-testid={`delete-template-${template.id}`}
@@ -189,13 +189,13 @@ export default function Templates() {
                       </div>
                     </div>
                     
-                    <p className="text-xs text-gray-500 mb-3">
+                    <p className="text-xs text-muted-foreground mb-3">
                       Updated: {new Date(template.updatedAt).toLocaleDateString()}
                     </p>
                     
-                    <div className="bg-gray-50 rounded p-3 border border-gray-200">
-                      <p className="text-xs text-gray-500 mb-1 font-medium">Preview:</p>
-                      <div className="text-sm text-gray-700 font-mono whitespace-pre-wrap line-clamp-4">
+                    <div className="bg-muted rounded p-3 border border-border">
+                      <p className="text-xs text-muted-foreground mb-1 font-medium">Preview:</p>
+                      <div className="text-sm text-foreground font-mono whitespace-pre-wrap line-clamp-4">
                         {template.content.slice(0, 150)}
                         {template.content.length > 150 && "..."}
                       </div>
