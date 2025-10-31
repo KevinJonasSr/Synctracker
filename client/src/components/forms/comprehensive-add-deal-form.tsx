@@ -127,7 +127,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
       exclusivity: deal?.exclusivity ?? false,
       exclusivityRestrictions: deal?.exclusivityRestrictions || "",
       notes: deal?.notes || "",
-      airDate: deal?.airDate || "",
+      airDate: deal?.airDate ? new Date(deal.airDate).toISOString().split('T')[0] : "",
     },
   });
 
@@ -252,7 +252,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
         exclusivityRestrictions: deal.exclusivityRestrictions || "",
         restrictions: deal.restrictions || "",
         notes: deal.notes || "",
-        airDate: deal.airDate || "",
+        airDate: deal.airDate ? new Date(deal.airDate).toISOString().split('T')[0] : "",
       });
     }
   }, [deal, form, songs]);
