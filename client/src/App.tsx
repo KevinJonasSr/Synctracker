@@ -4,8 +4,9 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useState, useEffect } from "react";
 import Sidebar from "@/components/layout/sidebar";
+import OnboardingTour from "@/components/OnboardingTour";
 
 const Dashboard = lazy(() => import("@/pages/dashboard"));
 const Songs = lazy(() => import("@/pages/songs"));
@@ -22,10 +23,26 @@ const Analytics = lazy(() => import("@/pages/analytics"));
 const NotFound = lazy(() => import("@/pages/not-found"));
 
 function App() {
+  const [tourEnabled, setTourEnabled] = useState(false);
+
+  useEffect(() => {
+    const hasSeenTour = localStorage.getItem('hasSeenSyncTrackerTour');
+    if (!hasSeenTour) {
+      // Delay tour start slightly to ensure DOM is ready
+      setTimeout(() => setTourEnabled(true), 500);
+    }
+  }, []);
+
+  const handleTourExit = () => {
+    setTourEnabled(false);
+    localStorage.setItem('hasSeenSyncTrackerTour', 'true');
+  };
+
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <TooltipProvider>
+          {tourEnabled && <OnboardingTour enabled={tourEnabled} onExit={handleTourExit} />}
           <div className="flex min-h-screen bg-background">
             <Sidebar />
             <main className="flex-1 lg:ml-64 bg-background">

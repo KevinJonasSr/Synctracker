@@ -10,22 +10,22 @@ interface OnboardingTourProps {
 const tourSteps = [
   {
     element: '#dashboard-overview',
-    intro: 'Welcome to the SyncTracker Dashboard! Here you can get an overview of songs, deals, and tasks.',
+    intro: 'Welcome to the SyncTracker Dashboard! Here you can get an overview of your sync licensing deals, revenue metrics, and recent activity.',
     position: 'bottom' as const
   },
   {
     element: '#add-song-button',
-    intro: 'Use this button to add a new song.',
+    intro: 'Use this button to add new songs to your catalog with all the metadata you need.',
     position: 'right' as const
   },
   {
     element: '#add-deal-button',
-    intro: 'Click here to create a new deal.',
+    intro: 'Click here to create a new pitch or deal. Track your licensing opportunities from start to finish.',
     position: 'right' as const
   },
   {
     element: '#add-template-button',
-    intro: 'Templates help you streamline email campaigns—create one here.',
+    intro: 'Add industry contacts here. Build and maintain relationships with music supervisors, producers, and other professionals.',
     position: 'right' as const
   }
 ];
@@ -34,7 +34,7 @@ export default function OnboardingTour({ enabled, onExit }: OnboardingTourProps)
   useEffect(() => {
     if (!enabled) return;
 
-    const intro = introJs();
+    const intro = introJs.tour();
     
     intro.setOptions({
       steps: tourSteps,

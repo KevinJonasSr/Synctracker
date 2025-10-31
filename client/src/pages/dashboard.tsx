@@ -47,7 +47,7 @@ export default function Dashboard() {
         onNewItem={() => setShowAddDeal(true)}
       />
       
-      <div className="p-6">
+      <div id="dashboard-overview" className="p-6">
         <MetricsCards metrics={metrics} />
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -61,16 +61,23 @@ export default function Dashboard() {
                 <h3 className="text-lg font-semibold text-gray-900">Quick Actions</h3>
               </div>
               <div className="p-6 space-y-3">
-                <button className="w-full flex items-center justify-center space-x-2 bg-brand-primary text-white px-4 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                <button 
+                  id="add-song-button"
+                  className="w-full flex items-center justify-center space-x-2 bg-brand-primary text-white px-4 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+                >
                   <span>Add New Song</span>
                 </button>
                 <button 
+                  id="add-deal-button"
                   onClick={() => setShowAddDeal(true)}
                   className="w-full flex items-center justify-center space-x-2 bg-brand-secondary text-white px-4 py-3 rounded-lg hover:bg-emerald-700 transition-colors"
                 >
                   <span>Create Pitch</span>
                 </button>
-                <button className="w-full flex items-center justify-center space-x-2 bg-brand-accent text-white px-4 py-3 rounded-lg hover:bg-purple-700 transition-colors">
+                <button 
+                  id="add-template-button"
+                  className="w-full flex items-center justify-center space-x-2 bg-brand-accent text-white px-4 py-3 rounded-lg hover:bg-purple-700 transition-colors"
+                >
                   <span>Add Contact</span>
                 </button>
                 <button className="w-full flex items-center justify-center space-x-2 bg-gray-600 text-white px-4 py-3 rounded-lg hover:bg-gray-700 transition-colors">
