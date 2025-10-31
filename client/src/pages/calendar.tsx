@@ -101,6 +101,14 @@ export default function Calendar() {
   };
 
   // Combine calendar events with air dates from deals
+  console.log("Calendar - Total deals:", deals.length);
+  console.log("Calendar - Deals with airDate:", deals.filter((deal: any) => deal.airDate).length);
+  deals.forEach((deal: any) => {
+    if (deal.airDate) {
+      console.log(`Deal "${deal.projectName}" has airDate:`, deal.airDate);
+    }
+  });
+  
   const airDateEvents = deals
     .filter((deal: any) => deal.airDate)
     .map((deal: any) => ({
@@ -118,7 +126,13 @@ export default function Calendar() {
       updatedAt: new Date()
     }));
 
+  console.log("Calendar - Air date events created:", airDateEvents.length);
+  airDateEvents.forEach(event => {
+    console.log(`Air date event: "${event.title}" on`, event.startDate);
+  });
+
   const allEvents = [...events, ...airDateEvents];
+  console.log("Calendar - Total events (calendar + air dates):", allEvents.length);
 
   const filteredEvents = allEvents.filter(event =>
     event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
