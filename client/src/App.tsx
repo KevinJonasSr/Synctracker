@@ -4,56 +4,50 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
-import NotFound from "@/pages/not-found";
-import Dashboard from "@/pages/dashboard";
-import Songs from "@/pages/songs";
-import Deals from "@/pages/deals";
-import Pitches from "@/pages/pitches";
-import Contacts from "@/pages/contacts";
-import Income from "@/pages/income";
-import Templates from "@/pages/templates";
-import Reports from "@/pages/reports";
-import EmailTemplates from "@/pages/email-templates";
-import Calendar from "@/pages/calendar";
-import Playlists from "@/pages/playlists";
-import Analytics from "@/pages/analytics";
+import { Suspense, lazy } from "react";
 import Sidebar from "@/components/layout/sidebar";
 
-function Router() {
-  return (
-    <Switch>
-      <Route path="/" component={Dashboard} />
-      <Route path="/songs" component={Songs} />
-      <Route path="/deals" component={Deals} />
-      <Route path="/pitches" component={Pitches} />
-      <Route path="/contacts" component={Contacts} />
-      <Route path="/income" component={Income} />
-      <Route path="/templates" component={Templates} />
-      <Route path="/reports" component={Reports} />
-      <Route path="/email-templates" component={EmailTemplates} />
-      <Route path="/calendar" component={Calendar} />
-      <Route path="/playlists" component={Playlists} />
-      <Route path="/analytics" component={Analytics} />
-      <Route component={NotFound} />
-    </Switch>
-  );
-}
+const Dashboard = lazy(() => import("@/pages/dashboard"));
+const Songs = lazy(() => import("@/pages/songs"));
+const Deals = lazy(() => import("@/pages/deals"));
+const Pitches = lazy(() => import("@/pages/pitches"));
+const Contacts = lazy(() => import("@/pages/contacts"));
+const Income = lazy(() => import("@/pages/income"));
+const Templates = lazy(() => import("@/pages/templates"));
+const Reports = lazy(() => import("@/pages/reports"));
+const EmailTemplates = lazy(() => import("@/pages/email-templates"));
+const Calendar = lazy(() => import("@/pages/calendar"));
+const Playlists = lazy(() => import("@/pages/playlists"));
+const Analytics = lazy(() => import("@/pages/analytics"));
+const NotFound = lazy(() => import("@/pages/not-found"));
 
 function App() {
   return (
-    <ThemeProvider defaultTheme="system" storageKey="sync-licensing-theme">
-      <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
         <TooltipProvider>
-          <div className="flex h-screen bg-background text-foreground">
-            <Sidebar />
-            <main className="flex-1 overflow-y-auto bg-background">
-              <Router />
-            </main>
-          </div>
+          <Sidebar />
+          <Suspense fallback={<div>Loading...</div>}>
+            <Switch>
+              <Route path="/" component={Dashboard} />
+              <Route path="/songs" component={Songs} />
+              <Route path="/deals" component={Deals} />
+              <Route path="/pitches" component={Pitches} />
+              <Route path="/contacts" component={Contacts} />
+              <Route path="/income" component={Income} />
+              <Route path="/templates" component={Templates} />
+              <Route path="/reports" component={Reports} />
+              <Route path="/email-templates" component={EmailTemplates} />
+              <Route path="/calendar" component={Calendar} />
+              <Route path="/playlists" component={Playlists} />
+              <Route path="/analytics" component={Analytics} />
+              <Route component={NotFound} />
+            </Switch>
+          </Suspense>
           <Toaster />
         </TooltipProvider>
-      </QueryClientProvider>
-    </ThemeProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 }
 
