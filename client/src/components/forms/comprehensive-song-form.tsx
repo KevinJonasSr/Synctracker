@@ -510,7 +510,7 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
                             .reduce((total, cp) => total + parseFloat(cp.publishingOwnership || '0'), 0)
                             .toFixed(2)}
                           readOnly
-                          className="bg-purple-25 cursor-not-allowed"
+                          className="bg-purple-100/50 font-semibold"
                           placeholder="0.00"
                         />
                         <p className="text-xs text-purple-600 mt-1">Auto-calculated from Jonas's checked composers</p>
@@ -528,7 +528,7 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
                             .reduce((total, al) => total + parseFloat(al.labelOwnership || '0'), 0)
                             .toFixed(2)}
                           readOnly
-                          className="bg-purple-25 cursor-not-allowed"
+                          className="bg-purple-100/50 font-semibold"
                           placeholder="0.00"
                         />
                         <p className="text-xs text-purple-600 mt-1">Auto-calculated from Jonas's checked artists</p>
