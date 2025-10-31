@@ -4,7 +4,8 @@ import { storage as dbStorage } from "./storage";
 import { 
   insertSongSchema, insertContactSchema, insertDealSchema,
   insertPitchSchema, insertPaymentSchema, insertTemplateSchema,
-  insertEmailTemplateSchema, insertAttachmentSchema, insertCalendarEventSchema
+  insertEmailTemplateSchema, insertAttachmentSchema, insertCalendarEventSchema,
+  type InsertTemplate
 } from "@shared/schema";
 import { z } from "zod";
 import multer from "multer";
@@ -480,6 +481,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: error.errors });
       }
       res.status(500).json({ error: "Failed to create template" });
+    }
+  });
+
+  app.post("/api/templates/:id/copy", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const templates = await dbStorage.getTemplates();
+      const original = templates.find(t => t.id === id);
+      
+      if (!original) {
+        return res.status(404).json({ error: "Template not found" });
+      }
+
+      const copyData: InsertTemplate = {
+        name: `${original.name} (Copy)`,
+        type: original.type,
+        content: original.content,
+      };
+
+      const newTemplate = await dbStorage.createTemplate(copyData);
+      res.json(newTemplate);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to copy template" });
+    }
+  });
+
+  app.get("/api/templates/:id/download", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const templates = await dbStorage.getTemplates();
+      const template = templates.find(t => t.id === id);
+      
+      if (!template) {
+        return res.status(404).json({ error: "Template not found" });
+      }
+
+      const filename = `${template.name || 'template'}.txt`;
+      res.setHeader('Content-Type', 'text/plain');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.send(template.content);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to download template" });
     }
   });
 

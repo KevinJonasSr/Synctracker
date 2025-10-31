@@ -44,15 +44,9 @@ export default function Templates() {
   });
 
   const copyMutation = useMutation({
-    mutationFn: async (template: Template) => {
-      const copyData: InsertTemplate = {
-        name: `${template.name} (Copy)`,
-        type: template.type,
-        content: template.content,
-      };
-      return await apiRequest("/api/templates", {
+    mutationFn: async (id: number) => {
+      return await apiRequest(`/api/templates/${id}/copy`, {
         method: "POST",
-        body: copyData,
       });
     },
     onSuccess: () => {
@@ -71,20 +65,32 @@ export default function Templates() {
     },
   });
 
-  const handleDownload = (template: Template) => {
-    const blob = new Blob([template.content], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `${template.name || 'template'}.txt`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    toast({
-      title: "Template downloaded",
-      description: `${template.name || 'Template'} has been downloaded.`,
-    });
+  const handleDownload = async (template: Template) => {
+    try {
+      const response = await fetch(`/api/templates/${template.id}/download`);
+      if (!response.ok) throw new Error("Download failed");
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${template.name || 'template'}.txt`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      toast({
+        title: "Template downloaded",
+        description: `${template.name || 'Template'} has been downloaded.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to download template. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleDelete = (template: Template) => {
@@ -207,7 +213,7 @@ export default function Templates() {
                           <Button 
                             size="sm" 
                             variant="outline"
-                            onClick={() => copyMutation.mutate(template)}
+                            onClick={() => copyMutation.mutate(template.id)}
                             disabled={copyMutation.isPending}
                             title="Copy template"
                           >
