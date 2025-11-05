@@ -478,6 +478,9 @@ export default function Calendar() {
                 <div key={event.id} className="flex items-center justify-between p-3 border rounded-lg">
                   <div className="space-y-1">
                     <p className="font-medium">{event.title}</p>
+                    {event.description && (
+                      <p className="text-sm text-muted-foreground">{event.description}</p>
+                    )}
                     <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                       <Clock className="h-4 w-4" />
                       <span>{formatDate(event.startDate)}</span>
