@@ -803,7 +803,7 @@ export default function Calendar() {
 
       {/* Edit Air Date Dialog */}
       <Dialog open={!!editingEvent} onOpenChange={() => setEditingEvent(null)}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Edit Air Date</DialogTitle>
           </DialogHeader>
@@ -817,15 +817,15 @@ export default function Calendar() {
                 onChange={(e) => setEditDate(e.target.value)}
               />
             </div>
-            <div className="flex justify-end space-x-2">
-              <Button variant="outline" onClick={() => setEditingEvent(null)}>
-                Cancel
-              </Button>
+            <div className="flex justify-start space-x-2">
               <Button 
                 onClick={handleSaveEdit}
                 disabled={!editDate || editAirDateMutation.isPending}
               >
                 {editAirDateMutation.isPending ? "Saving..." : "Save"}
+              </Button>
+              <Button variant="outline" onClick={() => setEditingEvent(null)}>
+                Close
               </Button>
             </div>
           </div>
