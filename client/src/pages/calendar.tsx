@@ -127,7 +127,7 @@ export default function Calendar() {
       return {
         id: parseInt(`${deal.id}000`), // Convert to number with suffix to avoid conflicts
         title: `Air Date: ${deal.projectName}`,
-        description: `${songTitle}\nProject "${deal.projectName}" (${deal.projectType}) is scheduled to air.`,
+        description: `Song: ${songTitle}`,
         startDate: localDate,
         endDate: localDate,
         allDay: true,
