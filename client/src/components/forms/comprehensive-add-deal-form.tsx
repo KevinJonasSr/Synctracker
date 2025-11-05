@@ -376,6 +376,24 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
     return (fullFee * ownershipPercentage) / 100;
   };
 
+  // Recalculate recording fee when artistLabels ownership changes
+  useEffect(() => {
+    const fullRecordingFee = form.watch("fullRecordingFee");
+    if (fullRecordingFee && fullRecordingFee > 0) {
+      const ourOwnershipTotal = artistLabels
+        .filter(al => al.isMine)
+        .reduce((sum, al) => {
+          const ownership = parseFloat(al.labelOwnership) || 0;
+          return sum + ownership;
+        }, 0);
+      
+      if (ourOwnershipTotal > 0) {
+        const ourRecordingFee = calculateOurFeeFromOwnership(fullRecordingFee, ourOwnershipTotal);
+        form.setValue("ourRecordingFee", Math.round(ourRecordingFee * 100) / 100);
+      }
+    }
+  }, [artistLabels]);
+
   const onSubmit = (data: InsertDeal) => {
     console.log("Form submission data:", data);
     
@@ -963,13 +981,24 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                       const numericValue = parseFloat(e.target.value.replace(/[$,]/g, "")) || 0;
                       form.setValue("fullRecordingFee", numericValue);
                       
-                      // Auto-calculate our recording fee based on actual master ownership percentage
-                      if (selectedSong && selectedSong.masterOwnership) {
+                      // Calculate our recording fee by summing ownership from checked artist/label rows
+                      const ourOwnershipTotal = artistLabels
+                        .filter(al => al.isMine)
+                        .reduce((sum, al) => {
+                          const ownership = parseFloat(al.labelOwnership) || 0;
+                          return sum + ownership;
+                        }, 0);
+                      
+                      if (ourOwnershipTotal > 0) {
+                        const ourRecordingFee = calculateOurFeeFromOwnership(numericValue, ourOwnershipTotal);
+                        form.setValue("ourRecordingFee", Math.round(ourRecordingFee * 100) / 100);
+                      } else if (selectedSong && selectedSong.masterOwnership) {
+                        // Fallback to song's master ownership if no artist/label splits checked
                         const ownershipPct = parseFloat(selectedSong.masterOwnership.toString());
                         const ourRecordingFee = calculateOurFeeFromOwnership(numericValue, ownershipPct);
                         form.setValue("ourRecordingFee", Math.round(ourRecordingFee * 100) / 100);
                       } else {
-                        // Fallback to artist/label splits text parsing if no ownership data
+                        // Final fallback to artist/label splits text parsing
                         const artistLabelSplitsText = form.watch("artistLabelSplits") || "";
                         if (artistLabelSplitsText) {
                           const ourRecordingFee = calculateOurFee(numericValue, artistLabelSplitsText);
