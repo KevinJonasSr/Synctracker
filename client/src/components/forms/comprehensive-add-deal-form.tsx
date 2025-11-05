@@ -1268,7 +1268,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                     <Label htmlFor="pitchedDate" className="text-sm">New Request</Label>
                     <Input
                       id="pitchedDate"
-                      type="datetime-local"
+                      type="date"
                       {...form.register("pitchedDate")}
                       className="text-sm"
                     />
@@ -1277,7 +1277,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                     <Label htmlFor="pendingApprovalDate" className="text-sm">Pending Approval</Label>
                     <Input
                       id="pendingApprovalDate"
-                      type="datetime-local"
+                      type="date"
                       {...form.register("pendingApprovalDate")}
                       className="text-sm"
                     />
@@ -1286,7 +1286,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                     <Label htmlFor="quotedDate" className="text-sm">Quoted</Label>
                     <Input
                       id="quotedDate"
-                      type="datetime-local"
+                      type="date"
                       {...form.register("quotedDate")}
                       className="text-sm"
                     />
@@ -1295,7 +1295,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                     <Label htmlFor="useConfirmedDate" className="text-sm">Use Confirmed</Label>
                     <Input
                       id="useConfirmedDate"
-                      type="datetime-local"
+                      type="date"
                       {...form.register("useConfirmedDate")}
                       className="text-sm"
                     />
@@ -1307,7 +1307,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                     <Label htmlFor="beingDraftedDate" className="text-sm">Being Drafted</Label>
                     <Input
                       id="beingDraftedDate"
-                      type="datetime-local"
+                      type="date"
                       {...form.register("beingDraftedDate")}
                       className="text-sm"
                     />
@@ -1316,7 +1316,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                     <Label htmlFor="outForSignatureDate" className="text-sm">Out for Signature</Label>
                     <Input
                       id="outForSignatureDate"
-                      type="datetime-local"
+                      type="date"
                       {...form.register("outForSignatureDate")}
                       className="text-sm"
                     />
@@ -1325,7 +1325,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                     <Label htmlFor="paymentReceivedDate" className="text-sm">Payment Received</Label>
                     <Input
                       id="paymentReceivedDate"
-                      type="datetime-local"
+                      type="date"
                       {...form.register("paymentReceivedDate")}
                       className="text-sm"
                     />
@@ -1334,7 +1334,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                     <Label htmlFor="completedDate" className="text-sm">Completed</Label>
                     <Input
                       id="completedDate"
-                      type="datetime-local"
+                      type="date"
                       {...form.register("completedDate")}
                       className="text-sm"
                     />
