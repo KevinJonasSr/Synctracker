@@ -3,15 +3,17 @@ import { useQuery } from "@tanstack/react-query";
 import Header from "@/components/layout/header";
 import ComprehensiveAddDealForm from "@/components/forms/comprehensive-add-deal-form";
 import DealDetailsDialog from "@/components/deal-details-dialog";
+import ImportDealsDialog from "@/components/forms/import-deals-dialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Handshake, Edit, Trash2, DollarSign, Calendar, Building } from "lucide-react";
+import { Handshake, Edit, Trash2, DollarSign, Calendar, Building, Upload } from "lucide-react";
 import type { DealWithRelations } from "@shared/schema";
 
 export default function Deals() {
   const [showAddDeal, setShowAddDeal] = useState(false);
+  const [showImportDeals, setShowImportDeals] = useState(false);
   const [activeTab, setActiveTab] = useState("all");
   const [isPending, startTransition] = useTransition();
   const [selectedDeal, setSelectedDeal] = useState<DealWithRelations | null>(null);
@@ -109,6 +111,18 @@ export default function Deals() {
       />
       
       <div className="p-6">
+        <div className="flex justify-end mb-4">
+          <Button
+            variant="outline"
+            onClick={() => setShowImportDeals(true)}
+            data-testid="button-import-deals"
+          >
+            <Upload className="h-4 w-4 mr-2" />
+            Import Deals
+          </Button>
+        </div>
+      
+        
         <Tabs value={activeTab} onValueChange={(value) => {
           startTransition(() => {
             setActiveTab(value);
@@ -298,6 +312,11 @@ export default function Deals() {
         deal={selectedDeal}
         open={showDealDetails}
         onClose={() => setShowDealDetails(false)}
+      />
+      
+      <ImportDealsDialog
+        open={showImportDeals}
+        onClose={() => setShowImportDeals(false)}
       />
     </div>
   );

@@ -11,6 +11,7 @@ import { z } from "zod";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import * as XLSX from "xlsx";
 
 // Configure multer for file uploads
 const multerStorage = multer.diskStorage({
@@ -32,9 +33,9 @@ const upload = multer({
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
   fileFilter: (req, file, cb) => {
     // Allow most file types for sync licensing
-    const allowedTypes = /jpeg|jpg|png|gif|pdf|doc|docx|txt|mp3|wav|aiff|flac|m4a|zip|rar/;
+    const allowedTypes = /jpeg|jpg|png|gif|pdf|doc|docx|txt|mp3|wav|aiff|flac|m4a|zip|rar|xlsx|xls|csv/;
     const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-    const mimetype = allowedTypes.test(file.mimetype);
+    const mimetype = allowedTypes.test(file.mimetype) || file.mimetype === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || file.mimetype === 'application/vnd.ms-excel' || file.mimetype === 'text/csv';
     
     if (mimetype && extname) {
       return cb(null, true);
@@ -317,6 +318,161 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete deal" });
+    }
+  });
+
+  // Bulk import deals endpoints
+  app.post("/api/deals/import/parse", upload.single('file'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "No file uploaded" });
+      }
+
+      const filePath = req.file.path;
+      const fileExtension = path.extname(req.file.originalname).toLowerCase();
+
+      let workbook;
+      if (fileExtension === '.csv') {
+        const fileContent = fs.readFileSync(filePath, 'utf8');
+        workbook = XLSX.read(fileContent, { type: 'string' });
+      } else {
+        workbook = XLSX.readFile(filePath);
+      }
+
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+
+      // Get headers
+      const headers = jsonData.length > 0 ? Object.keys(jsonData[0]) : [];
+
+      // Clean up uploaded file
+      fs.unlinkSync(filePath);
+
+      res.json({
+        headers,
+        preview: jsonData.slice(0, 10), // First 10 rows for preview
+        data: jsonData, // Full dataset for import
+        totalRows: jsonData.length
+      });
+    } catch (error) {
+      console.error("Error parsing file:", error);
+      if (req.file?.path) {
+        try {
+          fs.unlinkSync(req.file.path);
+        } catch (cleanupError) {
+          console.error("Error cleaning up file:", cleanupError);
+        }
+      }
+      res.status(500).json({ error: "Failed to parse file", details: error.message });
+    }
+  });
+
+  app.post("/api/deals/import/create", async (req, res) => {
+    try {
+      const { data, mapping, autoCreateSongs, autoCreateContacts } = req.body;
+
+      if (!data || !Array.isArray(data)) {
+        return res.status(400).json({ error: "Invalid data format" });
+      }
+
+      if (!mapping || typeof mapping !== 'object') {
+        return res.status(400).json({ error: "Missing column mapping" });
+      }
+
+      const results = {
+        created: 0,
+        failed: 0,
+        errors: [] as Array<{ row: number; error: string }>
+      };
+
+      for (let i = 0; i < data.length; i++) {
+        try {
+          const row = data[i];
+          
+          // Map columns to deal fields
+          const dealData: any = {
+            projectName: row[mapping.projectName] || 'Untitled Project',
+            projectType: row[mapping.projectType] || 'other',
+            songId: null,
+            contactId: null,
+            status: row[mapping.status] || 'new_request',
+            territory: row[mapping.territory] || 'worldwide',
+            exclusivity: row[mapping.exclusivity]?.toLowerCase() === 'exclusive' || row[mapping.exclusivity]?.toLowerCase() === 'true',
+            projectDescription: row[mapping.projectDescription] || null,
+            term: row[mapping.term] || null,
+            usage: row[mapping.usage] || null,
+            totalFee: row[mapping.totalFee] ? parseFloat(row[mapping.totalFee]) : null,
+            publishingFee: row[mapping.publishingFee] ? parseFloat(row[mapping.publishingFee]) : null,
+            recordingFee: row[mapping.recordingFee] ? parseFloat(row[mapping.recordingFee]) : null,
+            notes: row[mapping.notes] || null,
+            airDate: row[mapping.airDate] ? new Date(row[mapping.airDate]) : null
+          };
+
+          // Handle song - find existing or create new
+          if (mapping.songTitle && row[mapping.songTitle]) {
+            const songTitle = row[mapping.songTitle];
+            const songs = await dbStorage.getSongs(songTitle);
+            let song = songs.find(s => s.title.toLowerCase() === songTitle.toLowerCase());
+            
+            if (!song && autoCreateSongs) {
+              // Create new song
+              const songData: any = {
+                title: songTitle,
+                artist: row[mapping.songArtist] || 'Unknown Artist'
+              };
+              if (mapping.songComposer && row[mapping.songComposer]) {
+                songData.composer = row[mapping.songComposer];
+              }
+              if (mapping.songPublisher && row[mapping.songPublisher]) {
+                songData.publisher = row[mapping.songPublisher];
+              }
+              song = await dbStorage.createSong(songData);
+            }
+            
+            if (song) {
+              dealData.songId = song.id;
+            }
+          }
+
+          // Handle contact - find existing or create new
+          if (mapping.contactName && row[mapping.contactName]) {
+            const contactName = row[mapping.contactName];
+            const contacts = await dbStorage.getContacts(contactName);
+            let contact = contacts.find(c => c.name.toLowerCase() === contactName.toLowerCase());
+            
+            if (!contact && autoCreateContacts) {
+              // Create new contact
+              const contactData: any = {
+                name: contactName,
+                email: row[mapping.contactEmail] || null,
+                phone: row[mapping.contactPhone] || null,
+                company: row[mapping.contactCompany] || null
+              };
+              contact = await dbStorage.createContact(contactData);
+            }
+            
+            if (contact) {
+              dealData.contactId = contact.id;
+            }
+          }
+
+          // Create the deal
+          await dbStorage.createDeal(dealData);
+          results.created++;
+        } catch (error) {
+          results.failed++;
+          results.errors.push({
+            row: i + 1,
+            error: error instanceof Error ? error.message : 'Unknown error'
+          });
+        }
+      }
+
+      res.json(results);
+    } catch (error) {
+      console.error("Error importing deals:", error);
+      res.status(500).json({ error: "Failed to import deals", details: error.message });
     }
   });
 
