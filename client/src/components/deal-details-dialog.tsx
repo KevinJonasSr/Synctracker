@@ -133,12 +133,6 @@ export default function DealDetailsDialog({ deal, open, onClose }: DealDetailsDi
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <DialogTitle className="text-xl">{deal.projectName}</DialogTitle>
-              <Badge className={getStatusColor(deal.status)}>
-                {getStatusLabel(deal.status)}
-              </Badge>
-            </div>
             <div className="flex items-center space-x-2">
               <Button variant="outline" size="sm" onClick={() => setShowEditForm(true)}>
                 <Edit className="h-4 w-4 mr-2" />
@@ -154,6 +148,15 @@ export default function DealDetailsDialog({ deal, open, onClose }: DealDetailsDi
                 <Trash2 className="h-4 w-4 mr-2" />
                 Delete
               </Button>
+              <Button variant="outline" size="sm" onClick={onClose}>
+                Close
+              </Button>
+            </div>
+            <div className="flex items-center space-x-3">
+              <DialogTitle className="text-xl">{deal.projectName}</DialogTitle>
+              <Badge className={getStatusColor(deal.status)}>
+                {getStatusLabel(deal.status)}
+              </Badge>
             </div>
           </div>
         </DialogHeader>
