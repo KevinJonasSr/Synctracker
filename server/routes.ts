@@ -614,9 +614,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/templates/:id/copy", async (req, res) => {
+  app.post("/api/templates/:id/duplicate", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
+      const { name } = req.body;
       const templates = await dbStorage.getTemplates();
       const original = templates.find(t => t.id === id);
       
@@ -625,7 +626,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const copyData: InsertTemplate = {
-        name: `${original.name} (Copy)`,
+        name: name || `${original.name} (Copy)`,
         type: original.type,
         content: original.content,
       };
@@ -633,7 +634,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const newTemplate = await dbStorage.createTemplate(copyData);
       res.json(newTemplate);
     } catch (error) {
-      res.status(500).json({ error: "Failed to copy template" });
+      res.status(500).json({ error: "Failed to duplicate template" });
     }
   });
 

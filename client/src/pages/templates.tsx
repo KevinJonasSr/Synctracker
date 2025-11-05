@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Copy, Download, Edit, Trash2 } from "lucide-react";
+import DuplicateTemplateDialog from "@/components/duplicate-template-dialog";
 import type { Template } from "@shared/schema";
 
 export default function Templates() {
@@ -12,6 +13,8 @@ export default function Templates() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editName, setEditName] = useState("");
   const [editContent, setEditContent] = useState("");
+  const [duplicateDialogOpen, setDuplicateDialogOpen] = useState(false);
+  const [duplicatingTemplate, setDuplicatingTemplate] = useState<Template | null>(null);
 
   const fetchTemplates = async () => {
     setLoading(true);
@@ -29,15 +32,13 @@ export default function Templates() {
     fetchTemplates();
   }, []);
 
-  const copyTemplate = async (id: number) => {
-    try {
-      const res = await fetch(`/api/templates/${id}/copy`, { method: "POST" });
-      if (!res.ok) throw new Error("Copy failed");
-      alert("✅ Template copied successfully!");
-      fetchTemplates();
-    } catch (err) {
-      alert("❌ Copy failed");
-    }
+  const openDuplicateDialog = (template: Template) => {
+    setDuplicatingTemplate(template);
+    setDuplicateDialogOpen(true);
+  };
+
+  const handleDuplicateSuccess = () => {
+    fetchTemplates();
   };
 
   const downloadTemplate = async (id: number) => {
@@ -152,9 +153,9 @@ export default function Templates() {
                         <Button 
                           variant="ghost" 
                           size="sm"
-                          onClick={() => copyTemplate(template.id)}
-                          title="Copy template"
-                          data-testid={`copy-template-${template.id}`}
+                          onClick={() => openDuplicateDialog(template)}
+                          title="Duplicate template"
+                          data-testid={`duplicate-template-${template.id}`}
                         >
                           <Copy className="h-4 w-4" />
                         </Button>
@@ -206,6 +207,19 @@ export default function Templates() {
             </Card>
           ))}
         </div>
+      )}
+      
+      {duplicatingTemplate && (
+        <DuplicateTemplateDialog
+          open={duplicateDialogOpen}
+          onClose={() => {
+            setDuplicateDialogOpen(false);
+            setDuplicatingTemplate(null);
+          }}
+          templateId={duplicatingTemplate.id}
+          templateName={duplicatingTemplate.name}
+          onSuccess={handleDuplicateSuccess}
+        />
       )}
     </div>
   );
