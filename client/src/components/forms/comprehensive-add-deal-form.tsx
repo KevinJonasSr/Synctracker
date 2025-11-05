@@ -63,6 +63,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
     label: string;
     labelOwnership: string;
     isMine: boolean;
+    paymentDate: string;
   }
   
   const [composerPublishers, setComposerPublishers] = useState<ComposerPublisher[]>([
@@ -70,7 +71,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
   ]);
   
   const [artistLabels, setArtistLabels] = useState<ArtistLabel[]>([
-    { artist: '', label: '', labelOwnership: '', isMine: false }
+    { artist: '', label: '', labelOwnership: '', isMine: false, paymentDate: '' }
   ]);
 
   const form = useForm<InsertDeal>({
@@ -178,7 +179,12 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
           
           // Load artist-label data if available
           if (song.artistLabels && Array.isArray(song.artistLabels)) {
-            setArtistLabels(song.artistLabels);
+            // Ensure paymentDate field exists for each item
+            const artistLabelsWithDate = song.artistLabels.map(al => ({
+              ...al,
+              paymentDate: al.paymentDate || ''
+            }));
+            setArtistLabels(artistLabelsWithDate);
           } else if (song.artist || song.producer) {
             // Fall back to legacy comma-separated strings
             const artists = song.artist ? song.artist.split(', ').filter(Boolean) : [''];
@@ -191,10 +197,11 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                 artist: artists[i] || '',
                 label: labels[i] || '',
                 labelOwnership: '',
-                isMine: false
+                isMine: false,
+                paymentDate: ''
               });
             }
-            setArtistLabels(result.length > 0 ? result : [{ artist: '', label: '', labelOwnership: '', isMine: false }]);
+            setArtistLabels(result.length > 0 ? result : [{ artist: '', label: '', labelOwnership: '', isMine: false, paymentDate: '' }]);
           }
         }
       }
@@ -633,7 +640,12 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                                   
                                   // Load artist-label data if available
                                   if (song.artistLabels && Array.isArray(song.artistLabels)) {
-                                    setArtistLabels(song.artistLabels);
+                                    // Ensure paymentDate field exists for each item
+                                    const artistLabelsWithDate = song.artistLabels.map(al => ({
+                                      ...al,
+                                      paymentDate: al.paymentDate || ''
+                                    }));
+                                    setArtistLabels(artistLabelsWithDate);
                                   } else if (song.artist || song.producer) {
                                     // Fall back to legacy comma-separated strings
                                     const artists = song.artist ? song.artist.split(', ').filter(Boolean) : [''];
@@ -646,10 +658,11 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                                         artist: artists[i] || '',
                                         label: labels[i] || '',
                                         labelOwnership: '',
-                                        isMine: false
+                                        isMine: false,
+                                        paymentDate: ''
                                       });
                                     }
-                                    setArtistLabels(result.length > 0 ? result : [{ artist: '', label: '', labelOwnership: '', isMine: false }]);
+                                    setArtistLabels(result.length > 0 ? result : [{ artist: '', label: '', labelOwnership: '', isMine: false, paymentDate: '' }]);
                                   }
                                   
                                   // Use actual split details if available, otherwise calculate from ownership data
@@ -818,44 +831,71 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                         <Label className="text-base font-semibold">Artist(s), Label(s) & Ownership</Label>
                         <div className="space-y-3 mt-3">
                           <div className="grid grid-cols-12 gap-2 text-sm font-medium text-blue-700">
-                            <div className="col-span-4">Artist Name</div>
-                            <div className="col-span-4">Label</div>
-                            <div className="col-span-2">Ownership (%)</div>
+                            <div className="col-span-3">Artist Name</div>
+                            <div className="col-span-2">Label</div>
+                            <div className="col-span-1">%</div>
                             <div className="col-span-1">Jonas</div>
-                            <div className="col-span-1"></div>
+                            <div className="col-span-2">Fee</div>
+                            <div className="col-span-3">Payment Date</div>
                           </div>
-                          {artistLabels.map((item, index) => (
-                            <div key={index} className="grid grid-cols-12 gap-2">
-                              <div className="col-span-4">
-                                <Input
-                                  value={item.artist}
-                                  readOnly
-                                  className="bg-blue-25 cursor-not-allowed"
-                                />
-                              </div>
-                              <div className="col-span-4">
-                                <Input
-                                  value={item.label}
-                                  readOnly
-                                  className="bg-blue-25 cursor-not-allowed"
-                                />
-                              </div>
-                              <div className="col-span-2">
-                                <Input
-                                  value={item.labelOwnership}
-                                  readOnly
-                                  className="bg-blue-25 cursor-not-allowed"
-                                />
-                              </div>
-                              <div className="col-span-1 flex justify-center items-center">
-                                <Checkbox
-                                  checked={item.isMine}
-                                  disabled
-                                />
-                              </div>
-                              <div className="col-span-1"></div>
-                            </div>
-                          ))}
+                          {(() => {
+                            const fullRecordingFee = form.watch("fullRecordingFee") || 0;
+                            return artistLabels.map((item, index) => {
+                              const ownership = parseFloat(item.labelOwnership) || 0;
+                              const fee = (fullRecordingFee * ownership) / 100;
+                              
+                              return (
+                                <div key={index} className="grid grid-cols-12 gap-2">
+                                  <div className="col-span-3">
+                                    <Input
+                                      value={item.artist}
+                                      readOnly
+                                      className="bg-blue-25 cursor-not-allowed"
+                                    />
+                                  </div>
+                                  <div className="col-span-2">
+                                    <Input
+                                      value={item.label}
+                                      readOnly
+                                      className="bg-blue-25 cursor-not-allowed"
+                                    />
+                                  </div>
+                                  <div className="col-span-1">
+                                    <Input
+                                      value={item.labelOwnership}
+                                      readOnly
+                                      className="bg-blue-25 cursor-not-allowed"
+                                    />
+                                  </div>
+                                  <div className="col-span-1 flex justify-center items-center">
+                                    <Checkbox
+                                      checked={item.isMine}
+                                      disabled
+                                    />
+                                  </div>
+                                  <div className="col-span-2">
+                                    <Input
+                                      value={formatCurrency(fee)}
+                                      readOnly
+                                      className="bg-blue-25 cursor-not-allowed"
+                                    />
+                                  </div>
+                                  <div className="col-span-3">
+                                    <Input
+                                      type="date"
+                                      value={item.paymentDate || ''}
+                                      onChange={(e) => {
+                                        const newArtistLabels = [...artistLabels];
+                                        newArtistLabels[index].paymentDate = e.target.value;
+                                        setArtistLabels(newArtistLabels);
+                                      }}
+                                      className="bg-white"
+                                    />
+                                  </div>
+                                </div>
+                              );
+                            });
+                          })()}
                         </div>
                       </div>
                     </CardContent>
