@@ -231,32 +231,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('Processed data:', processedData);
       const deal = await dbStorage.createDeal(processedData);
       
-      // Auto-create calendar event for air date if provided
-      if (processedData.airDate) {
-        try {
-          console.log('Creating calendar event for air date:', processedData.airDate);
-          const calendarEvent = {
-            title: `Air Date: ${deal.projectName}`,
-            description: `Project "${deal.projectName}" (${deal.projectType}) is scheduled to air.`,
-            startDate: processedData.airDate,
-            endDate: processedData.airDate,
-            allDay: true,
-            entityType: 'deal' as const,
-            entityId: deal.id,
-            status: 'scheduled' as const,
-            reminderMinutes: 1440 // 24 hours before
-          };
-          
-          console.log('Calendar event data:', calendarEvent);
-          const createdEvent = await dbStorage.createCalendarEvent(calendarEvent);
-          console.log('Calendar event created successfully:', createdEvent);
-        } catch (eventError) {
-          console.error('Error creating calendar event for air date:', eventError);
-          console.error('Error details:', eventError);
-          // Don't fail the deal creation if calendar event fails
-        }
-      }
-      
       res.json(deal);
     } catch (error) {
       console.error("Error creating deal:", error);
