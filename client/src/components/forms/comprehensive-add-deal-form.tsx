@@ -56,6 +56,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
     publisher: string;
     publishingOwnership: string;
     isMine: boolean;
+    paymentDate: string;
   }
   
   interface ArtistLabel {
@@ -67,7 +68,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
   }
   
   const [composerPublishers, setComposerPublishers] = useState<ComposerPublisher[]>([
-    { composer: '', publisher: '', publishingOwnership: '', isMine: false }
+    { composer: '', publisher: '', publishingOwnership: '', isMine: false, paymentDate: '' }
   ]);
   
   const [artistLabels, setArtistLabels] = useState<ArtistLabel[]>([
@@ -158,7 +159,12 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
           
           // Load structured ownership data if available
           if (song.composerPublishers && Array.isArray(song.composerPublishers)) {
-            setComposerPublishers(song.composerPublishers);
+            // Ensure paymentDate field exists for each item
+            const composerPublishersWithDate = song.composerPublishers.map(cp => ({
+              ...cp,
+              paymentDate: cp.paymentDate || ''
+            }));
+            setComposerPublishers(composerPublishersWithDate);
           } else if (song.composer || song.publisher) {
             // Fall back to legacy comma-separated strings
             const composers = song.composer ? song.composer.split(', ').filter(Boolean) : [''];
@@ -171,10 +177,11 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                 composer: composers[i] || '',
                 publisher: publishers[i] || '',
                 publishingOwnership: '',
-                isMine: false
+                isMine: false,
+                paymentDate: ''
               });
             }
-            setComposerPublishers(result.length > 0 ? result : [{ composer: '', publisher: '', publishingOwnership: '', isMine: false }]);
+            setComposerPublishers(result.length > 0 ? result : [{ composer: '', publisher: '', publishingOwnership: '', isMine: false, paymentDate: '' }]);
           }
           
           // Load artist-label data if available
@@ -619,7 +626,12 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                                   
                                   // Load structured ownership data if available
                                   if (song.composerPublishers && Array.isArray(song.composerPublishers)) {
-                                    setComposerPublishers(song.composerPublishers);
+                                    // Ensure paymentDate field exists for each item
+                                    const composerPublishersWithDate = song.composerPublishers.map(cp => ({
+                                      ...cp,
+                                      paymentDate: cp.paymentDate || ''
+                                    }));
+                                    setComposerPublishers(composerPublishersWithDate);
                                   } else if (song.composer || song.publisher) {
                                     // Fall back to legacy comma-separated strings
                                     const composers = song.composer ? song.composer.split(', ').filter(Boolean) : [''];
@@ -632,10 +644,11 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                                         composer: composers[i] || '',
                                         publisher: publishers[i] || '',
                                         publishingOwnership: '',
-                                        isMine: false
+                                        isMine: false,
+                                        paymentDate: ''
                                       });
                                     }
-                                    setComposerPublishers(result.length > 0 ? result : [{ composer: '', publisher: '', publishingOwnership: '', isMine: false }]);
+                                    setComposerPublishers(result.length > 0 ? result : [{ composer: '', publisher: '', publishingOwnership: '', isMine: false, paymentDate: '' }]);
                                   }
                                   
                                   // Load artist-label data if available
@@ -778,44 +791,71 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                         <Label className="text-base font-semibold">Composer(s), Publisher(s) & Ownership</Label>
                         <div className="space-y-3 mt-3">
                           <div className="grid grid-cols-12 gap-2 text-sm font-medium text-green-700">
-                            <div className="col-span-4">Composer Name</div>
-                            <div className="col-span-4">Publisher</div>
-                            <div className="col-span-2">Ownership (%)</div>
+                            <div className="col-span-3">Composer Name</div>
+                            <div className="col-span-2">Publisher</div>
+                            <div className="col-span-1">%</div>
                             <div className="col-span-1">Jonas</div>
-                            <div className="col-span-1"></div>
+                            <div className="col-span-2">Fee</div>
+                            <div className="col-span-3">Payment Date</div>
                           </div>
-                          {composerPublishers.map((item, index) => (
-                            <div key={index} className="grid grid-cols-12 gap-2">
-                              <div className="col-span-4">
-                                <Input
-                                  value={item.composer}
-                                  readOnly
-                                  className="bg-green-25 cursor-not-allowed"
-                                />
-                              </div>
-                              <div className="col-span-4">
-                                <Input
-                                  value={item.publisher}
-                                  readOnly
-                                  className="bg-green-25 cursor-not-allowed"
-                                />
-                              </div>
-                              <div className="col-span-2">
-                                <Input
-                                  value={item.publishingOwnership}
-                                  readOnly
-                                  className="bg-green-25 cursor-not-allowed"
-                                />
-                              </div>
-                              <div className="col-span-1 flex justify-center items-center">
-                                <Checkbox
-                                  checked={item.isMine}
-                                  disabled
-                                />
-                              </div>
-                              <div className="col-span-1"></div>
-                            </div>
-                          ))}
+                          {(() => {
+                            const fullSongValue = form.watch("fullSongValue") || 0;
+                            return composerPublishers.map((item, index) => {
+                              const ownership = parseFloat(item.publishingOwnership) || 0;
+                              const fee = (fullSongValue * ownership) / 100;
+                              
+                              return (
+                                <div key={index} className="grid grid-cols-12 gap-2">
+                                  <div className="col-span-3">
+                                    <Input
+                                      value={item.composer}
+                                      readOnly
+                                      className="bg-green-25 cursor-not-allowed"
+                                    />
+                                  </div>
+                                  <div className="col-span-2">
+                                    <Input
+                                      value={item.publisher}
+                                      readOnly
+                                      className="bg-green-25 cursor-not-allowed"
+                                    />
+                                  </div>
+                                  <div className="col-span-1">
+                                    <Input
+                                      value={item.publishingOwnership}
+                                      readOnly
+                                      className="bg-green-25 cursor-not-allowed"
+                                    />
+                                  </div>
+                                  <div className="col-span-1 flex justify-center items-center">
+                                    <Checkbox
+                                      checked={item.isMine}
+                                      disabled
+                                    />
+                                  </div>
+                                  <div className="col-span-2">
+                                    <Input
+                                      value={formatCurrency(fee)}
+                                      readOnly
+                                      className="bg-green-25 cursor-not-allowed"
+                                    />
+                                  </div>
+                                  <div className="col-span-3">
+                                    <Input
+                                      type="date"
+                                      value={item.paymentDate || ''}
+                                      onChange={(e) => {
+                                        const newComposerPublishers = [...composerPublishers];
+                                        newComposerPublishers[index].paymentDate = e.target.value;
+                                        setComposerPublishers(newComposerPublishers);
+                                      }}
+                                      className="bg-white"
+                                    />
+                                  </div>
+                                </div>
+                              );
+                            });
+                          })()}
                         </div>
                       </div>
                     </CardContent>
