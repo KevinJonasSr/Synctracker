@@ -173,9 +173,9 @@ export default function DealDetailsDialog({ deal, open, onClose }: DealDetailsDi
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="pb-4 border-b">
+                  <div>
                     <div className="flex items-center space-x-3">
-                      <h2 className="text-xl font-semibold">{deal.projectName}</h2>
+                      <p className="text-gray-900">{deal.projectName}</p>
                       <Badge className={getStatusColor(deal.status)}>
                         {getStatusLabel(deal.status)}
                       </Badge>
