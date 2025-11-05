@@ -62,8 +62,19 @@ export default function Calendar() {
     },
   });
 
-  const isLoading = eventsLoading || dealsLoading;
-  const error = eventsError || dealsError;
+  const { data: songs = [], isLoading: songsLoading, error: songsError } = useQuery<any[]>({
+    queryKey: ["/api/songs"],
+    queryFn: async () => {
+      const response = await fetch("/api/songs");
+      if (!response.ok) {
+        throw new Error('Failed to fetch songs');
+      }
+      return response.json();
+    },
+  });
+
+  const isLoading = eventsLoading || dealsLoading || songsLoading;
+  const error = eventsError || dealsError || songsError;
 
   const getStatusColor = (status: string) => {
     const colors = {
@@ -109,9 +120,13 @@ export default function Calendar() {
       const [year, month, day] = airDateStr.split('-').map(Number);
       const localDate = new Date(year, month - 1, day, 12, 0, 0); // Use noon to avoid timezone issues
       
+      // Find the song title for this deal
+      const song = songs.find((s: any) => s.id === deal.songId);
+      const songTitle = song?.title || 'Unknown Song';
+      
       return {
         id: parseInt(`${deal.id}000`), // Convert to number with suffix to avoid conflicts
-        title: `Air Date: ${deal.projectName}`,
+        title: `Air Date: ${songTitle}`,
         description: `Project "${deal.projectName}" (${deal.projectType}) is scheduled to air.`,
         startDate: localDate,
         endDate: localDate,
