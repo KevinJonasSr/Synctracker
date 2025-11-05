@@ -130,34 +130,26 @@ export default function DealDetailsDialog({ deal, open, onClose }: DealDetailsDi
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto" hideClose>
         <DialogHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Button variant="outline" size="sm" onClick={() => setShowEditForm(true)}>
-                <Edit className="h-4 w-4 mr-2" />
-                Edit
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={handleDelete}
-                disabled={deleteDealMutation.isPending}
-                className="text-red-600 hover:text-red-700"
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Delete
-              </Button>
-              <Button variant="outline" size="sm" onClick={onClose}>
-                Close
-              </Button>
-            </div>
-            <div className="flex items-center space-x-3">
-              <DialogTitle className="text-xl">{deal.projectName}</DialogTitle>
-              <Badge className={getStatusColor(deal.status)}>
-                {getStatusLabel(deal.status)}
-              </Badge>
-            </div>
+          <div className="flex items-center justify-end space-x-2">
+            <Button variant="outline" size="sm" onClick={() => setShowEditForm(true)}>
+              <Edit className="h-4 w-4 mr-2" />
+              Edit
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleDelete}
+              disabled={deleteDealMutation.isPending}
+              className="text-red-600 hover:text-red-700"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete
+            </Button>
+            <Button variant="outline" size="sm" onClick={onClose}>
+              Close
+            </Button>
           </div>
         </DialogHeader>
 
@@ -181,6 +173,14 @@ export default function DealDetailsDialog({ deal, open, onClose }: DealDetailsDi
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  <div className="pb-4 border-b">
+                    <div className="flex items-center space-x-3">
+                      <h2 className="text-xl font-semibold">{deal.projectName}</h2>
+                      <Badge className={getStatusColor(deal.status)}>
+                        {getStatusLabel(deal.status)}
+                      </Badge>
+                    </div>
+                  </div>
                   <div>
                     <label className="text-sm font-medium text-gray-600">Project Type</label>
                     <p className="text-gray-900 capitalize">{deal.projectType}</p>
