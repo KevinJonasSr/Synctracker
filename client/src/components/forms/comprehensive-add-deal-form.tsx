@@ -163,7 +163,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
           // PRIORITY: Load from deal first (which has jonasShare and paymentDate), fall back to song
           if (deal.composerPublishers && Array.isArray(deal.composerPublishers)) {
             // Use deal's composerPublishers (which includes jonasShare and paymentDate)
-            const composerPublishersWithDate = deal.composerPublishers.map(cp => ({
+            const composerPublishersWithDate = deal.composerPublishers.map((cp: any) => ({
               ...cp,
               jonasShare: cp.jonasShare || '',
               paymentDate: cp.paymentDate || ''
@@ -171,7 +171,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
             setComposerPublishers(composerPublishersWithDate);
           } else if (song.composerPublishers && Array.isArray(song.composerPublishers)) {
             // Fall back to song's composerPublishers
-            const composerPublishersWithDate = song.composerPublishers.map(cp => ({
+            const composerPublishersWithDate = song.composerPublishers.map((cp: any) => ({
               ...cp,
               jonasShare: cp.jonasShare || '',
               paymentDate: cp.paymentDate || ''
@@ -200,7 +200,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
           // PRIORITY: Load from deal first (which has jonasShare and paymentDate), fall back to song
           if (deal.artistLabels && Array.isArray(deal.artistLabels)) {
             // Use deal's artistLabels (which includes jonasShare and paymentDate)
-            const artistLabelsWithDate = deal.artistLabels.map(al => ({
+            const artistLabelsWithDate = deal.artistLabels.map((al: any) => ({
               ...al,
               jonasShare: al.jonasShare || '',
               paymentDate: al.paymentDate || ''
@@ -208,7 +208,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
             setArtistLabels(artistLabelsWithDate);
           } else if (song.artistLabels && Array.isArray(song.artistLabels)) {
             // Fall back to song's artistLabels
-            const artistLabelsWithDate = song.artistLabels.map(al => ({
+            const artistLabelsWithDate = song.artistLabels.map((al: any) => ({
               ...al,
               jonasShare: al.jonasShare || '',
               paymentDate: al.paymentDate || ''
@@ -857,18 +857,21 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                                     />
                                   </div>
                                   <div className="col-span-2">
-                                    <Input
-                                      type="number"
-                                      step="0.01"
-                                      placeholder="0.00"
-                                      value={item.jonasShare || ''}
-                                      onChange={(e) => {
-                                        const newComposerPublishers = [...composerPublishers];
-                                        newComposerPublishers[index].jonasShare = e.target.value;
-                                        setComposerPublishers(newComposerPublishers);
-                                      }}
-                                      className="bg-white text-xs"
-                                    />
+                                    <div className="relative">
+                                      <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-600">$</span>
+                                      <Input
+                                        type="number"
+                                        step="0.01"
+                                        placeholder="0.00"
+                                        value={item.jonasShare || ''}
+                                        onChange={(e) => {
+                                          const newComposerPublishers = [...composerPublishers];
+                                          newComposerPublishers[index].jonasShare = e.target.value;
+                                          setComposerPublishers(newComposerPublishers);
+                                        }}
+                                        className="bg-white text-xs pl-5"
+                                      />
+                                    </div>
                                   </div>
                                   <div className="col-span-2">
                                     <Input
@@ -952,18 +955,21 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                                     />
                                   </div>
                                   <div className="col-span-2">
-                                    <Input
-                                      type="number"
-                                      step="0.01"
-                                      placeholder="0.00"
-                                      value={item.jonasShare || ''}
-                                      onChange={(e) => {
-                                        const newArtistLabels = [...artistLabels];
-                                        newArtistLabels[index].jonasShare = e.target.value;
-                                        setArtistLabels(newArtistLabels);
-                                      }}
-                                      className="bg-white text-xs"
+                                    <div className="relative">
+                                      <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-600">$</span>
+                                      <Input
+                                        type="number"
+                                        step="0.01"
+                                        placeholder="0.00"
+                                        value={item.jonasShare || ''}
+                                        onChange={(e) => {
+                                          const newArtistLabels = [...artistLabels];
+                                          newArtistLabels[index].jonasShare = e.target.value;
+                                          setArtistLabels(newArtistLabels);
+                                        }}
+                                      className="bg-white text-xs pl-5"
                                     />
+                                    </div>
                                   </div>
                                   <div className="col-span-2">
                                     <Input
