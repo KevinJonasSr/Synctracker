@@ -20,6 +20,7 @@ export default function Deals() {
   const [showDealDetails, setShowDealDetails] = useState(false);
   const [editingDeal, setEditingDeal] = useState<DealWithRelations | null>(null);
   const [showEditDeal, setShowEditDeal] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const handleDealClick = (deal: DealWithRelations) => {
     setSelectedDeal(deal);
@@ -89,8 +90,24 @@ export default function Deals() {
   };
 
   const filteredDeals = useMemo(() => {
-    return activeTab === "all" ? deals : deals.filter(deal => deal.status === activeTab);
-  }, [deals, activeTab]);
+    let filtered = activeTab === "all" ? deals : deals.filter(deal => deal.status === activeTab);
+    
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(deal => 
+        deal.projectName?.toLowerCase().includes(query) ||
+        deal.song?.title?.toLowerCase().includes(query) ||
+        deal.song?.artist?.toLowerCase().includes(query) ||
+        deal.contact?.firstName?.toLowerCase().includes(query) ||
+        deal.contact?.lastName?.toLowerCase().includes(query) ||
+        deal.contact?.company?.toLowerCase().includes(query) ||
+        deal.projectType?.toLowerCase().includes(query)
+      );
+    }
+    
+    return filtered;
+  }, [deals, activeTab, searchQuery]);
 
   if (isLoading) {
     return (
@@ -108,6 +125,7 @@ export default function Deals() {
         searchPlaceholder="Search deals, projects, contacts..."
         newItemLabel="New Deal"
         onNewItem={() => setShowAddDeal(true)}
+        onSearch={setSearchQuery}
       />
       
       <div className="p-6">
