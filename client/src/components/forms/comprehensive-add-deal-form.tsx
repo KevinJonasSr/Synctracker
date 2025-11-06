@@ -156,6 +156,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
         const song = songs.find(s => s.id === deal.songId);
         if (song) {
           setSelectedSong(song);
+          setSongSearchValue(`${song.title} - ${song.artist}`);
           
           // Load structured ownership data if available
           if (song.composerPublishers && Array.isArray(song.composerPublishers)) {
