@@ -99,8 +99,7 @@ export default function Deals() {
         deal.projectName?.toLowerCase().includes(query) ||
         deal.song?.title?.toLowerCase().includes(query) ||
         deal.song?.artist?.toLowerCase().includes(query) ||
-        deal.contact?.firstName?.toLowerCase().includes(query) ||
-        deal.contact?.lastName?.toLowerCase().includes(query) ||
+        deal.contact?.name?.toLowerCase().includes(query) ||
         deal.contact?.company?.toLowerCase().includes(query) ||
         deal.projectType?.toLowerCase().includes(query)
       );

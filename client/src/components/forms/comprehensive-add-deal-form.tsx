@@ -426,22 +426,22 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto p-2">
+      <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto p-2 text-sm">
         <DialogHeader>
-          <DialogTitle>{isEditing ? "Edit Deal" : "Add New Deal"}</DialogTitle>
+          <DialogTitle className="text-lg">{isEditing ? "Edit Deal" : "Add New Deal"}</DialogTitle>
         </DialogHeader>
         
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pb-16">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2 pb-6 [&_.card-title]:text-sm [&_.card-title]:py-0.5 [&_label]:text-xs [&_input]:h-8 [&_input]:text-xs [&_textarea]:text-xs [&_select]:h-8 [&_select]:text-xs">
           {/* Section 1: Project Information */}
           <Card className="bg-purple-50 border-purple-200">
-            <CardHeader className="bg-purple-100 border-b border-purple-200 py-1">
-              <CardTitle className="flex items-center space-x-2 text-purple-800">
-                <FileText className="h-5 w-5" />
+            <CardHeader className="bg-purple-100 border-b border-purple-200 py-0.5 px-3">
+              <CardTitle className="flex items-center space-x-1 text-purple-800 text-sm">
+                <FileText className="h-4 w-4" />
                 <span>Project Information</span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-1 bg-purple-50 p-3">
-              <div className="grid grid-cols-3 gap-4">
+            <CardContent className="space-y-1 bg-purple-50 p-2">
+              <div className="grid grid-cols-3 gap-2">
                 <div>
                   <Label htmlFor="projectName">Project Name *</Label>
                   <Input
@@ -570,13 +570,13 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
 
           {/* Section 2: Song Information */}
           <Card className="bg-blue-50 border-blue-200">
-            <CardHeader className="bg-blue-100 border-b border-blue-200 py-1">
-              <CardTitle className="flex items-center space-x-2 text-blue-800">
+            <CardHeader className="bg-blue-100 border-b border-blue-200 py-0.5 px-2">
+              <CardTitle className="flex items-center space-x-1 text-blue-800 text-sm">
                 <span>🎵</span>
                 <span>Song Information</span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-1 bg-blue-50 p-3">
+            <CardContent className="space-y-1 bg-blue-50 p-1.5">
               <div className="grid grid-cols-1 gap-2">
                 <div className="relative">
                   <Label htmlFor="songId">Song Title *</Label>
@@ -790,7 +790,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                       <div>
                         <Label className="text-base font-semibold">Composer(s), Publisher(s) & Ownership</Label>
                         <div className="space-y-3 mt-3">
-                          <div className="grid grid-cols-12 gap-2 text-sm font-medium text-green-700">
+                          <div className="grid grid-cols-12 gap-1 text-xs font-medium text-green-700">
                             <div className="col-span-3">Composer Name</div>
                             <div className="col-span-2">Publisher</div>
                             <div className="col-span-1">%</div>
@@ -870,7 +870,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                       <div>
                         <Label className="text-base font-semibold">Artist(s), Label(s) & Ownership</Label>
                         <div className="space-y-3 mt-3">
-                          <div className="grid grid-cols-12 gap-2 text-sm font-medium text-blue-700">
+                          <div className="grid grid-cols-12 gap-1 text-xs font-medium text-blue-700">
                             <div className="col-span-3">Artist Name</div>
                             <div className="col-span-2">Label</div>
                             <div className="col-span-1">%</div>
@@ -949,10 +949,10 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
           {/* Deal Terms */}
           {selectedSong && (
             <Card className="bg-orange-50 border-orange-200">
-              <CardHeader className="bg-orange-100 border-b border-orange-200 py-1">
-                <CardTitle className="text-orange-800">Deal Terms</CardTitle>
+              <CardHeader className="bg-orange-100 border-b border-orange-200 py-0.5 px-2">
+                <CardTitle className="text-orange-800 text-sm">Deal Terms</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-1 bg-orange-50 p-3">
+              <CardContent className="space-y-1 bg-orange-50 p-1.5">
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <Label htmlFor="usage">Usage</Label>
@@ -983,7 +983,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                     className="min-h-[60px]"
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-2">
                   <div>
                     <Label htmlFor="term">Term</Label>
                     <Input
@@ -1015,13 +1015,13 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
 
           {/* Fees Section */}
           <Card className="bg-green-50 border-green-200">
-            <CardHeader className="bg-green-100 border-b border-green-200 py-1">
-              <CardTitle className="flex items-center space-x-2 text-green-800">
-                <DollarSign className="h-5 w-5" />
+            <CardHeader className="bg-green-100 border-b border-green-200 py-0.5 px-2">
+              <CardTitle className="flex items-center space-x-1 text-green-800 text-sm">
+                <DollarSign className="h-4 w-4" />
                 <span>Fees</span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-1 bg-green-50 p-3">
+            <CardContent className="space-y-1 bg-green-50 p-1.5">
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <Label htmlFor="fullSongValue">100% Publishing Fee ($)</Label>
@@ -1142,13 +1142,13 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
 
           {/* Section 3: Contacts */}
           <Card className="bg-yellow-50 border-yellow-200">
-            <CardHeader className="bg-yellow-100 border-b border-yellow-200 py-1">
-              <CardTitle className="flex items-center space-x-2 text-yellow-800">
-                <User className="h-5 w-5" />
+            <CardHeader className="bg-yellow-100 border-b border-yellow-200 py-0.5 px-2">
+              <CardTitle className="flex items-center space-x-1 text-yellow-800 text-sm">
+                <User className="h-4 w-4" />
                 <span>Contacts</span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-1 bg-yellow-50 p-3">
+            <CardContent className="space-y-1 bg-yellow-50 p-1.5">
               {/* Music Supervisor */}
               <div>
                 <h4 className="font-medium mb-1 flex items-center space-x-2">
@@ -1222,7 +1222,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                     />
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4 mt-2">
+                <div className="grid grid-cols-2 gap-2 mt-2">
                   <div>
                     <Label htmlFor="musicSupervisorContactEmail">Email</Label>
                     <Input
@@ -1268,7 +1268,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                     />
                   </div>
                 </div>
-                <div className="grid grid-cols-3 gap-4 mt-4">
+                <div className="grid grid-cols-3 gap-2 mt-4">
                   <div>
                     <Label htmlFor="licenseeContactEmail">Email</Label>
                     <Input
@@ -1322,7 +1322,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                     />
                   </div>
                 </div>
-                <div className="grid grid-cols-3 gap-4 mt-4">
+                <div className="grid grid-cols-3 gap-2 mt-4">
                   <div>
                     <Label htmlFor="clearanceCompanyContactEmail">Email</Label>
                     <Input
@@ -1355,13 +1355,13 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
 
           {/* Section 4: Additional Information */}
           <Card className="bg-green-50 border-green-200">
-            <CardHeader className="bg-green-100 border-b border-green-200 py-1">
-              <CardTitle className="flex items-center space-x-2 text-green-800">
-                <FileText className="h-5 w-5" />
+            <CardHeader className="bg-green-100 border-b border-green-200 py-0.5 px-2">
+              <CardTitle className="flex items-center space-x-1 text-green-800 text-sm">
+                <FileText className="h-4 w-4" />
                 <span>Additional Information</span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-1 bg-green-50 p-3">
+            <CardContent className="space-y-1 bg-green-50 p-1.5">
               <div>
                 <Label htmlFor="notes">Notes</Label>
                 <Textarea
