@@ -941,62 +941,77 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                     </CardContent>
                   </Card>
 
-                  {/* Deal Terms */}
-                  <div className="border-t pt-4">
-                    <h4 className="font-medium mb-3">Deal Terms</h4>
-                    <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <Label htmlFor="usage">Usage</Label>
-                        <Input
-                          id="usage"
-                          {...form.register("usage")}
-                          placeholder="e.g., Background music"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="sceneDescription">Scene Description</Label>
-                        <Textarea
-                          id="sceneDescription"
-                          {...form.register("sceneDescription")}
-                          placeholder="Describe how music is used in scene"
-                          rows={2}
-                          className="min-h-[60px]"
-                        />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-3 gap-4 mt-4">
-                      <div>
-                        <Label htmlFor="media">Media</Label>
-                        <Textarea
-                          id="media"
-                          {...form.register("media")}
-                          placeholder="e.g., TV, Film, Streaming, All media and devices..."
-                          rows={2}
-                          className="min-h-[60px]"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="term">Term</Label>
-                        <Input
-                          id="term"
-                          {...form.register("term")}
-                          placeholder="e.g., 5 years, In perpetuity"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="territory">Territory</Label>
-                        <Input
-                          id="territory"
-                          {...form.register("territory")}
-                          placeholder="e.g., Worldwide, North America, etc."
-                        />
-                      </div>
-                    </div>
-                  </div>
                 </div>
               )}
             </CardContent>
           </Card>
+
+          {/* Deal Terms */}
+          {selectedSong && (
+            <Card className="bg-orange-50 border-orange-200">
+              <CardHeader className="bg-orange-100 border-b border-orange-200 py-1">
+                <CardTitle className="text-orange-800">Deal Terms</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-1 bg-orange-50 p-3">
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <Label htmlFor="usage">Usage</Label>
+                    <Input
+                      id="usage"
+                      {...form.register("usage")}
+                      placeholder="e.g., Background music"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="sceneDescription">Scene Description</Label>
+                    <Textarea
+                      id="sceneDescription"
+                      {...form.register("sceneDescription")}
+                      placeholder="Describe how music is used in scene"
+                      rows={2}
+                      className="min-h-[60px]"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-4 gap-4 mt-4">
+                  <div>
+                    <Label htmlFor="media">Media</Label>
+                    <Textarea
+                      id="media"
+                      {...form.register("media")}
+                      placeholder="e.g., TV, Film, Streaming, All media and devices..."
+                      rows={2}
+                      className="min-h-[60px]"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="options">Options</Label>
+                    <Input
+                      id="options"
+                      {...form.register("options")}
+                      placeholder="Enter options"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="term">Term</Label>
+                    <Input
+                      id="term"
+                      {...form.register("term")}
+                      placeholder="e.g., 5 years, In perpetuity"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="territory">Territory</Label>
+                    <Input
+                      id="territory"
+                      {...form.register("territory")}
+                      placeholder="e.g., Worldwide, North America, etc."
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Fees Section */}
           <Card className="bg-green-50 border-green-200">
@@ -1119,18 +1134,6 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                     id="exclusivityRestrictions"
                     {...form.register("exclusivityRestrictions")}
                     placeholder="Describe any exclusivity restrictions"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 gap-4">
-                <div>
-                  <Label htmlFor="options">Options</Label>
-                  <Textarea
-                    id="options"
-                    {...form.register("options")}
-                    placeholder="Additional options, notes, or special terms for this deal"
-                    rows={2}
                   />
                 </div>
               </div>
