@@ -440,7 +440,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                 <span>Project Information</span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-1 bg-purple-50 p-2">
+            <CardContent className="space-y-1 bg-purple-50 p-1.5">
               <div className="grid grid-cols-3 gap-2">
                 <div>
                   <Label htmlFor="projectName">Project Name *</Label>
@@ -716,10 +716,10 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                 <div className="space-y-1">
                   {/* Basic Song Information */}
                   <Card className="bg-purple-50 border-purple-200">
-                    <CardHeader className="bg-purple-100 border-b border-purple-200">
-                      <CardTitle className="text-purple-800">Basic Song Information</CardTitle>
+                    <CardHeader className="bg-purple-100 border-b border-purple-200 py-0.5 px-2">
+                      <CardTitle className="text-purple-800 text-sm">Basic Song Information</CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-1 bg-purple-50 p-2">
+                    <CardContent className="space-y-1 bg-purple-50 p-1.5">
                       {/* First line: Title, Album */}
                       <div className="grid grid-cols-2 gap-2">
                         <div>
@@ -784,12 +784,12 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                   {/* Publishing Information */}
                   <Card className="bg-green-50 border-green-200">
                     <CardHeader className="bg-green-100 border-b border-green-200">
-                      <CardTitle className="text-green-800">Publishing Information</CardTitle>
+                      <CardTitle className="text-green-800 text-sm">Publishing Information</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-1 bg-green-50 p-2">
                       <div>
-                        <Label className="text-base font-semibold">Composer(s), Publisher(s) & Ownership</Label>
-                        <div className="space-y-3 mt-3">
+                        <Label className="text-xs font-semibold">Composer(s), Publisher(s) & Ownership</Label>
+                        <div className="space-y-1.5 mt-1.5">
                           <div className="grid grid-cols-12 gap-1 text-xs font-medium text-green-700">
                             <div className="col-span-3">Composer Name</div>
                             <div className="col-span-2">Publisher</div>
@@ -864,12 +864,12 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                   {/* Label Information */}
                   <Card className="bg-blue-50 border-blue-200">
                     <CardHeader className="bg-blue-100 border-b border-blue-200">
-                      <CardTitle className="text-blue-800">Label Information</CardTitle>
+                      <CardTitle className="text-blue-800 text-sm">Label Information</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-1 bg-blue-50 p-2">
                       <div>
-                        <Label className="text-base font-semibold">Artist(s), Label(s) & Ownership</Label>
-                        <div className="space-y-3 mt-3">
+                        <Label className="text-xs font-semibold">Artist(s), Label(s) & Ownership</Label>
+                        <div className="space-y-1.5 mt-1.5">
                           <div className="grid grid-cols-12 gap-1 text-xs font-medium text-blue-700">
                             <div className="col-span-3">Artist Name</div>
                             <div className="col-span-2">Label</div>
