@@ -983,14 +983,6 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                     className="min-h-[60px]"
                   />
                 </div>
-                <div>
-                  <Label htmlFor="options">Options</Label>
-                  <Input
-                    id="options"
-                    {...form.register("options")}
-                    placeholder="Enter options"
-                  />
-                </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="term">Term</Label>
@@ -1008,6 +1000,14 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                       placeholder="e.g., Worldwide, North America, etc."
                     />
                   </div>
+                </div>
+                <div>
+                  <Label htmlFor="options">Options</Label>
+                  <Input
+                    id="options"
+                    {...form.register("options")}
+                    placeholder="Enter options"
+                  />
                 </div>
               </CardContent>
             </Card>
