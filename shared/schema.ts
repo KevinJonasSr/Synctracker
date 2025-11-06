@@ -48,8 +48,8 @@ export const songs = pgTable("songs", {
   splitDetails: text("split_details"), // Detailed breakdown of all splits
   restrictions: text("restrictions"), // Usage restrictions or limitations
   // Structured ownership data
-  composerPublishers: jsonb("composer_publishers"), // Array of {composer, publisher, publishingOwnership, isMine}
-  artistLabels: jsonb("artist_labels"), // Array of {artist, label, labelOwnership, isMine}
+  composerPublishers: jsonb("composer_publishers"), // Array of {composer, publisher, publishingOwnership, isMine, jonasShare, paymentDate}
+  artistLabels: jsonb("artist_labels"), // Array of {artist, label, labelOwnership, isMine, jonasShare, paymentDate}
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -127,6 +127,10 @@ export const deals = pgTable("deals", {
   label: text("label"),
   artistLabelSplits: text("artist_label_splits"),
   restrictions: text("restrictions"), // Usage restrictions for this deal
+  
+  // Structured ownership data for this specific deal (with payment dates and custom fees)
+  composerPublishers: jsonb("composer_publishers"), // Array of {composer, publisher, publishingOwnership, isMine, jonasShare, paymentDate}
+  artistLabels: jsonb("artist_labels"), // Array of {artist, label, labelOwnership, isMine, jonasShare, paymentDate}
   
   notes: text("notes"),
   airDate: timestamp("air_date"),

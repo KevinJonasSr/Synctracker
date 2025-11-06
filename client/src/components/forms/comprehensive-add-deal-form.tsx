@@ -428,7 +428,14 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
       return;
     }
     
-    createDealMutation.mutate(data);
+    // Include composerPublishers and artistLabels data with jonasShare values
+    const submissionData = {
+      ...data,
+      composerPublishers: composerPublishers,
+      artistLabels: artistLabels,
+    };
+    
+    createDealMutation.mutate(submissionData);
   };
 
   return (
