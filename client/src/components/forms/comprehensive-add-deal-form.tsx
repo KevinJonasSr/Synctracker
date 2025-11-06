@@ -577,152 +577,141 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-1 bg-blue-50 p-1.5">
-              <div className="grid grid-cols-1 gap-2">
-                <div className="relative">
-                  <Label htmlFor="songId">Song Title *</Label>
-                  <Command className="rounded-lg border shadow-md">
-                    <CommandInput 
-                      placeholder="Type to search songs..."
-                      value={songSearchValue}
-                      onValueChange={setSongSearchValue}
-                      onFocus={() => setSongSearchOpen(true)}
-                      onBlur={() => {
-                        // Delay to allow click on item
-                        setTimeout(() => {
-                          if (!form.watch("songId")) {
-                            setSongSearchOpen(false);
-                          }
-                        }, 200);
-                      }}
-                    />
-                    {songSearchOpen && (
-                      <CommandList>
-                        <CommandEmpty>No song found.</CommandEmpty>
-                        <CommandGroup>
-                          {songs.map((song) => (
-                            <CommandItem
-                              key={song.id}
-                              value={`${song.title} ${song.artist}`}
-                              onSelect={() => {
-                                  const songId = song.id;
-                                  form.setValue("songId", songId);
-                                  setSongSearchValue(`${song.title} - ${song.artist}`);
-                                  setSongSearchOpen(false);
-                                  
-                                  // Auto-populate comprehensive song information from database
-                                  setSelectedSong(song);
-                                  
-                                  // Basic song information
-                                  form.setValue("artist", song.artist || "");
-                                  form.setValue("label", song.producer || "");
-                                  
-                                  // Writers and publishing information
-                                  if (song.composer) {
-                                    form.setValue("writers", song.composer);
-                                  }
-                                  if (song.publisher) {
-                                    form.setValue("publishingInfo", song.publisher);
-                                  }
-                                  
-                                  // Load structured ownership data if available
-                                  if (song.composerPublishers && Array.isArray(song.composerPublishers)) {
-                                    // Ensure paymentDate field exists for each item
-                                    const composerPublishersWithDate = song.composerPublishers.map(cp => ({
-                                      ...cp,
-                                      paymentDate: cp.paymentDate || ''
-                                    }));
-                                    setComposerPublishers(composerPublishersWithDate);
-                                  } else if (song.composer || song.publisher) {
-                                    // Fall back to legacy comma-separated strings
-                                    const composers = song.composer ? song.composer.split(', ').filter(Boolean) : [''];
-                                    const publishers = song.publisher ? song.publisher.split(', ').filter(Boolean) : [''];
-                                    
-                                    const maxLength = Math.max(composers.length, publishers.length);
-                                    const result: ComposerPublisher[] = [];
-                                    for (let i = 0; i < maxLength; i++) {
-                                      result.push({
-                                        composer: composers[i] || '',
-                                        publisher: publishers[i] || '',
-                                        publishingOwnership: '',
-                                        isMine: false,
-                                        paymentDate: ''
-                                      });
-                                    }
-                                    setComposerPublishers(result.length > 0 ? result : [{ composer: '', publisher: '', publishingOwnership: '', isMine: false, paymentDate: '' }]);
-                                  }
-                                  
-                                  // Load artist-label data if available
-                                  if (song.artistLabels && Array.isArray(song.artistLabels)) {
-                                    // Ensure paymentDate field exists for each item
-                                    const artistLabelsWithDate = song.artistLabels.map(al => ({
-                                      ...al,
-                                      paymentDate: al.paymentDate || ''
-                                    }));
-                                    setArtistLabels(artistLabelsWithDate);
-                                  } else if (song.artist || song.producer) {
-                                    // Fall back to legacy comma-separated strings
-                                    const artists = song.artist ? song.artist.split(', ').filter(Boolean) : [''];
-                                    const labels = song.producer ? [song.producer] : [''];
-                                    
-                                    const maxLength = Math.max(artists.length, labels.length);
-                                    const result: ArtistLabel[] = [];
-                                    for (let i = 0; i < maxLength; i++) {
-                                      result.push({
-                                        artist: artists[i] || '',
-                                        label: labels[i] || '',
-                                        labelOwnership: '',
-                                        isMine: false,
-                                        paymentDate: ''
-                                      });
-                                    }
-                                    setArtistLabels(result.length > 0 ? result : [{ artist: '', label: '', labelOwnership: '', isMine: false, paymentDate: '' }]);
-                                  }
-                                  
-                                  // Use actual split details if available, otherwise calculate from ownership data
-                                  if (song.splitDetails) {
-                                    form.setValue("splits", song.splitDetails);
-                                  } else {
-                                    // Calculate splits from actual ownership percentages
-                                    const publishingOwnership = parseFloat(song.publishingOwnership?.toString() || '0');
-                                    const publisherOwnership = 100 - publishingOwnership;
-                                    form.setValue("splits", `${publishingOwnership}% Writer / ${publisherOwnership}% Publisher`);
-                                  }
-                                  
-                                  // Artist/Label splits from actual ownership data
-                                  const masterOwnership = parseFloat(song.masterOwnership?.toString() || '0');
-                                  const labelOwnership = 100 - masterOwnership;
-                                  form.setValue("artistLabelSplits", `${masterOwnership}% Artist / ${labelOwnership}% Label`);
-                                  
-                                  // Auto-populate restrictions if available
-                                  if (song.restrictions) {
-                                    form.setValue("restrictions", song.restrictions);
-                                  }
-                                }}
-                              >
-                              {song.title} - {song.artist}
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </CommandList>
-                    )}
-                  </Command>
-                  {form.formState.errors.songId && (
-                    <p className="text-sm text-red-600 mt-1">{form.formState.errors.songId.message}</p>
-                  )}
-                </div>
-              </div>
-
-              {selectedSong && (
+              {selectedSong ? (
                 <div className="space-y-1">
                   {/* First line: Title, Album */}
                   <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <Label>Title</Label>
-                      <Input
-                        value={selectedSong.title || ""}
-                        readOnly
-                        className="bg-purple-25 cursor-not-allowed"
-                      />
+                    <div className="relative">
+                      <Label htmlFor="songId">Title *</Label>
+                      <Command className="rounded-lg border shadow-md">
+                        <CommandInput 
+                          placeholder="Type to search songs..."
+                          value={songSearchValue}
+                          onValueChange={setSongSearchValue}
+                          onFocus={() => setSongSearchOpen(true)}
+                          onBlur={() => {
+                            // Delay to allow click on item
+                            setTimeout(() => {
+                              if (!form.watch("songId")) {
+                                setSongSearchOpen(false);
+                              }
+                            }, 200);
+                          }}
+                        />
+                        {songSearchOpen && (
+                          <CommandList>
+                            <CommandEmpty>No song found.</CommandEmpty>
+                            <CommandGroup>
+                              {songs.map((song) => (
+                                <CommandItem
+                                  key={song.id}
+                                  value={`${song.title} ${song.artist}`}
+                                  onSelect={() => {
+                                      const songId = song.id;
+                                      form.setValue("songId", songId);
+                                      setSongSearchValue(`${song.title} - ${song.artist}`);
+                                      setSongSearchOpen(false);
+                                      
+                                      // Auto-populate comprehensive song information from database
+                                      setSelectedSong(song);
+                                      
+                                      // Basic song information
+                                      form.setValue("artist", song.artist || "");
+                                      form.setValue("label", song.producer || "");
+                                      
+                                      // Writers and publishing information
+                                      if (song.composer) {
+                                        form.setValue("writers", song.composer);
+                                      }
+                                      if (song.publisher) {
+                                        form.setValue("publishingInfo", song.publisher);
+                                      }
+                                      
+                                      // Load structured ownership data if available
+                                      if (song.composerPublishers && Array.isArray(song.composerPublishers)) {
+                                        // Ensure paymentDate field exists for each item
+                                        const composerPublishersWithDate = song.composerPublishers.map(cp => ({
+                                          ...cp,
+                                          paymentDate: cp.paymentDate || ''
+                                        }));
+                                        setComposerPublishers(composerPublishersWithDate);
+                                      } else if (song.composer || song.publisher) {
+                                        // Fall back to legacy comma-separated strings
+                                        const composers = song.composer ? song.composer.split(', ').filter(Boolean) : [''];
+                                        const publishers = song.publisher ? song.publisher.split(', ').filter(Boolean) : [''];
+                                        
+                                        const maxLength = Math.max(composers.length, publishers.length);
+                                        const result: ComposerPublisher[] = [];
+                                        for (let i = 0; i < maxLength; i++) {
+                                          result.push({
+                                            composer: composers[i] || '',
+                                            publisher: publishers[i] || '',
+                                            publishingOwnership: '',
+                                            isMine: false,
+                                            paymentDate: ''
+                                          });
+                                        }
+                                        setComposerPublishers(result.length > 0 ? result : [{ composer: '', publisher: '', publishingOwnership: '', isMine: false, paymentDate: '' }]);
+                                      }
+                                      
+                                      // Load artist-label data if available
+                                      if (song.artistLabels && Array.isArray(song.artistLabels)) {
+                                        // Ensure paymentDate field exists for each item
+                                        const artistLabelsWithDate = song.artistLabels.map(al => ({
+                                          ...al,
+                                          paymentDate: al.paymentDate || ''
+                                        }));
+                                        setArtistLabels(artistLabelsWithDate);
+                                      } else if (song.artist || song.producer) {
+                                        // Fall back to legacy comma-separated strings
+                                        const artists = song.artist ? song.artist.split(', ').filter(Boolean) : [''];
+                                        const labels = song.producer ? [song.producer] : [''];
+                                        
+                                        const maxLength = Math.max(artists.length, labels.length);
+                                        const result: ArtistLabel[] = [];
+                                        for (let i = 0; i < maxLength; i++) {
+                                          result.push({
+                                            artist: artists[i] || '',
+                                            label: labels[i] || '',
+                                            labelOwnership: '',
+                                            isMine: false,
+                                            paymentDate: ''
+                                          });
+                                        }
+                                        setArtistLabels(result.length > 0 ? result : [{ artist: '', label: '', labelOwnership: '', isMine: false, paymentDate: '' }]);
+                                      }
+                                      
+                                      // Use actual split details if available, otherwise calculate from ownership data
+                                      if (song.splitDetails) {
+                                        form.setValue("splits", song.splitDetails);
+                                      } else {
+                                        // Calculate splits from actual ownership percentages
+                                        const publishingOwnership = parseFloat(song.publishingOwnership?.toString() || '0');
+                                        const publisherOwnership = 100 - publishingOwnership;
+                                        form.setValue("splits", `${publishingOwnership}% Writer / ${publisherOwnership}% Publisher`);
+                                      }
+                                      
+                                      // Artist/Label splits from actual ownership data
+                                      const masterOwnership = parseFloat(song.masterOwnership?.toString() || '0');
+                                      const labelOwnership = 100 - masterOwnership;
+                                      form.setValue("artistLabelSplits", `${masterOwnership}% Artist / ${labelOwnership}% Label`);
+                                      
+                                      // Auto-populate restrictions if available
+                                      if (song.restrictions) {
+                                        form.setValue("restrictions", song.restrictions);
+                                      }
+                                    }}
+                                  >
+                                  {song.title} - {song.artist}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        )}
+                      </Command>
+                      {form.formState.errors.songId && (
+                        <p className="text-sm text-red-600 mt-1">{form.formState.errors.songId.message}</p>
+                      )}
                     </div>
                     <div>
                       <Label>Album</Label>
@@ -933,6 +922,139 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                     </CardContent>
                   </Card>
 
+                </div>
+              ) : (
+                <div className="relative">
+                  <Label htmlFor="songId">Title *</Label>
+                  <Command className="rounded-lg border shadow-md">
+                    <CommandInput 
+                      placeholder="Type to search songs..."
+                      value={songSearchValue}
+                      onValueChange={setSongSearchValue}
+                      onFocus={() => setSongSearchOpen(true)}
+                      onBlur={() => {
+                        // Delay to allow click on item
+                        setTimeout(() => {
+                          if (!form.watch("songId")) {
+                            setSongSearchOpen(false);
+                          }
+                        }, 200);
+                      }}
+                    />
+                    {songSearchOpen && (
+                      <CommandList>
+                        <CommandEmpty>No song found.</CommandEmpty>
+                        <CommandGroup>
+                          {songs.map((song) => (
+                            <CommandItem
+                              key={song.id}
+                              value={`${song.title} ${song.artist}`}
+                              onSelect={() => {
+                                  const songId = song.id;
+                                  form.setValue("songId", songId);
+                                  setSongSearchValue(`${song.title} - ${song.artist}`);
+                                  setSongSearchOpen(false);
+                                  
+                                  // Auto-populate comprehensive song information from database
+                                  setSelectedSong(song);
+                                  
+                                  // Basic song information
+                                  form.setValue("artist", song.artist || "");
+                                  form.setValue("label", song.producer || "");
+                                  
+                                  // Writers and publishing information
+                                  if (song.composer) {
+                                    form.setValue("writers", song.composer);
+                                  }
+                                  if (song.publisher) {
+                                    form.setValue("publishingInfo", song.publisher);
+                                  }
+                                  
+                                  // Load structured ownership data if available
+                                  if (song.composerPublishers && Array.isArray(song.composerPublishers)) {
+                                    // Ensure paymentDate field exists for each item
+                                    const composerPublishersWithDate = song.composerPublishers.map(cp => ({
+                                      ...cp,
+                                      paymentDate: cp.paymentDate || ''
+                                    }));
+                                    setComposerPublishers(composerPublishersWithDate);
+                                  } else if (song.composer || song.publisher) {
+                                    // Fall back to legacy comma-separated strings
+                                    const composers = song.composer ? song.composer.split(', ').filter(Boolean) : [''];
+                                    const publishers = song.publisher ? song.publisher.split(', ').filter(Boolean) : [''];
+                                    
+                                    const maxLength = Math.max(composers.length, publishers.length);
+                                    const result: ComposerPublisher[] = [];
+                                    for (let i = 0; i < maxLength; i++) {
+                                      result.push({
+                                        composer: composers[i] || '',
+                                        publisher: publishers[i] || '',
+                                        publishingOwnership: '',
+                                        isMine: false,
+                                        paymentDate: ''
+                                      });
+                                    }
+                                    setComposerPublishers(result.length > 0 ? result : [{ composer: '', publisher: '', publishingOwnership: '', isMine: false, paymentDate: '' }]);
+                                  }
+                                  
+                                  // Load artist-label data if available
+                                  if (song.artistLabels && Array.isArray(song.artistLabels)) {
+                                    // Ensure paymentDate field exists for each item
+                                    const artistLabelsWithDate = song.artistLabels.map(al => ({
+                                      ...al,
+                                      paymentDate: al.paymentDate || ''
+                                    }));
+                                    setArtistLabels(artistLabelsWithDate);
+                                  } else if (song.artist || song.producer) {
+                                    // Fall back to legacy comma-separated strings
+                                    const artists = song.artist ? song.artist.split(', ').filter(Boolean) : [''];
+                                    const labels = song.producer ? [song.producer] : [''];
+                                    
+                                    const maxLength = Math.max(artists.length, labels.length);
+                                    const result: ArtistLabel[] = [];
+                                    for (let i = 0; i < maxLength; i++) {
+                                      result.push({
+                                        artist: artists[i] || '',
+                                        label: labels[i] || '',
+                                        labelOwnership: '',
+                                        isMine: false,
+                                        paymentDate: ''
+                                      });
+                                    }
+                                    setArtistLabels(result.length > 0 ? result : [{ artist: '', label: '', labelOwnership: '', isMine: false, paymentDate: '' }]);
+                                  }
+                                  
+                                  // Use actual split details if available, otherwise calculate from ownership data
+                                  if (song.splitDetails) {
+                                    form.setValue("splits", song.splitDetails);
+                                  } else {
+                                    // Calculate splits from actual ownership percentages
+                                    const publishingOwnership = parseFloat(song.publishingOwnership?.toString() || '0');
+                                    const publisherOwnership = 100 - publishingOwnership;
+                                    form.setValue("splits", `${publishingOwnership}% Writer / ${publisherOwnership}% Publisher`);
+                                  }
+                                  
+                                  // Artist/Label splits from actual ownership data
+                                  const masterOwnership = parseFloat(song.masterOwnership?.toString() || '0');
+                                  const labelOwnership = 100 - masterOwnership;
+                                  form.setValue("artistLabelSplits", `${masterOwnership}% Artist / ${labelOwnership}% Label`);
+                                  
+                                  // Auto-populate restrictions if available
+                                  if (song.restrictions) {
+                                    form.setValue("restrictions", song.restrictions);
+                                  }
+                                }}
+                              >
+                              {song.title} - {song.artist}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    )}
+                  </Command>
+                  {form.formState.errors.songId && (
+                    <p className="text-sm text-red-600 mt-1">{form.formState.errors.songId.message}</p>
+                  )}
                 </div>
               )}
             </CardContent>
