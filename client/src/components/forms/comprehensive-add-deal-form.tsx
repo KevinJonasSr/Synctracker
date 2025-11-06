@@ -513,28 +513,28 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                       
                       switch (value) {
                         case "new request":
-                          form.setValue("pitchedDate", currentDate);
+                          form.setValue("pitchedDate", currentDate, { shouldValidate: true, shouldDirty: true });
                           break;
                         case "pending approval":
-                          form.setValue("pendingApprovalDate", currentDate);
+                          form.setValue("pendingApprovalDate", currentDate, { shouldValidate: true, shouldDirty: true });
                           break;
                         case "quoted":
-                          form.setValue("quotedDate", currentDate);
+                          form.setValue("quotedDate", currentDate, { shouldValidate: true, shouldDirty: true });
                           break;
                         case "use confirmed":
-                          form.setValue("useConfirmedDate", currentDate);
+                          form.setValue("useConfirmedDate", currentDate, { shouldValidate: true, shouldDirty: true });
                           break;
                         case "being drafted":
-                          form.setValue("beingDraftedDate", currentDate);
+                          form.setValue("beingDraftedDate", currentDate, { shouldValidate: true, shouldDirty: true });
                           break;
                         case "out for signature":
-                          form.setValue("outForSignatureDate", currentDate);
+                          form.setValue("outForSignatureDate", currentDate, { shouldValidate: true, shouldDirty: true });
                           break;
                         case "payment received":
-                          form.setValue("paymentReceivedDate", currentDate);
+                          form.setValue("paymentReceivedDate", currentDate, { shouldValidate: true, shouldDirty: true });
                           break;
                         case "completed":
-                          form.setValue("completedDate", currentDate);
+                          form.setValue("completedDate", currentDate, { shouldValidate: true, shouldDirty: true });
                           break;
                       }
                     }}
