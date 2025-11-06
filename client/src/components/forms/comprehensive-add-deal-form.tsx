@@ -56,6 +56,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
     publisher: string;
     publishingOwnership: string;
     isMine: boolean;
+    jonasShare: string;
     paymentDate: string;
   }
   
@@ -64,15 +65,16 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
     label: string;
     labelOwnership: string;
     isMine: boolean;
+    jonasShare: string;
     paymentDate: string;
   }
   
   const [composerPublishers, setComposerPublishers] = useState<ComposerPublisher[]>([
-    { composer: '', publisher: '', publishingOwnership: '', isMine: false, paymentDate: '' }
+    { composer: '', publisher: '', publishingOwnership: '', isMine: false, jonasShare: '', paymentDate: '' }
   ]);
   
   const [artistLabels, setArtistLabels] = useState<ArtistLabel[]>([
-    { artist: '', label: '', labelOwnership: '', isMine: false, paymentDate: '' }
+    { artist: '', label: '', labelOwnership: '', isMine: false, jonasShare: '', paymentDate: '' }
   ]);
 
   const form = useForm<InsertDeal>({
@@ -160,9 +162,10 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
           
           // Load structured ownership data if available
           if (song.composerPublishers && Array.isArray(song.composerPublishers)) {
-            // Ensure paymentDate field exists for each item
+            // Ensure paymentDate and jonasShare fields exist for each item
             const composerPublishersWithDate = song.composerPublishers.map(cp => ({
               ...cp,
+              jonasShare: cp.jonasShare || '',
               paymentDate: cp.paymentDate || ''
             }));
             setComposerPublishers(composerPublishersWithDate);
@@ -179,17 +182,19 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                 publisher: publishers[i] || '',
                 publishingOwnership: '',
                 isMine: false,
+                jonasShare: '',
                 paymentDate: ''
               });
             }
-            setComposerPublishers(result.length > 0 ? result : [{ composer: '', publisher: '', publishingOwnership: '', isMine: false, paymentDate: '' }]);
+            setComposerPublishers(result.length > 0 ? result : [{ composer: '', publisher: '', publishingOwnership: '', isMine: false, jonasShare: '', paymentDate: '' }]);
           }
           
           // Load artist-label data if available
           if (song.artistLabels && Array.isArray(song.artistLabels)) {
-            // Ensure paymentDate field exists for each item
+            // Ensure paymentDate and jonasShare fields exist for each item
             const artistLabelsWithDate = song.artistLabels.map(al => ({
               ...al,
+              jonasShare: al.jonasShare || '',
               paymentDate: al.paymentDate || ''
             }));
             setArtistLabels(artistLabelsWithDate);
@@ -206,10 +211,11 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                 label: labels[i] || '',
                 labelOwnership: '',
                 isMine: false,
+                jonasShare: '',
                 paymentDate: ''
               });
             }
-            setArtistLabels(result.length > 0 ? result : [{ artist: '', label: '', labelOwnership: '', isMine: false, paymentDate: '' }]);
+            setArtistLabels(result.length > 0 ? result : [{ artist: '', label: '', labelOwnership: '', isMine: false, jonasShare: '', paymentDate: '' }]);
           }
         }
       }
@@ -630,9 +636,10 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                                       
                                       // Load structured ownership data if available
                                       if (song.composerPublishers && Array.isArray(song.composerPublishers)) {
-                                        // Ensure paymentDate field exists for each item
+                                        // Ensure paymentDate and jonasShare fields exist for each item
                                         const composerPublishersWithDate = song.composerPublishers.map(cp => ({
                                           ...cp,
+                                          jonasShare: cp.jonasShare || '',
                                           paymentDate: cp.paymentDate || ''
                                         }));
                                         setComposerPublishers(composerPublishersWithDate);
@@ -649,17 +656,19 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                                             publisher: publishers[i] || '',
                                             publishingOwnership: '',
                                             isMine: false,
+                                            jonasShare: '',
                                             paymentDate: ''
                                           });
                                         }
-                                        setComposerPublishers(result.length > 0 ? result : [{ composer: '', publisher: '', publishingOwnership: '', isMine: false, paymentDate: '' }]);
+                                        setComposerPublishers(result.length > 0 ? result : [{ composer: '', publisher: '', publishingOwnership: '', isMine: false, jonasShare: '', paymentDate: '' }]);
                                       }
                                       
                                       // Load artist-label data if available
                                       if (song.artistLabels && Array.isArray(song.artistLabels)) {
-                                        // Ensure paymentDate field exists for each item
+                                        // Ensure paymentDate and jonasShare fields exist for each item
                                         const artistLabelsWithDate = song.artistLabels.map(al => ({
                                           ...al,
+                                          jonasShare: al.jonasShare || '',
                                           paymentDate: al.paymentDate || ''
                                         }));
                                         setArtistLabels(artistLabelsWithDate);
@@ -676,10 +685,11 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                                             label: labels[i] || '',
                                             labelOwnership: '',
                                             isMine: false,
+                                            jonasShare: '',
                                             paymentDate: ''
                                           });
                                         }
-                                        setArtistLabels(result.length > 0 ? result : [{ artist: '', label: '', labelOwnership: '', isMine: false, paymentDate: '' }]);
+                                        setArtistLabels(result.length > 0 ? result : [{ artist: '', label: '', labelOwnership: '', isMine: false, jonasShare: '', paymentDate: '' }]);
                                       }
                                       
                                       // Use actual split details if available, otherwise calculate from ownership data
@@ -773,12 +783,13 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                         <Label className="text-xs font-semibold">Composer(s), Publisher(s) & Ownership</Label>
                         <div className="space-y-1.5 mt-1.5">
                           <div className="grid grid-cols-12 gap-1 text-xs font-medium text-green-700">
-                            <div className="col-span-3">Composer Name</div>
+                            <div className="col-span-2">Composer Name</div>
                             <div className="col-span-2">Publisher</div>
                             <div className="col-span-1">%</div>
                             <div className="col-span-1">Jonas</div>
-                            <div className="col-span-2">Fee</div>
-                            <div className="col-span-3">Payment Date</div>
+                            <div className="col-span-2">100% Fee</div>
+                            <div className="col-span-2">Jonas Share</div>
+                            <div className="col-span-2">Payment Date</div>
                           </div>
                           {(() => {
                             const fullSongValue = form.watch("fullSongValue") || 0;
@@ -788,25 +799,25 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                               
                               return (
                                 <div key={index} className="grid grid-cols-12 gap-2">
-                                  <div className="col-span-3">
+                                  <div className="col-span-2">
                                     <Input
                                       value={item.composer}
                                       readOnly
-                                      className="bg-green-25 cursor-not-allowed"
+                                      className="bg-green-25 cursor-not-allowed text-xs"
                                     />
                                   </div>
                                   <div className="col-span-2">
                                     <Input
                                       value={item.publisher}
                                       readOnly
-                                      className="bg-green-25 cursor-not-allowed"
+                                      className="bg-green-25 cursor-not-allowed text-xs"
                                     />
                                   </div>
                                   <div className="col-span-1">
                                     <Input
                                       value={item.publishingOwnership}
                                       readOnly
-                                      className="bg-green-25 cursor-not-allowed"
+                                      className="bg-green-25 cursor-not-allowed text-xs"
                                     />
                                   </div>
                                   <div className="col-span-1 flex justify-center items-center">
@@ -819,10 +830,24 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                                     <Input
                                       value={formatCurrency(fee)}
                                       readOnly
-                                      className="bg-green-25 cursor-not-allowed"
+                                      className="bg-green-25 cursor-not-allowed text-xs"
                                     />
                                   </div>
-                                  <div className="col-span-3">
+                                  <div className="col-span-2">
+                                    <Input
+                                      type="number"
+                                      step="0.01"
+                                      placeholder="0.00"
+                                      value={item.jonasShare || ''}
+                                      onChange={(e) => {
+                                        const newComposerPublishers = [...composerPublishers];
+                                        newComposerPublishers[index].jonasShare = e.target.value;
+                                        setComposerPublishers(newComposerPublishers);
+                                      }}
+                                      className="bg-white text-xs"
+                                    />
+                                  </div>
+                                  <div className="col-span-2">
                                     <Input
                                       type="date"
                                       value={item.paymentDate || ''}
@@ -831,7 +856,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                                         newComposerPublishers[index].paymentDate = e.target.value;
                                         setComposerPublishers(newComposerPublishers);
                                       }}
-                                      className="bg-white"
+                                      className="bg-white text-xs"
                                     />
                                   </div>
                                 </div>
@@ -853,12 +878,13 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                         <Label className="text-xs font-semibold">Artist(s), Label(s) & Ownership</Label>
                         <div className="space-y-1.5 mt-1.5">
                           <div className="grid grid-cols-12 gap-1 text-xs font-medium text-blue-700">
-                            <div className="col-span-3">Artist Name</div>
+                            <div className="col-span-2">Artist Name</div>
                             <div className="col-span-2">Label</div>
                             <div className="col-span-1">%</div>
                             <div className="col-span-1">Jonas</div>
-                            <div className="col-span-2">Fee</div>
-                            <div className="col-span-3">Payment Date</div>
+                            <div className="col-span-2">100% Fee</div>
+                            <div className="col-span-2">Jonas Share</div>
+                            <div className="col-span-2">Payment Date</div>
                           </div>
                           {(() => {
                             const fullRecordingFee = form.watch("fullRecordingFee") || 0;
@@ -868,25 +894,25 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                               
                               return (
                                 <div key={index} className="grid grid-cols-12 gap-2">
-                                  <div className="col-span-3">
+                                  <div className="col-span-2">
                                     <Input
                                       value={item.artist}
                                       readOnly
-                                      className="bg-blue-25 cursor-not-allowed"
+                                      className="bg-blue-25 cursor-not-allowed text-xs"
                                     />
                                   </div>
                                   <div className="col-span-2">
                                     <Input
                                       value={item.label}
                                       readOnly
-                                      className="bg-blue-25 cursor-not-allowed"
+                                      className="bg-blue-25 cursor-not-allowed text-xs"
                                     />
                                   </div>
                                   <div className="col-span-1">
                                     <Input
                                       value={item.labelOwnership}
                                       readOnly
-                                      className="bg-blue-25 cursor-not-allowed"
+                                      className="bg-blue-25 cursor-not-allowed text-xs"
                                     />
                                   </div>
                                   <div className="col-span-1 flex justify-center items-center">
@@ -899,10 +925,24 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                                     <Input
                                       value={formatCurrency(fee)}
                                       readOnly
-                                      className="bg-blue-25 cursor-not-allowed"
+                                      className="bg-blue-25 cursor-not-allowed text-xs"
                                     />
                                   </div>
-                                  <div className="col-span-3">
+                                  <div className="col-span-2">
+                                    <Input
+                                      type="number"
+                                      step="0.01"
+                                      placeholder="0.00"
+                                      value={item.jonasShare || ''}
+                                      onChange={(e) => {
+                                        const newArtistLabels = [...artistLabels];
+                                        newArtistLabels[index].jonasShare = e.target.value;
+                                        setArtistLabels(newArtistLabels);
+                                      }}
+                                      className="bg-white text-xs"
+                                    />
+                                  </div>
+                                  <div className="col-span-2">
                                     <Input
                                       type="date"
                                       value={item.paymentDate || ''}
@@ -911,7 +951,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                                         newArtistLabels[index].paymentDate = e.target.value;
                                         setArtistLabels(newArtistLabels);
                                       }}
-                                      className="bg-white"
+                                      className="bg-white text-xs"
                                     />
                                   </div>
                                 </div>
@@ -973,9 +1013,10 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                                   
                                   // Load structured ownership data if available
                                   if (song.composerPublishers && Array.isArray(song.composerPublishers)) {
-                                    // Ensure paymentDate field exists for each item
+                                    // Ensure paymentDate and jonasShare fields exist for each item
                                     const composerPublishersWithDate = song.composerPublishers.map(cp => ({
                                       ...cp,
+                                      jonasShare: cp.jonasShare || '',
                                       paymentDate: cp.paymentDate || ''
                                     }));
                                     setComposerPublishers(composerPublishersWithDate);
@@ -992,17 +1033,19 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                                         publisher: publishers[i] || '',
                                         publishingOwnership: '',
                                         isMine: false,
+                                        jonasShare: '',
                                         paymentDate: ''
                                       });
                                     }
-                                    setComposerPublishers(result.length > 0 ? result : [{ composer: '', publisher: '', publishingOwnership: '', isMine: false, paymentDate: '' }]);
+                                    setComposerPublishers(result.length > 0 ? result : [{ composer: '', publisher: '', publishingOwnership: '', isMine: false, jonasShare: '', paymentDate: '' }]);
                                   }
                                   
                                   // Load artist-label data if available
                                   if (song.artistLabels && Array.isArray(song.artistLabels)) {
-                                    // Ensure paymentDate field exists for each item
+                                    // Ensure paymentDate and jonasShare fields exist for each item
                                     const artistLabelsWithDate = song.artistLabels.map(al => ({
                                       ...al,
+                                      jonasShare: al.jonasShare || '',
                                       paymentDate: al.paymentDate || ''
                                     }));
                                     setArtistLabels(artistLabelsWithDate);
@@ -1019,10 +1062,11 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                                         label: labels[i] || '',
                                         labelOwnership: '',
                                         isMine: false,
+                                        jonasShare: '',
                                         paymentDate: ''
                                       });
                                     }
-                                    setArtistLabels(result.length > 0 ? result : [{ artist: '', label: '', labelOwnership: '', isMine: false, paymentDate: '' }]);
+                                    setArtistLabels(result.length > 0 ? result : [{ artist: '', label: '', labelOwnership: '', isMine: false, jonasShare: '', paymentDate: '' }]);
                                   }
                                   
                                   // Use actual split details if available, otherwise calculate from ownership data
