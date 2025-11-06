@@ -28,7 +28,7 @@ const formatCurrency = (value: string | number) => {
   const numValue = typeof value === 'string' ? parseFloat(value.replace(/[^0-9.-]+/g, '')) : value;
   if (isNaN(numValue)) return '';
   if (numValue === 0) return '';
-  return '$' + numValue.toLocaleString('en-US', {
+  return '$ ' + numValue.toLocaleString('en-US', {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2
   });
