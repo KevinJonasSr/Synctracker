@@ -783,7 +783,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                   
                   {/* Publishing Information */}
                   <Card className="bg-green-50 border-green-200">
-                    <CardHeader className="bg-green-100 border-b border-green-200">
+                    <CardHeader className="bg-green-100 border-b border-green-200 py-0.5 px-2">
                       <CardTitle className="text-green-800 text-sm">Publishing Information</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-1 bg-green-50 p-2">
@@ -863,7 +863,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                   
                   {/* Label Information */}
                   <Card className="bg-blue-50 border-blue-200">
-                    <CardHeader className="bg-blue-100 border-b border-blue-200">
+                    <CardHeader className="bg-blue-100 border-b border-blue-200 py-0.5 px-2">
                       <CardTitle className="text-blue-800 text-sm">Label Information</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-1 bg-blue-50 p-2">
