@@ -569,14 +569,14 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
           </Card>
 
           {/* Section 2: Song Information */}
-          <Card className="bg-blue-50 border-blue-200">
-            <CardHeader className="bg-blue-100 border-b border-blue-200 py-0.5 px-2">
-              <CardTitle className="flex items-center space-x-1 text-blue-800 text-sm">
+          <Card className="bg-purple-50 border-purple-200">
+            <CardHeader className="bg-purple-100 border-b border-purple-200 py-0.5 px-2">
+              <CardTitle className="flex items-center space-x-1 text-purple-800 text-sm">
                 <span>🎵</span>
                 <span>Song Information</span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-1 bg-blue-50 p-1.5">
+            <CardContent className="space-y-1 bg-purple-50 p-1.5">
               <div className="grid grid-cols-1 gap-2">
                 <div className="relative">
                   <Label htmlFor="songId">Song Title *</Label>
@@ -714,73 +714,6 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
 
               {selectedSong && (
                 <div className="space-y-1">
-                  {/* Basic Song Information */}
-                  <Card className="bg-purple-50 border-purple-200">
-                    <CardHeader className="bg-purple-100 border-b border-purple-200 py-0.5 px-2">
-                      <CardTitle className="text-purple-800 text-sm">Basic Song Information</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-1 bg-purple-50 p-1.5">
-                      {/* First line: Title, Album */}
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <Label>Title</Label>
-                          <Input
-                            value={selectedSong.title || ""}
-                            readOnly
-                            className="bg-purple-25 cursor-not-allowed"
-                          />
-                        </div>
-                        <div>
-                          <Label>Album</Label>
-                          <Input
-                            value={selectedSong.album || ""}
-                            readOnly
-                            className="bg-purple-25 cursor-not-allowed"
-                            placeholder="Album name"
-                          />
-                        </div>
-                      </div>
-                      
-                      {/* Second line: Jonas's Ownership Summary */}
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <Label>Publishing Ownership (%)</Label>
-                          <Input
-                            type="number"
-                            min="0"
-                            max="100"
-                            step="0.01"
-                            value={composerPublishers
-                              .filter(cp => cp.isMine && cp.publishingOwnership)
-                              .reduce((total, cp) => total + parseFloat(cp.publishingOwnership || '0'), 0)
-                              .toFixed(2)}
-                            readOnly
-                            className="bg-purple-25 cursor-not-allowed"
-                            placeholder="0.00"
-                          />
-                          <p className="text-xs text-purple-600 mt-1">Auto-calculated from Jonas's checked composers</p>
-                        </div>
-                        <div>
-                          <Label>Label Recording Ownership (%)</Label>
-                          <Input
-                            type="number"
-                            min="0"
-                            max="100"
-                            step="0.01"
-                            value={artistLabels
-                              .filter(al => al.isMine && al.labelOwnership)
-                              .reduce((total, al) => total + parseFloat(al.labelOwnership || '0'), 0)
-                              .toFixed(2)}
-                            readOnly
-                            className="bg-purple-25 cursor-not-allowed"
-                            placeholder="0.00"
-                          />
-                          <p className="text-xs text-purple-600 mt-1">Auto-calculated from Jonas's checked artists</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                  
                   {/* Publishing Information */}
                   <Card className="bg-green-50 border-green-200">
                     <CardHeader className="bg-green-100 border-b border-green-200 py-0.5 px-2">
