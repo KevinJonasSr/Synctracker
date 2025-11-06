@@ -725,7 +725,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                   </div>
                   
                   {/* Second line: Jonas's Ownership Summary */}
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-2 gap-2 mt-2">
                     <div>
                       <Label>Publishing Ownership (%)</Label>
                       <Input
