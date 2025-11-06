@@ -160,9 +160,17 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
           setSelectedSong(song);
           setSongSearchValue(`${song.title} - ${song.artist}`);
           
-          // Load structured ownership data if available
-          if (song.composerPublishers && Array.isArray(song.composerPublishers)) {
-            // Ensure paymentDate and jonasShare fields exist for each item
+          // PRIORITY: Load from deal first (which has jonasShare and paymentDate), fall back to song
+          if (deal.composerPublishers && Array.isArray(deal.composerPublishers)) {
+            // Use deal's composerPublishers (which includes jonasShare and paymentDate)
+            const composerPublishersWithDate = deal.composerPublishers.map(cp => ({
+              ...cp,
+              jonasShare: cp.jonasShare || '',
+              paymentDate: cp.paymentDate || ''
+            }));
+            setComposerPublishers(composerPublishersWithDate);
+          } else if (song.composerPublishers && Array.isArray(song.composerPublishers)) {
+            // Fall back to song's composerPublishers
             const composerPublishersWithDate = song.composerPublishers.map(cp => ({
               ...cp,
               jonasShare: cp.jonasShare || '',
@@ -189,9 +197,17 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
             setComposerPublishers(result.length > 0 ? result : [{ composer: '', publisher: '', publishingOwnership: '', isMine: false, jonasShare: '', paymentDate: '' }]);
           }
           
-          // Load artist-label data if available
-          if (song.artistLabels && Array.isArray(song.artistLabels)) {
-            // Ensure paymentDate and jonasShare fields exist for each item
+          // PRIORITY: Load from deal first (which has jonasShare and paymentDate), fall back to song
+          if (deal.artistLabels && Array.isArray(deal.artistLabels)) {
+            // Use deal's artistLabels (which includes jonasShare and paymentDate)
+            const artistLabelsWithDate = deal.artistLabels.map(al => ({
+              ...al,
+              jonasShare: al.jonasShare || '',
+              paymentDate: al.paymentDate || ''
+            }));
+            setArtistLabels(artistLabelsWithDate);
+          } else if (song.artistLabels && Array.isArray(song.artistLabels)) {
+            // Fall back to song's artistLabels
             const artistLabelsWithDate = song.artistLabels.map(al => ({
               ...al,
               jonasShare: al.jonasShare || '',
