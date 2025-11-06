@@ -580,7 +580,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
               {selectedSong ? (
                 <div className="space-y-1">
                   {/* First line: Title, Album */}
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-2 gap-2 pb-20">
                     <div className="relative">
                       <Label htmlFor="songId">Title *</Label>
                       <Command className="rounded-lg border shadow-md">
@@ -725,7 +725,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                   </div>
                   
                   {/* Second line: Jonas's Ownership Summary */}
-                  <div className="grid grid-cols-2 gap-2 mt-20">
+                  <div className="grid grid-cols-2 gap-2">
                     <div>
                       <Label>Publishing Ownership (%)</Label>
                       <Input
