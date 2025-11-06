@@ -973,25 +973,25 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                     />
                   </div>
                 </div>
-                <div className="grid grid-cols-4 gap-4 mt-4">
-                  <div>
-                    <Label htmlFor="media">Media</Label>
-                    <Textarea
-                      id="media"
-                      {...form.register("media")}
-                      placeholder="e.g., TV, Film, Streaming, All media and devices..."
-                      rows={2}
-                      className="min-h-[60px]"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="options">Options</Label>
-                    <Input
-                      id="options"
-                      {...form.register("options")}
-                      placeholder="Enter options"
-                    />
-                  </div>
+                <div className="mt-4">
+                  <Label htmlFor="media">Media</Label>
+                  <Textarea
+                    id="media"
+                    {...form.register("media")}
+                    placeholder="e.g., TV, Film, Streaming, All media and devices..."
+                    rows={2}
+                    className="min-h-[60px]"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="options">Options</Label>
+                  <Input
+                    id="options"
+                    {...form.register("options")}
+                    placeholder="Enter options"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="term">Term</Label>
                     <Input
