@@ -13,8 +13,10 @@ export default function Income() {
   const [showAddPayment, setShowAddPayment] = useState(false);
   const [activeTab, setActiveTab] = useState("all");
 
-  const { data: payments = [], isLoading } = useQuery<Payment[]>({
+  const { data: payments = [], isLoading, isError, refetch } = useQuery<Payment[]>({
     queryKey: ["/api/payments"],
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 
   const getStatusColor = (status: string) => {
@@ -84,6 +86,18 @@ export default function Income() {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="text-lg text-gray-600">Loading payments...</div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full gap-4">
+        <div className="text-lg text-red-600">Failed to load payments</div>
+        <p className="text-sm text-gray-500">Please check your connection and try again</p>
+        <Button onClick={() => refetch()} variant="outline">
+          Try Again
+        </Button>
       </div>
     );
   }
