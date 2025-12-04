@@ -238,7 +238,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: error.errors });
       }
-      res.status(500).json({ error: "Failed to create deal", details: error.message });
+      res.status(500).json({ error: "Failed to create deal", details: error instanceof Error ? error.message : "Unknown error" });
     }
   });
 
@@ -262,7 +262,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.error("Validation errors:", error.errors);
         return res.status(400).json({ error: error.errors });
       }
-      res.status(500).json({ error: "Failed to update deal", details: error.message });
+      res.status(500).json({ error: "Failed to update deal", details: error instanceof Error ? error.message : "Unknown error" });
     }
   });
 
@@ -297,7 +297,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         completedDate: validatedData.completedDate && validatedData.completedDate !== '' ? new Date(validatedData.completedDate) : null,
       };
       
-      const deal = await dbStorage.updateDeal(id, processedData);
+      const deal = await dbStorage.updateDeal(id, processedData as any);
       console.log("Updated deal:", deal);
       
       res.json(deal);
@@ -307,7 +307,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.error("Validation errors:", error.errors);
         return res.status(400).json({ error: error.errors });
       }
-      res.status(500).json({ error: "Failed to update deal", details: error.message });
+      res.status(500).json({ error: "Failed to update deal", details: error instanceof Error ? error.message : "Unknown error" });
     }
   });
 
@@ -344,7 +344,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
 
       // Get headers
-      const headers = jsonData.length > 0 ? Object.keys(jsonData[0]) : [];
+      const headers = jsonData.length > 0 ? Object.keys(jsonData[0] as Record<string, unknown>) : [];
 
       // Clean up uploaded file
       fs.unlinkSync(filePath);
@@ -364,7 +364,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.error("Error cleaning up file:", cleanupError);
         }
       }
-      res.status(500).json({ error: "Failed to parse file", details: error.message });
+      res.status(500).json({ error: "Failed to parse file", details: error instanceof Error ? error.message : "Unknown error" });
     }
   });
 
@@ -472,7 +472,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(results);
     } catch (error) {
       console.error("Error importing deals:", error);
-      res.status(500).json({ error: "Failed to import deals", details: error.message });
+      res.status(500).json({ error: "Failed to import deals", details: error instanceof Error ? error.message : "Unknown error" });
     }
   });
 
@@ -516,7 +516,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(pitch);
     } catch (error) {
       console.error("Error creating pitch:", error);
-      res.status(500).json({ error: "Failed to create pitch", details: error.message });
+      res.status(500).json({ error: "Failed to create pitch", details: error instanceof Error ? error.message : "Unknown error" });
     }
   });
 
@@ -545,7 +545,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(pitch);
     } catch (error) {
       console.error("Error updating pitch:", error);
-      res.status(500).json({ error: "Failed to update pitch", details: error.message });
+      res.status(500).json({ error: "Failed to update pitch", details: error instanceof Error ? error.message : "Unknown error" });
     }
   });
 
@@ -903,8 +903,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (event.entityType === 'deal' && event.entityId && event.title.includes('Air Date:')) {
         try {
           await dbStorage.updateDeal(event.entityId, { 
-            airDate: event.startDate 
-          });
+            airDate: event.startDate ? event.startDate.toISOString().split('T')[0] : null 
+          } as any);
         } catch (dealError) {
           console.error('Error updating deal air date:', dealError);
           // Don't fail the calendar update if deal update fails
