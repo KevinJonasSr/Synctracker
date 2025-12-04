@@ -23,13 +23,13 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { cn } from "@/lib/utils";
 
 // Currency formatting functions
-const formatCurrency = (value: string | number) => {
+const formatCurrency = (value: string | number, showZero: boolean = false) => {
   if (!value && value !== 0) return '';
   const numValue = typeof value === 'string' ? parseFloat(value.replace(/[^0-9.-]+/g, '')) : value;
   if (isNaN(numValue)) return '';
-  if (numValue === 0) return '';
+  if (numValue === 0 && !showZero) return '';
   return '$ ' + numValue.toLocaleString('en-US', {
-    minimumFractionDigits: 0,
+    minimumFractionDigits: 2,
     maximumFractionDigits: 2
   });
 };
@@ -851,7 +851,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                                   </div>
                                   <div className="col-span-2">
                                     <Input
-                                      value={formatCurrency(fee)}
+                                      value={formatCurrency(fee, true)}
                                       readOnly
                                       className="bg-green-25 cursor-not-allowed text-xs"
                                     />
@@ -949,7 +949,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                                   </div>
                                   <div className="col-span-2">
                                     <Input
-                                      value={formatCurrency(fee)}
+                                      value={formatCurrency(fee, true)}
                                       readOnly
                                       className="bg-blue-25 cursor-not-allowed text-xs"
                                     />

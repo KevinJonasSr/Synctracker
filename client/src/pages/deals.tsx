@@ -33,8 +33,10 @@ export default function Deals() {
     setShowEditDeal(true);
   };
 
-  const { data: deals = [], isLoading } = useQuery<DealWithRelations[]>({
+  const { data: deals = [], isLoading, isError, error, refetch } = useQuery<DealWithRelations[]>({
     queryKey: ["/api/deals"],
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 
   const getStatusColor = (status: string) => {
@@ -112,6 +114,18 @@ export default function Deals() {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="text-lg text-gray-600">Loading deals...</div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full gap-4">
+        <div className="text-lg text-red-600">Failed to load deals</div>
+        <p className="text-sm text-gray-500">{error?.message || "Please try again"}</p>
+        <Button onClick={() => refetch()} variant="outline">
+          Try Again
+        </Button>
       </div>
     );
   }

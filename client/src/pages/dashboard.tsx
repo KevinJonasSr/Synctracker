@@ -11,15 +11,25 @@ import type { DashboardMetrics, DealWithRelations } from "@shared/schema";
 export default function Dashboard() {
   const [showAddDeal, setShowAddDeal] = useState(false);
 
-  const { data: metrics, isLoading: metricsLoading } = useQuery<DashboardMetrics>({
+  const { data: metrics, isLoading: metricsLoading, isError: metricsError, refetch: refetchMetrics } = useQuery<DashboardMetrics>({
     queryKey: ["/api/dashboard"],
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 
-  const { data: deals = [], isLoading: dealsLoading } = useQuery<DealWithRelations[]>({
+  const { data: deals = [], isLoading: dealsLoading, isError: dealsError, refetch: refetchDeals } = useQuery<DealWithRelations[]>({
     queryKey: ["/api/deals"],
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 
   const isLoading = metricsLoading || dealsLoading;
+  const isError = metricsError || dealsError;
+
+  const handleRefresh = () => {
+    refetchMetrics();
+    refetchDeals();
+  };
 
   if (isLoading) {
     return (
@@ -29,10 +39,17 @@ export default function Dashboard() {
     );
   }
 
-  if (!metrics) {
+  if (isError || !metrics) {
     return (
-      <div className="flex items-center justify-center h-full">
+      <div className="flex flex-col items-center justify-center h-full gap-4">
         <div className="text-lg text-red-600">Failed to load dashboard data</div>
+        <p className="text-sm text-gray-500">Please check your connection and try again</p>
+        <button 
+          onClick={handleRefresh}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          Try Again
+        </button>
       </div>
     );
   }
