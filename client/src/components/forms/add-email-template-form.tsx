@@ -93,7 +93,7 @@ export default function AddEmailTemplateForm({ open, onClose, template }: AddEma
       const method = isEditing ? "PUT" : "POST";
       return await apiRequest(url, {
         method,
-        body: JSON.stringify(data),
+        body: data,
       });
     },
     onSuccess: () => {

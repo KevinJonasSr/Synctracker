@@ -122,8 +122,6 @@ export interface IStorage {
 export class DatabaseStorage implements IStorage {
   // Songs
   async getSongs(search?: string, genre?: string, limit = 50): Promise<Song[]> {
-    let query = db.select().from(songs);
-    
     const conditions = [];
     if (search) {
       conditions.push(
@@ -139,10 +137,15 @@ export class DatabaseStorage implements IStorage {
     }
     
     if (conditions.length > 0) {
-      query = query.where(and(...conditions));
+      return db.select().from(songs)
+        .where(and(...conditions))
+        .orderBy(desc(songs.createdAt))
+        .limit(limit);
     }
     
-    return query.orderBy(desc(songs.createdAt)).limit(limit);
+    return db.select().from(songs)
+      .orderBy(desc(songs.createdAt))
+      .limit(limit);
   }
 
   async getSong(id: number): Promise<Song | undefined> {
@@ -151,14 +154,14 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createSong(song: InsertSong): Promise<Song> {
-    const [created] = await db.insert(songs).values(song).returning();
+    const [created] = await db.insert(songs).values(song as any).returning();
     return created;
   }
 
   async updateSong(id: number, song: Partial<InsertSong>): Promise<Song> {
     const [updated] = await db
       .update(songs)
-      .set({ ...song, updatedAt: new Date() })
+      .set({ ...song, updatedAt: new Date() } as any)
       .where(eq(songs.id, id))
       .returning();
     return updated;
@@ -170,19 +173,22 @@ export class DatabaseStorage implements IStorage {
 
   // Contacts
   async getContacts(search?: string, limit = 50): Promise<Contact[]> {
-    let query = db.select().from(contacts);
-    
     if (search) {
-      query = query.where(
-        or(
-          like(contacts.name, `%${search}%`),
-          like(contacts.email, `%${search}%`),
-          like(contacts.company, `%${search}%`)
+      return db.select().from(contacts)
+        .where(
+          or(
+            like(contacts.name, `%${search}%`),
+            like(contacts.email, `%${search}%`),
+            like(contacts.company, `%${search}%`)
+          )
         )
-      );
+        .orderBy(asc(contacts.name))
+        .limit(limit);
     }
     
-    return query.orderBy(asc(contacts.name)).limit(limit);
+    return db.select().from(contacts)
+      .orderBy(asc(contacts.name))
+      .limit(limit);
   }
 
   async getContact(id: number): Promise<Contact | undefined> {
@@ -210,7 +216,7 @@ export class DatabaseStorage implements IStorage {
 
   // Deals
   async getDeals(status?: string, limit = 50): Promise<DealWithRelations[]> {
-    let query = db
+    const baseQuery = db
       .select()
       .from(deals)
       .leftJoin(songs, eq(deals.songId, songs.id))
@@ -218,11 +224,9 @@ export class DatabaseStorage implements IStorage {
       .leftJoin(pitches, eq(deals.id, pitches.dealId))
       .leftJoin(payments, eq(deals.id, payments.dealId));
     
-    if (status) {
-      query = query.where(eq(deals.status, status));
-    }
-    
-    const results = await query.orderBy(desc(deals.createdAt)).limit(limit);
+    const results = status 
+      ? await baseQuery.where(eq(deals.status, status)).orderBy(desc(deals.createdAt)).limit(limit)
+      : await baseQuery.orderBy(desc(deals.createdAt)).limit(limit);
     
     // Transform the results to match DealWithRelations type
     const dealsMap = new Map<number, DealWithRelations>();
@@ -345,7 +349,7 @@ export class DatabaseStorage implements IStorage {
 
     const [updated] = await db
       .update(deals)
-      .set(processedDeal)
+      .set(processedDeal as any)
       .where(eq(deals.id, id))
       .returning();
     return updated;
@@ -357,13 +361,16 @@ export class DatabaseStorage implements IStorage {
 
   // Pitches
   async getPitches(dealId?: number, limit = 50): Promise<Pitch[]> {
-    let query = db.select().from(pitches);
-    
     if (dealId) {
-      query = query.where(eq(pitches.dealId, dealId));
+      return db.select().from(pitches)
+        .where(eq(pitches.dealId, dealId))
+        .orderBy(desc(pitches.createdAt))
+        .limit(limit);
     }
     
-    return query.orderBy(desc(pitches.createdAt)).limit(limit);
+    return db.select().from(pitches)
+      .orderBy(desc(pitches.createdAt))
+      .limit(limit);
   }
 
   async getPitch(id: number): Promise<Pitch | undefined> {
@@ -391,13 +398,16 @@ export class DatabaseStorage implements IStorage {
 
   // Payments
   async getPayments(status?: string, limit = 50): Promise<Payment[]> {
-    let query = db.select().from(payments);
-    
     if (status) {
-      query = query.where(eq(payments.status, status));
+      return db.select().from(payments)
+        .where(eq(payments.status, status))
+        .orderBy(desc(payments.createdAt))
+        .limit(limit);
     }
     
-    return query.orderBy(desc(payments.createdAt)).limit(limit);
+    return db.select().from(payments)
+      .orderBy(desc(payments.createdAt))
+      .limit(limit);
   }
 
   async getPayment(id: number): Promise<Payment | undefined> {
@@ -425,13 +435,12 @@ export class DatabaseStorage implements IStorage {
 
   // Templates
   async getTemplates(type?: string): Promise<Template[]> {
-    let query = db.select().from(templates);
-    
     if (type) {
-      query = query.where(eq(templates.type, type));
+      return db.select().from(templates)
+        .where(eq(templates.type, type))
+        .orderBy(asc(templates.name));
     }
-    
-    return query.orderBy(asc(templates.name));
+    return db.select().from(templates).orderBy(asc(templates.name));
   }
 
   async getTemplate(id: number): Promise<Template | undefined> {
@@ -459,13 +468,12 @@ export class DatabaseStorage implements IStorage {
 
   // Email Templates
   async getEmailTemplates(stage?: string): Promise<EmailTemplate[]> {
-    let query = db.select().from(emailTemplates);
-    
     if (stage) {
-      query = query.where(eq(emailTemplates.stage, stage));
+      return db.select().from(emailTemplates)
+        .where(eq(emailTemplates.stage, stage))
+        .orderBy(asc(emailTemplates.name));
     }
-    
-    return await query.orderBy(asc(emailTemplates.name));
+    return db.select().from(emailTemplates).orderBy(asc(emailTemplates.name));
   }
 
   async getEmailTemplate(id: number): Promise<EmailTemplate | undefined> {
@@ -492,8 +500,6 @@ export class DatabaseStorage implements IStorage {
 
   // Attachments
   async getAttachments(entityType?: string, entityId?: number): Promise<Attachment[]> {
-    let query = db.select().from(attachments);
-    
     const conditions = [];
     if (entityType) {
       conditions.push(eq(attachments.entityType, entityType));
@@ -503,10 +509,13 @@ export class DatabaseStorage implements IStorage {
     }
     
     if (conditions.length > 0) {
-      query = query.where(and(...conditions));
+      return db.select().from(attachments)
+        .where(and(...conditions))
+        .orderBy(desc(attachments.createdAt));
     }
     
-    return await query.orderBy(desc(attachments.createdAt));
+    return db.select().from(attachments)
+      .orderBy(desc(attachments.createdAt));
   }
 
   async getAttachment(id: number): Promise<Attachment | undefined> {
@@ -525,8 +534,6 @@ export class DatabaseStorage implements IStorage {
 
   // Calendar Events
   async getCalendarEvents(entityType?: string, entityId?: number, startDate?: Date, endDate?: Date): Promise<CalendarEvent[]> {
-    let query = db.select().from(calendarEvents);
-    
     const conditions = [];
     if (entityType) {
       conditions.push(eq(calendarEvents.entityType, entityType));
@@ -542,10 +549,13 @@ export class DatabaseStorage implements IStorage {
     }
     
     if (conditions.length > 0) {
-      query = query.where(and(...conditions));
+      return db.select().from(calendarEvents)
+        .where(and(...conditions))
+        .orderBy(asc(calendarEvents.startDate));
     }
     
-    return await query.orderBy(asc(calendarEvents.startDate));
+    return db.select().from(calendarEvents)
+      .orderBy(asc(calendarEvents.startDate));
   }
 
   async getCalendarEvent(id: number): Promise<CalendarEvent | undefined> {

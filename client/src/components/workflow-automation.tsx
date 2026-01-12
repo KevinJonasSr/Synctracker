@@ -26,7 +26,7 @@ export default function WorkflowAutomationPanel() {
 
   const createAutomationMutation = useMutation({
     mutationFn: async (data: InsertWorkflowAutomation) => {
-      const response = await apiRequest("POST", "/api/workflow-automation", data);
+      const response = await apiRequest("/api/workflow-automation", { method: "POST", body: data });
       return response.json();
     },
     onSuccess: () => {
@@ -39,7 +39,7 @@ export default function WorkflowAutomationPanel() {
 
   const toggleAutomationMutation = useMutation({
     mutationFn: async ({ id, isActive }: { id: number; isActive: boolean }) => {
-      const response = await apiRequest("PUT", `/api/workflow-automation/${id}`, { isActive });
+      const response = await apiRequest(`/api/workflow-automation/${id}`, { method: "PUT", body: { isActive } });
       return response.json();
     },
     onSuccess: () => {
@@ -143,7 +143,7 @@ export default function WorkflowAutomationPanel() {
                     </div>
                     <div className="flex items-center space-x-2">
                       <Switch
-                        checked={automation.isActive}
+                        checked={automation.isActive ?? false}
                         onCheckedChange={(checked) => 
                           toggleAutomationMutation.mutate({ 
                             id: automation.id, 

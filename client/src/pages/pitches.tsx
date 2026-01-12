@@ -530,9 +530,9 @@ export default function Pitches() {
               <Select
                 value=""
                 onValueChange={(value: string) => {
-                  const currentSongs = form.watch("selectedSongs") || [];
+                  const currentSongs = (form.watch("selectedSongs") || []) as string[];
                   if (!currentSongs.includes(value)) {
-                    form.setValue("selectedSongs", [...currentSongs, value]);
+                    form.setValue("selectedSongs", [...currentSongs, value] as any);
                   }
                 }}
               >
@@ -661,7 +661,7 @@ export default function Pitches() {
                   if (selectedPitch && e.target.value) {
                     updatePitchMutation.mutate({
                       id: selectedPitch.id,
-                      data: { followUpDate: new Date(e.target.value).toISOString() }
+                      data: { followUpDate: new Date(e.target.value) }
                     });
                   }
                 }}

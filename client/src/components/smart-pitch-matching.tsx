@@ -82,15 +82,16 @@ export default function SmartPitchMatching() {
       const response = await apiRequest('/api/smart-pitch-analyze', {
         method: 'POST',
         body: {
-          songs: songs.slice(0, 10), // Limit to first 10 songs for demo
+          songs: (songs as any[]).slice(0, 10), // Limit to first 10 songs for demo
           projectBrief
         }
       });
       
-      setRecommendations(response);
+      const data = await response.json();
+      setRecommendations(data);
       toast({
         title: "Analysis Complete",
-        description: `Generated recommendations for ${response.length} songs`,
+        description: `Generated recommendations for ${data.length} songs`,
       });
     } catch (error) {
       toast({

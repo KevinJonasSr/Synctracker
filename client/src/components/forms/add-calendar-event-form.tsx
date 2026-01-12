@@ -60,7 +60,7 @@ export default function AddCalendarEventForm({ open, onClose, entityType, entity
     mutationFn: async (data: InsertCalendarEvent) => {
       return await apiRequest("/api/calendar-events", {
         method: "POST",
-        body: JSON.stringify(data),
+        body: data,
       });
     },
     onSuccess: () => {
@@ -122,6 +122,7 @@ export default function AddCalendarEventForm({ open, onClose, entityType, entity
                       placeholder="Event description"
                       className="min-h-[80px]"
                       {...field}
+                      value={field.value ?? ""}
                     />
                   </FormControl>
                   <FormMessage />
@@ -176,7 +177,7 @@ export default function AddCalendarEventForm({ open, onClose, entityType, entity
                 <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                   <FormControl>
                     <Checkbox
-                      checked={field.value}
+                      checked={field.value ?? false}
                       onCheckedChange={field.onChange}
                     />
                   </FormControl>
@@ -193,7 +194,7 @@ export default function AddCalendarEventForm({ open, onClose, entityType, entity
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Reminder</FormLabel>
-                  <Select onValueChange={(value) => field.onChange(parseInt(value))} defaultValue={field.value.toString()}>
+                  <Select onValueChange={(value) => field.onChange(parseInt(value))} defaultValue={(field.value ?? 0).toString()}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select reminder time" />

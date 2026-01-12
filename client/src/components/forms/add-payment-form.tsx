@@ -38,7 +38,7 @@ export default function AddPaymentForm({ open, onClose }: AddPaymentFormProps) {
 
   const createPaymentMutation = useMutation({
     mutationFn: async (data: InsertPayment) => {
-      const response = await apiRequest("POST", "/api/payments", data);
+      const response = await apiRequest("/api/payments", { method: "POST", body: data });
       return response.json();
     },
     onSuccess: () => {

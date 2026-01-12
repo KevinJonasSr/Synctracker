@@ -41,7 +41,7 @@ export default function Playlists() {
 
   const createPlaylistMutation = useMutation({
     mutationFn: async (data: InsertPlaylist) => {
-      const response = await apiRequest("POST", "/api/playlists", data);
+      const response = await apiRequest("/api/playlists", { method: "POST", body: data });
       return response.json();
     },
     onSuccess: () => {

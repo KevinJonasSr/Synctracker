@@ -118,7 +118,7 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
       };
       
       console.log("Processed data:", processedData);
-      const response = await apiRequest("POST", "/api/deals", processedData);
+      const response = await apiRequest("/api/deals", { method: "POST", body: processedData });
       return response.json();
     },
     onSuccess: async (newDeal) => {
@@ -128,12 +128,15 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
       // Auto-create calendar event if airdate is set
       if (newDeal.airDate) {
         try {
-          await apiRequest("POST", "/api/calendar-events", {
-            title: `${newDeal.projectName} - Air Date`,
-            description: `Air date for ${newDeal.projectName}`,
-            eventDate: newDeal.airDate,
-            entityType: "deal",
-            entityId: newDeal.id
+          await apiRequest("/api/calendar-events", {
+            method: "POST",
+            body: {
+              title: `${newDeal.projectName} - Air Date`,
+              description: `Air date for ${newDeal.projectName}`,
+              eventDate: newDeal.airDate,
+              entityType: "deal",
+              entityId: newDeal.id
+            }
           });
           queryClient.invalidateQueries({ queryKey: ["/api/calendar-events"] });
         } catch (error) {
@@ -161,7 +164,7 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
 
   const createContactMutation = useMutation({
     mutationFn: async (contactData: InsertContact) => {
-      const response = await apiRequest("POST", "/api/contacts", contactData);
+      const response = await apiRequest("/api/contacts", { method: "POST", body: contactData });
       return response.json();
     },
     onSuccess: (newContact) => {

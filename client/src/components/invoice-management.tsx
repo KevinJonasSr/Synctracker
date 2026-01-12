@@ -173,9 +173,9 @@ export default function InvoiceManagement() {
                     <SelectValue placeholder="Select a deal" />
                   </SelectTrigger>
                   <SelectContent>
-                    {deals.map((deal: Deal) => (
+                    {(deals as Deal[]).map((deal: Deal) => (
                       <SelectItem key={deal.id} value={deal.id.toString()}>
-                        {deal.projectTitle} - ${deal.value}
+                        {deal.projectName} - ${deal.dealValue || 0}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -261,7 +261,7 @@ export default function InvoiceManagement() {
       </div>
 
       <div className="grid gap-4">
-        {invoices.map((invoice: Invoice) => (
+        {(invoices as Invoice[]).map((invoice: Invoice) => (
           <Card key={invoice.id}>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -279,7 +279,7 @@ export default function InvoiceManagement() {
                   </p>
                   {invoice.deal && (
                     <p className="text-sm text-gray-600">
-                      Deal: {invoice.deal.projectTitle}
+                      Deal: {invoice.deal.projectName}
                     </p>
                   )}
                 </div>
