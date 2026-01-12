@@ -220,9 +220,9 @@ export default function AdvancedSearch({ open, onClose, onSearch, onSaveSearch }
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="">Any Duration</SelectItem>
-                    <SelectItem value="short">Short (< 2 min)</SelectItem>
+                    <SelectItem value="short">Short (&lt; 2 min)</SelectItem>
                     <SelectItem value="medium">Medium (2-4 min)</SelectItem>
-                    <SelectItem value="long">Long (> 4 min)</SelectItem>
+                    <SelectItem value="long">Long (&gt; 4 min)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
