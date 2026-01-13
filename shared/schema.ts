@@ -3,6 +3,8 @@ import { relations } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+export * from "./models/auth";
+
 export const songs = pgTable("songs", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),

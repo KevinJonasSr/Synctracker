@@ -1,17 +1,20 @@
-import type { Express } from "express";
+import type { Express, RequestHandler } from "express";
 import { createServer, type Server } from "http";
 import { storage as dbStorage } from "./storage";
 import { 
   insertSongSchema, insertContactSchema, insertDealSchema,
   insertPitchSchema, insertPaymentSchema, insertTemplateSchema,
   insertEmailTemplateSchema, insertAttachmentSchema, insertCalendarEventSchema,
-  type InsertTemplate
+  type InsertTemplate, allowedUsers
 } from "@shared/schema";
 import { z } from "zod";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
 import * as XLSX from "xlsx";
+import { setupAuth, registerAuthRoutes, isAuthenticated } from "./replit_integrations/auth";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
 // Configure multer for file uploads
 const multerStorage = multer.diskStorage({
@@ -45,7 +48,46 @@ const upload = multer({
   }
 });
 
+// Middleware to check if authenticated user is in the allowed users list
+const isAllowedUser: RequestHandler = async (req, res, next) => {
+  const user = req.user as any;
+  if (!user?.claims?.email) {
+    return res.status(403).json({ message: "Access denied: No email associated with account" });
+  }
+  
+  const email = user.claims.email.toLowerCase();
+  const [allowed] = await db.select().from(allowedUsers).where(eq(allowedUsers.email, email));
+  
+  if (!allowed) {
+    return res.status(403).json({ message: "Access denied: You are not authorized to use this application" });
+  }
+  
+  next();
+};
+
+// Combined middleware for authentication + authorization
+const requireAuth: RequestHandler[] = [isAuthenticated, isAllowedUser];
+
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Set up authentication first (before other routes)
+  await setupAuth(app);
+  registerAuthRoutes(app);
+
+  // Protect all API routes except auth routes
+  app.use("/api", (req, res, next) => {
+    // Skip authentication for auth-related routes
+    const authRoutes = ['/api/login', '/api/logout', '/api/callback', '/api/auth/user'];
+    if (authRoutes.includes(req.path) || req.path.startsWith('/api/auth/')) {
+      return next();
+    }
+    
+    // Apply authentication + authorization for all other API routes
+    isAuthenticated(req, res, (err) => {
+      if (err) return next(err);
+      isAllowedUser(req, res, next);
+    });
+  });
+
   // Songs endpoints
   app.get("/api/songs", async (req, res) => {
     try {
