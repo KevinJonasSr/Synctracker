@@ -7,6 +7,8 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Suspense, lazy, useState, useEffect } from "react";
 import Sidebar from "@/components/layout/sidebar";
 import OnboardingTour from "@/components/OnboardingTour";
+import { useAuth } from "@/hooks/use-auth";
+import LandingPage from "@/pages/landing";
 
 const Dashboard = lazy(() => import("@/pages/dashboard"));
 const Songs = lazy(() => import("@/pages/songs"));
@@ -22,13 +24,12 @@ const Playlists = lazy(() => import("@/pages/playlists"));
 const Analytics = lazy(() => import("@/pages/analytics"));
 const NotFound = lazy(() => import("@/pages/not-found"));
 
-function App() {
+function AuthenticatedApp() {
   const [tourEnabled, setTourEnabled] = useState(false);
 
   useEffect(() => {
     const hasSeenTour = localStorage.getItem('hasSeenSyncTrackerTour');
     if (!hasSeenTour) {
-      // Delay tour start slightly to ensure DOM is ready
       setTimeout(() => setTourEnabled(true), 500);
     }
   }, []);
@@ -43,32 +44,54 @@ function App() {
   };
 
   return (
+    <>
+      {tourEnabled && <OnboardingTour enabled={tourEnabled} onExit={handleTourExit} />}
+      <div className="flex min-h-screen bg-background">
+        <Sidebar onStartTour={handleStartTour} />
+        <main className="flex-1 lg:ml-64 bg-background">
+          <Suspense fallback={<div className="p-6 text-muted-foreground">Loading...</div>}>
+            <Switch>
+              <Route path="/" component={Dashboard} />
+              <Route path="/songs" component={Songs} />
+              <Route path="/deals" component={Deals} />
+              <Route path="/pitches" component={Pitches} />
+              <Route path="/contacts" component={Contacts} />
+              <Route path="/income" component={Income} />
+              <Route path="/templates" component={Templates} />
+              <Route path="/reports" component={Reports} />
+              <Route path="/email-templates" component={EmailTemplates} />
+              <Route path="/calendar" component={Calendar} />
+              <Route path="/playlists" component={Playlists} />
+              <Route path="/analytics" component={Analytics} />
+              <Route component={NotFound} />
+            </Switch>
+          </Suspense>
+        </main>
+      </div>
+    </>
+  );
+}
+
+function AppContent() {
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-muted-foreground">Loading...</div>
+      </div>
+    );
+  }
+
+  return user ? <AuthenticatedApp /> : <LandingPage />;
+}
+
+function App() {
+  return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <TooltipProvider>
-          {tourEnabled && <OnboardingTour enabled={tourEnabled} onExit={handleTourExit} />}
-          <div className="flex min-h-screen bg-background">
-            <Sidebar onStartTour={handleStartTour} />
-            <main className="flex-1 lg:ml-64 bg-background">
-              <Suspense fallback={<div className="p-6 text-muted-foreground">Loading...</div>}>
-                <Switch>
-                  <Route path="/" component={Dashboard} />
-                  <Route path="/songs" component={Songs} />
-                  <Route path="/deals" component={Deals} />
-                  <Route path="/pitches" component={Pitches} />
-                  <Route path="/contacts" component={Contacts} />
-                  <Route path="/income" component={Income} />
-                  <Route path="/templates" component={Templates} />
-                  <Route path="/reports" component={Reports} />
-                  <Route path="/email-templates" component={EmailTemplates} />
-                  <Route path="/calendar" component={Calendar} />
-                  <Route path="/playlists" component={Playlists} />
-                  <Route path="/analytics" component={Analytics} />
-                  <Route component={NotFound} />
-                </Switch>
-              </Suspense>
-            </main>
-          </div>
+          <AppContent />
           <Toaster />
         </TooltipProvider>
       </ThemeProvider>
