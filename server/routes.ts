@@ -75,9 +75,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Protect all API routes except auth routes
   app.use("/api", (req, res, next) => {
-    // Skip authentication for auth-related routes
+    // Skip authentication for auth-related routes (use originalUrl for full path)
     const authRoutes = ['/api/login', '/api/logout', '/api/callback', '/api/auth/user'];
-    if (authRoutes.includes(req.path) || req.path.startsWith('/api/auth/')) {
+    const url = req.originalUrl.split('?')[0]; // Remove query string
+    if (authRoutes.includes(url) || url.startsWith('/api/auth/')) {
       return next();
     }
     
