@@ -18,7 +18,7 @@ import { insertDealSchema, insertContactSchema, type InsertDeal, type InsertCont
 import { Plus, Building, User, FileText, DollarSign, X, Check, ChevronsUpDown } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import AddContactForm from "@/components/forms/add-contact-form";
-import AddSongForm from "@/components/forms/add-song-form";
+import ComprehensiveSongForm from "@/components/forms/comprehensive-song-form";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
@@ -1754,15 +1754,12 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
         defaultRole="Music Supervisor"
       />
       
-      {/* Add Song Form */}
-      <AddSongForm 
+      {/* Add Song Form - using comprehensive tabbed form */}
+      <ComprehensiveSongForm 
         open={showAddSong}
         onClose={() => setShowAddSong(false)}
         onSongCreated={(newSong) => {
           console.log("New song created:", newSong);
-          
-          // Refresh songs query
-          queryClient.invalidateQueries({ queryKey: ['/api/songs'] });
           
           // Auto-select the new song and populate form
           setTimeout(() => {

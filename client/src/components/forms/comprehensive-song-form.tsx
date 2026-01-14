@@ -21,9 +21,10 @@ interface ComprehensiveSongFormProps {
   open: boolean;
   onClose: () => void;
   song?: any; // For editing existing songs
+  onSongCreated?: (song: any) => void; // Callback when a new song is created
 }
 
-export default function ComprehensiveSongForm({ open, onClose, song }: ComprehensiveSongFormProps) {
+export default function ComprehensiveSongForm({ open, onClose, song, onSongCreated }: ComprehensiveSongFormProps) {
   const { toast } = useToast();
   const isEditing = !!song;
   
@@ -383,6 +384,12 @@ export default function ComprehensiveSongForm({ open, onClose, song }: Comprehen
         description: isEditing ? "Song updated successfully" : "Song added successfully",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/songs"] });
+      
+      // Call onSongCreated callback if provided (for inline song creation)
+      if (!isEditing && onSongCreated) {
+        onSongCreated(data);
+      }
+      
       onClose();
       form.reset();
     },
