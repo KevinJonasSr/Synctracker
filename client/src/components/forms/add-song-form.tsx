@@ -10,14 +10,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 import { apiRequest } from "@/lib/queryClient";
-import { insertSongSchema, type InsertSong } from "@shared/schema";
+import { insertSongSchema, type InsertSong, type Song } from "@shared/schema";
 
 interface AddSongFormProps {
   open: boolean;
   onClose: () => void;
+  onSongCreated?: (song: Song) => void;
 }
 
-export default function AddSongForm({ open, onClose }: AddSongFormProps) {
+export default function AddSongForm({ open, onClose, onSongCreated }: AddSongFormProps) {
   const { toast } = useToast();
   
   const form = useForm<InsertSong>({
@@ -50,7 +51,7 @@ export default function AddSongForm({ open, onClose }: AddSongFormProps) {
       });
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (newSong) => {
       toast({
         title: "Success",
         description: "Song added successfully",
@@ -58,6 +59,9 @@ export default function AddSongForm({ open, onClose }: AddSongFormProps) {
       queryClient.invalidateQueries({ queryKey: ["/api/songs"] });
       form.reset();
       onClose();
+      if (onSongCreated) {
+        onSongCreated(newSong);
+      }
     },
     onError: (error) => {
       toast({

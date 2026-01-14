@@ -18,6 +18,7 @@ import { insertDealSchema, insertContactSchema, type InsertDeal, type InsertCont
 import { Plus, Building, User, FileText, DollarSign, X, Check, ChevronsUpDown } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import AddContactForm from "@/components/forms/add-contact-form";
+import AddSongForm from "@/components/forms/add-song-form";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
@@ -102,6 +103,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
   const { toast } = useToast();
   const isEditing = !!deal;
   const [showAddContact, setShowAddContact] = useState(false);
+  const [showAddSong, setShowAddSong] = useState(false);
   const [selectedSong, setSelectedSong] = useState<Song | null>(null);
   const [songSearchOpen, setSongSearchOpen] = useState(false);
   const [songSearchValue, setSongSearchValue] = useState("");
@@ -671,7 +673,19 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                   {/* First line: Title, Album */}
                   <div className="grid grid-cols-2 gap-2 pb-10">
                     <div className="relative">
-                      <Label htmlFor="songId">Title *</Label>
+                      <div className="flex items-center justify-between mb-1">
+                        <Label htmlFor="songId">Title *</Label>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setShowAddSong(true)}
+                          className="h-6 px-2 text-xs text-blue-600 hover:text-blue-800"
+                        >
+                          <Plus className="h-3 w-3 mr-1" />
+                          Add Song
+                        </Button>
+                      </div>
                       <Command className="rounded-lg border shadow-md">
                         <CommandInput 
                           placeholder="Type to search songs..."
@@ -1054,7 +1068,19 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                 </div>
               ) : (
                 <div className="relative">
-                  <Label htmlFor="songId">Title *</Label>
+                  <div className="flex items-center justify-between mb-1">
+                    <Label htmlFor="songId">Title *</Label>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowAddSong(true)}
+                      className="h-6 px-2 text-xs text-blue-600 hover:text-blue-800"
+                    >
+                      <Plus className="h-3 w-3 mr-1" />
+                      Add Song
+                    </Button>
+                  </div>
                   <Command className="rounded-lg border shadow-md">
                     <CommandInput 
                       placeholder="Type to search songs..."
@@ -1726,6 +1752,37 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
           setShowAddContact(false);
         }}
         defaultRole="Music Supervisor"
+      />
+      
+      {/* Add Song Form */}
+      <AddSongForm 
+        open={showAddSong}
+        onClose={() => setShowAddSong(false)}
+        onSongCreated={(newSong) => {
+          console.log("New song created:", newSong);
+          
+          // Refresh songs query
+          queryClient.invalidateQueries({ queryKey: ['/api/songs'] });
+          
+          // Auto-select the new song and populate form
+          setTimeout(() => {
+            form.setValue("songId", newSong.id);
+            setSongSearchValue(`${newSong.title} - ${newSong.artist}`);
+            setSelectedSong(newSong);
+            
+            // Populate basic song information
+            form.setValue("artist", newSong.artist || "");
+            form.setValue("label", newSong.producer || "");
+            if (newSong.composer) {
+              form.setValue("writers", newSong.composer);
+            }
+            if (newSong.publisher) {
+              form.setValue("publishingInfo", newSong.publisher);
+            }
+          }, 100);
+          
+          setShowAddSong(false);
+        }}
       />
     </Dialog>
   );
