@@ -149,6 +149,7 @@ export default function SmartPitchMatching() {
                   <SelectItem value="film">Film</SelectItem>
                   <SelectItem value="game">Video Game</SelectItem>
                   <SelectItem value="indie_film">Indie Film</SelectItem>
+                  <SelectItem value="internet">Internet</SelectItem>
                   <SelectItem value="non_profit">Non-Profit</SelectItem>
                   <SelectItem value="podcast">Podcast</SelectItem>
                   <SelectItem value="promos">Promos</SelectItem>

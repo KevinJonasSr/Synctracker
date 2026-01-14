@@ -369,6 +369,7 @@ export default function AddDealForm({ open, onClose }: AddDealFormProps) {
                   <SelectItem value="film">Film</SelectItem>
                   <SelectItem value="game">Video Game</SelectItem>
                   <SelectItem value="indie_film">Indie Film</SelectItem>
+                  <SelectItem value="internet">Internet</SelectItem>
                   <SelectItem value="non_profit">Non-Profit</SelectItem>
                   <SelectItem value="other">Other</SelectItem>
                   <SelectItem value="podcast">Podcast</SelectItem>

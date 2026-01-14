@@ -506,6 +506,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                       <SelectItem value="film">Film</SelectItem>
                       <SelectItem value="game">Video Game</SelectItem>
                       <SelectItem value="indie film">Indie Film</SelectItem>
+                      <SelectItem value="internet">Internet</SelectItem>
                       <SelectItem value="non-profit">Non-Profit</SelectItem>
                       <SelectItem value="other">Other</SelectItem>
                       <SelectItem value="podcast">Podcast</SelectItem>
