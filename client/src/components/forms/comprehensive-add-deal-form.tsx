@@ -1761,24 +1761,45 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
         onSongCreated={(newSong) => {
           console.log("New song created:", newSong);
           
-          // Auto-select the new song and populate form
-          setTimeout(() => {
-            form.setValue("songId", newSong.id);
-            setSongSearchValue(`${newSong.title} - ${newSong.artist}`);
-            setSelectedSong(newSong);
-            
-            // Populate basic song information
-            form.setValue("artist", newSong.artist || "");
-            form.setValue("label", newSong.producer || "");
-            if (newSong.composer) {
-              form.setValue("writers", newSong.composer);
-            }
-            if (newSong.publisher) {
-              form.setValue("publishingInfo", newSong.publisher);
-            }
-          }, 100);
-          
+          // Close the add song dialog first
           setShowAddSong(false);
+          
+          // Close the song search dropdown
+          setSongSearchOpen(false);
+          
+          // Auto-select the new song and populate form immediately
+          form.setValue("songId", newSong.id);
+          setSongSearchValue(`${newSong.title} - ${newSong.artist}`);
+          setSelectedSong(newSong);
+          
+          // Populate basic song information
+          form.setValue("artist", newSong.artist || "");
+          form.setValue("label", newSong.producer || "");
+          if (newSong.composer) {
+            form.setValue("writers", newSong.composer);
+          }
+          if (newSong.publisher) {
+            form.setValue("publishingInfo", newSong.publisher);
+          }
+          
+          // Load structured ownership data if available
+          if (newSong.composerPublishers && Array.isArray(newSong.composerPublishers)) {
+            const composerPublishersWithDate = newSong.composerPublishers.map((cp: any) => ({
+              ...cp,
+              jonasShare: cp.jonasShare || '',
+              paymentDate: cp.paymentDate || ''
+            }));
+            setComposerPublishers(composerPublishersWithDate);
+          }
+          
+          if (newSong.artistLabels && Array.isArray(newSong.artistLabels)) {
+            const artistLabelsWithDate = newSong.artistLabels.map((al: any) => ({
+              ...al,
+              jonasShare: al.jonasShare || '',
+              paymentDate: al.paymentDate || ''
+            }));
+            setArtistLabels(artistLabelsWithDate);
+          }
         }}
       />
     </Dialog>
