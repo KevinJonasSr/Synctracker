@@ -97,6 +97,7 @@ export const deals = pgTable("deals", {
   clearanceCompanyContactPhone: text("clearance_company_contact_phone"),
   
   status: text("status").notNull().default("new request"), // New Request, Pending Approval, Quoted, Use Confirmed, Being Drafted, Out for Signature, Payment Received, Completed
+  ballpark: text("ballpark"), // Estimated deal value range: $500-$1,000, $1,000-$2,500, etc.
   
   // Status change dates
   pitchedDate: timestamp("pitched_date"),

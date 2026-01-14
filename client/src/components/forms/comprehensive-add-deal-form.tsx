@@ -591,7 +591,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-3 gap-2">
                 <div>
                   <Label htmlFor="status">Status</Label>
                   <Select
@@ -643,6 +643,26 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                       <SelectItem value="payment received">Payment Received</SelectItem>
                       <SelectItem value="completed">Completed</SelectItem>
                       <SelectItem value="not used">Not Used</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="ballpark">Ballpark</Label>
+                  <Select
+                    value={form.watch("ballpark") || ""}
+                    onValueChange={(value) => form.setValue("ballpark", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select ballpark" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="$500-$1,000">$500-$1,000</SelectItem>
+                      <SelectItem value="$1,000-$2,500">$1,000-$2,500</SelectItem>
+                      <SelectItem value="$2,500-$5,000">$2,500-$5,000</SelectItem>
+                      <SelectItem value="$5,000-$10,000">$5,000-$10,000</SelectItem>
+                      <SelectItem value="$10,000-$25,000">$10,000-$25,000</SelectItem>
+                      <SelectItem value="$25,000-$50,000">$25,000-$50,000</SelectItem>
+                      <SelectItem value="$50,000+">$50,000+</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
