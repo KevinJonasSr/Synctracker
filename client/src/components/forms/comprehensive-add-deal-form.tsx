@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -107,6 +107,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
   const [selectedSong, setSelectedSong] = useState<Song | null>(null);
   const [songSearchOpen, setSongSearchOpen] = useState(false);
   const [songSearchValue, setSongSearchValue] = useState("");
+  const justCreatedSongRef = useRef(false); // Flag to prevent dropdown reopening after song creation
   const [contactSearchOpen, setContactSearchOpen] = useState(false);
   const [contactSearchValue, setContactSearchValue] = useState("");
 
@@ -691,7 +692,12 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                           placeholder="Type to search songs..."
                           value={songSearchValue}
                           onValueChange={setSongSearchValue}
-                          onFocus={() => setSongSearchOpen(true)}
+                          onFocus={() => {
+                            // Don't reopen if we just created a song
+                            if (!justCreatedSongRef.current) {
+                              setSongSearchOpen(true);
+                            }
+                          }}
                           onBlur={() => {
                             // Delay to allow click on item
                             setTimeout(() => {
@@ -701,7 +707,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                             }, 200);
                           }}
                         />
-                        {songSearchOpen && (
+                        {songSearchOpen && !justCreatedSongRef.current && (
                           <CommandList>
                             <CommandEmpty>No song found.</CommandEmpty>
                             <CommandGroup>
@@ -1086,7 +1092,12 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                       placeholder="Type to search songs..."
                       value={songSearchValue}
                       onValueChange={setSongSearchValue}
-                      onFocus={() => setSongSearchOpen(true)}
+                      onFocus={() => {
+                        // Don't reopen if we just created a song
+                        if (!justCreatedSongRef.current) {
+                          setSongSearchOpen(true);
+                        }
+                      }}
                       onBlur={() => {
                         // Delay to allow click on item
                         setTimeout(() => {
@@ -1096,7 +1107,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                         }, 200);
                       }}
                     />
-                    {songSearchOpen && (
+                    {songSearchOpen && !justCreatedSongRef.current && (
                       <CommandList>
                         <CommandEmpty>No song found.</CommandEmpty>
                         <CommandGroup>
@@ -1761,6 +1772,9 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
         onSongCreated={(newSong) => {
           console.log("New song created:", newSong);
           
+          // Set flag to prevent dropdown from reopening
+          justCreatedSongRef.current = true;
+          
           // Close the add song dialog first
           setShowAddSong(false);
           
@@ -1771,6 +1785,11 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
           form.setValue("songId", newSong.id);
           setSongSearchValue(`${newSong.title} - ${newSong.artist}`);
           setSelectedSong(newSong);
+          
+          // Clear the flag after a short delay to allow normal dropdown behavior again
+          setTimeout(() => {
+            justCreatedSongRef.current = false;
+          }, 500);
           
           // Populate basic song information
           form.setValue("artist", newSong.artist || "");
