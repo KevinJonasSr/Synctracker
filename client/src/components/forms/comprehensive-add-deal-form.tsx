@@ -34,6 +34,64 @@ const formatCurrency = (value: string | number, showZero: boolean = false) => {
   });
 };
 
+// Currency input component that allows natural typing
+interface CurrencyInputProps {
+  id: string;
+  value: number | null | undefined;
+  onChange: (value: number) => void;
+  placeholder?: string;
+}
+
+function CurrencyInput({ id, value, onChange, placeholder = "$0.00" }: CurrencyInputProps) {
+  const [isFocused, setIsFocused] = useState(false);
+  const [localValue, setLocalValue] = useState("");
+
+  const numValue = value ?? undefined;
+
+  useEffect(() => {
+    if (!isFocused) {
+      setLocalValue(numValue ? numValue.toString() : "");
+    }
+  }, [numValue, isFocused]);
+
+  const handleFocus = () => {
+    setIsFocused(true);
+    setLocalValue(numValue ? numValue.toString() : "");
+  };
+
+  const handleBlur = () => {
+    setIsFocused(false);
+    const numericValue = parseFloat(localValue.replace(/[^0-9.-]/g, "")) || 0;
+    onChange(numericValue);
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value;
+    // Allow digits, decimal point, and comma for user convenience
+    const cleanValue = rawValue.replace(/[^0-9.,]/g, "");
+    setLocalValue(cleanValue);
+    // Also update form value in real-time for calculations
+    const numericValue = parseFloat(cleanValue.replace(/,/g, "")) || 0;
+    onChange(numericValue);
+  };
+
+  const displayValue = isFocused 
+    ? localValue 
+    : formatCurrency(numValue || "", false);
+
+  return (
+    <Input
+      id={id}
+      type="text"
+      value={displayValue}
+      onChange={handleChange}
+      onFocus={handleFocus}
+      onBlur={handleBlur}
+      placeholder={placeholder}
+    />
+  );
+}
+
 interface ComprehensiveAddDealFormProps {
   open: boolean;
   onClose: () => void;
@@ -1214,12 +1272,10 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <Label htmlFor="fullSongValue">100% Publishing Fee ($)</Label>
-                  <Input
+                  <CurrencyInput
                     id="fullSongValue"
-                    type="text"
-                    value={formatCurrency(form.watch("fullSongValue") || "")}
-                    onChange={(e) => {
-                      const numericValue = parseFloat(e.target.value.replace(/[$,]/g, "")) || 0;
+                    value={form.watch("fullSongValue")}
+                    onChange={(numericValue) => {
                       form.setValue("fullSongValue", numericValue);
                       
                       // Auto-calculate our fee based on actual publishing ownership percentage
@@ -1236,20 +1292,16 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                         }
                       }
                     }}
-                    placeholder="$0.00"
                   />
                 </div>
                 <div>
                   <Label htmlFor="ourFee">Our Publishing Fee ($)</Label>
-                  <Input
+                  <CurrencyInput
                     id="ourFee"
-                    type="text"
-                    value={formatCurrency(form.watch("ourFee") || "")}
-                    onChange={(e) => {
-                      const numericValue = parseFloat(e.target.value.replace(/[$,]/g, "")) || 0;
+                    value={form.watch("ourFee")}
+                    onChange={(numericValue) => {
                       form.setValue("ourFee", numericValue);
                     }}
-                    placeholder="$0.00"
                   />
                 </div>
               </div>
@@ -1257,12 +1309,10 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <Label htmlFor="fullRecordingFee">100% Recording Fee ($)</Label>
-                  <Input
+                  <CurrencyInput
                     id="fullRecordingFee"
-                    type="text"
-                    value={formatCurrency(form.watch("fullRecordingFee") || "")}
-                    onChange={(e) => {
-                      const numericValue = parseFloat(e.target.value.replace(/[$,]/g, "")) || 0;
+                    value={form.watch("fullRecordingFee")}
+                    onChange={(numericValue) => {
                       form.setValue("fullRecordingFee", numericValue);
                       
                       // Calculate our recording fee by summing ownership from checked artist/label rows
@@ -1290,20 +1340,16 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                         }
                       }
                     }}
-                    placeholder="$0.00"
                   />
                 </div>
                 <div>
                   <Label htmlFor="ourRecordingFee">Our Recording Fee ($)</Label>
-                  <Input
+                  <CurrencyInput
                     id="ourRecordingFee"
-                    type="text"
-                    value={formatCurrency(form.watch("ourRecordingFee") || "")}
-                    onChange={(e) => {
-                      const numericValue = parseFloat(e.target.value.replace(/[$,]/g, "")) || 0;
+                    value={form.watch("ourRecordingFee")}
+                    onChange={(numericValue) => {
                       form.setValue("ourRecordingFee", numericValue);
                     }}
-                    placeholder="$0.00"
                   />
                 </div>
               </div>
