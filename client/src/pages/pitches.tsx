@@ -15,6 +15,7 @@ import { Send, Calendar, Clock, CheckCircle, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { insertPitchSchema, type Pitch, type InsertPitch, type Deal, type Song } from "@shared/schema";
+import ComprehensiveSongForm from "@/components/forms/comprehensive-song-form";
 
 export default function Pitches() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -23,6 +24,7 @@ export default function Pitches() {
   const [selectedPitch, setSelectedPitch] = useState<Pitch | null>(null);
   const [showUpdateStatus, setShowUpdateStatus] = useState(false);
   const [showFollowUp, setShowFollowUp] = useState(false);
+  const [showAddSong, setShowAddSong] = useState(false);
   const { toast } = useToast();
 
   const { data: rawPitches = [], isLoading } = useQuery<Pitch[]>({
@@ -526,7 +528,19 @@ export default function Pitches() {
             </div>
 
             <div>
-              <Label htmlFor="selectedSongs">Songs to Pitch</Label>
+              <div className="flex items-center justify-between mb-1">
+                <Label htmlFor="selectedSongs">Songs to Pitch</Label>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowAddSong(true)}
+                  className="h-6 px-2 text-xs text-blue-600 hover:text-blue-800"
+                >
+                  <Plus className="h-3 w-3 mr-1" />
+                  Add Song
+                </Button>
+              </div>
               <Select
                 value=""
                 onValueChange={(value: string) => {
@@ -670,6 +684,29 @@ export default function Pitches() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Add Song Form */}
+      <ComprehensiveSongForm 
+        open={showAddSong}
+        onClose={() => setShowAddSong(false)}
+        onSongCreated={(newSong: Song) => {
+          // Refresh songs query
+          queryClient.invalidateQueries({ queryKey: ['/api/songs'] });
+          
+          // Auto-add the new song to the selected songs list
+          const currentSongs = (form.watch("selectedSongs") || []) as string[];
+          if (!currentSongs.includes(newSong.id.toString())) {
+            form.setValue("selectedSongs", [...currentSongs, newSong.id.toString()] as any);
+          }
+          
+          setShowAddSong(false);
+          
+          toast({
+            title: "Song created",
+            description: `"${newSong.title}" has been added to your pitch.`,
+          });
+        }}
+      />
     </div>
   );
 }
