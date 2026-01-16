@@ -224,7 +224,8 @@ export default function Income() {
         description="Track payments and revenue from your sync licensing deals"
         searchPlaceholder="Search projects, songs, writers..."
         onSearch={setSearchQuery}
-        showNewButton={false}
+        newItemLabel="Report"
+        onNewItem={() => {}}
       />
       
       <div className="p-6">
