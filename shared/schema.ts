@@ -587,6 +587,9 @@ export const insertPaymentSchema = createInsertSchema(payments).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+}).extend({
+  dueDate: z.union([z.date(), z.string()]).transform((val) => typeof val === 'string' ? new Date(val) : val),
+  paidDate: z.union([z.date(), z.string(), z.null()]).optional().transform((val) => val ? (typeof val === 'string' ? new Date(val) : val) : undefined),
 });
 
 export const insertTemplateSchema = createInsertSchema(templates).omit({
