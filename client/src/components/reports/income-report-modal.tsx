@@ -50,7 +50,7 @@ export default function IncomeReportModal({ open, onClose, projectGroups }: Inco
           "Song Title": project.songTitle,
           "Writer/Artist": entry.name,
           "Type": entry.type === 'publishing' ? 'Writer' : 'Artist',
-          "Fees Owed": entry.jonasIncome ? formatCurrency(entry.jonasIncome) : "TBD"
+          "Fee": entry.jonasIncome ? formatCurrency(entry.jonasIncome) : "TBD"
         });
       });
     });
@@ -65,7 +65,7 @@ export default function IncomeReportModal({ open, onClose, projectGroups }: Inco
           "Writer": entry.name,
           "Song Title": project.songTitle,
           "Project Title": project.projectName,
-          "Fees Owed": entry.jonasIncome ? formatCurrency(entry.jonasIncome) : "TBD",
+          "Fee": entry.jonasIncome ? formatCurrency(entry.jonasIncome) : "TBD",
           "Payment Date": entry.paymentDate || "Pending"
         });
       });
@@ -81,7 +81,7 @@ export default function IncomeReportModal({ open, onClose, projectGroups }: Inco
           "Artist": entry.name,
           "Song Title": project.songTitle,
           "Project Title": project.projectName,
-          "Fees Owed": entry.jonasIncome ? formatCurrency(entry.jonasIncome) : "TBD",
+          "Fee": entry.jonasIncome ? formatCurrency(entry.jonasIncome) : "TBD",
           "Payment Date": entry.paymentDate || "Pending"
         });
       });
@@ -119,6 +119,14 @@ export default function IncomeReportModal({ open, onClose, projectGroups }: Inco
     
     const colWidths = Object.keys(data[0]).map(key => ({ wch: Math.max(key.length, 20) }));
     worksheet["!cols"] = colWidths;
+
+    const headerRange = XLSX.utils.decode_range(worksheet["!ref"] || "A1");
+    for (let col = headerRange.s.c; col <= headerRange.e.c; col++) {
+      const cellAddress = XLSX.utils.encode_cell({ r: 0, c: col });
+      if (worksheet[cellAddress]) {
+        worksheet[cellAddress].s = { font: { bold: true } };
+      }
+    }
 
     XLSX.writeFile(workbook, filename);
     onClose();
