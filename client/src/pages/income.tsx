@@ -1,7 +1,6 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Header from "@/components/layout/header";
-import AddPaymentForm from "@/components/forms/add-payment-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -32,7 +31,6 @@ interface ProjectGroup {
 }
 
 export default function Income() {
-  const [showAddPayment, setShowAddPayment] = useState(false);
   const [activeTab, setActiveTab] = useState("jonas");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -225,8 +223,6 @@ export default function Income() {
         title="Income Tracking"
         description="Track payments and revenue from your sync licensing deals"
         searchPlaceholder="Search projects, songs, writers..."
-        newItemLabel="Add Payment"
-        onNewItem={() => setShowAddPayment(true)}
         onSearch={setSearchQuery}
       />
       
@@ -453,8 +449,7 @@ export default function Income() {
         </Tabs>
       </div>
 
-      <AddPaymentForm open={showAddPayment} onClose={() => setShowAddPayment(false)} />
-    </div>
+          </div>
   );
 
   function renderProjectCard(project: ProjectGroup) {
@@ -550,12 +545,9 @@ export default function Income() {
           <CardContent className="flex flex-col items-center justify-center py-16">
             <DollarSign className="h-12 w-12 text-gray-400 mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">No payments found</h3>
-            <p className="text-gray-600 text-center mb-6">
-              Start tracking your income by adding your first payment record.
+            <p className="text-gray-600 text-center">
+              Payment information is tracked in the Deal Pipeline.
             </p>
-            <Button onClick={() => setShowAddPayment(true)} className="bg-brand-primary hover:bg-blue-700">
-              Add Your First Payment
-            </Button>
           </CardContent>
         </Card>
       );
