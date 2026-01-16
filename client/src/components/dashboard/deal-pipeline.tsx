@@ -176,8 +176,8 @@ export default function DealPipeline({ deals, dealsByStatus }: DealPipelineProps
         </div>
       </CardHeader>
       <CardContent className="p-6">
-        {/* Pipeline Stages */}
-        <div className="flex flex-nowrap gap-3 mb-6 overflow-x-auto">
+        {/* Pipeline Stages - Row 1 */}
+        <div className="flex flex-nowrap gap-3 mb-3 overflow-x-auto">
           <Badge 
             className={`cursor-pointer transition-all hover:shadow-md ${
               selectedStatus === "new request" 
@@ -228,6 +228,10 @@ export default function DealPipeline({ deals, dealsByStatus }: DealPipelineProps
           >
             Being Drafted ({dealsByStatus["being drafted"] || 0})
           </Badge>
+        </div>
+
+        {/* Pipeline Stages - Row 2 */}
+        <div className="flex flex-nowrap gap-3 mb-6 overflow-x-auto">
           <Badge 
             className={`cursor-pointer transition-all hover:shadow-md ${
               selectedStatus === "out for signature" 
@@ -268,10 +272,6 @@ export default function DealPipeline({ deals, dealsByStatus }: DealPipelineProps
           >
             Not Used ({dealsByStatus["not used"] || 0})
           </Badge>
-        </div>
-
-        {/* Ballpark Filter Tab */}
-        <div className="mb-6">
           <Badge 
             className={`cursor-pointer transition-all hover:shadow-md ${
               selectedBallpark === "has_ballpark" 
