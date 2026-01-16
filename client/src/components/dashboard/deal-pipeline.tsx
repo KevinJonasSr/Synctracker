@@ -296,7 +296,7 @@ export default function DealPipeline({ deals, dealsByStatus }: DealPipelineProps
                 <th className="text-left py-3 px-4 font-medium text-gray-600">Project</th>
                 <th className="text-left py-3 px-4 font-medium text-gray-600">Song</th>
                 <th className="text-left py-3 px-4 font-medium text-gray-600">Status</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-600">Value</th>
+                <th className="text-left py-3 px-4 font-medium text-gray-600">Fee</th>
                 <th className="text-left py-3 px-4 font-medium text-gray-600">Updated</th>
               </tr>
             </thead>
