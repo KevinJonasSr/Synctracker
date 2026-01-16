@@ -128,8 +128,8 @@ export default function DealPipeline({ deals, dealsByStatus }: DealPipelineProps
   if (selectedStatus) {
     filteredDeals = filteredDeals.filter(deal => deal.status === selectedStatus);
   }
-  if (selectedBallpark) {
-    filteredDeals = filteredDeals.filter(deal => deal.ballpark === selectedBallpark);
+  if (selectedBallpark === "has_ballpark") {
+    filteredDeals = filteredDeals.filter(deal => deal.ballpark);
   }
 
   return (
@@ -156,9 +156,8 @@ export default function DealPipeline({ deals, dealsByStatus }: DealPipelineProps
             )}
             {selectedBallpark && (
               <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-500">Ballpark:</span>
-                <Badge className={getBallparkColor(selectedBallpark)}>
-                  {selectedBallpark}
+                <Badge className="bg-pink-100 text-pink-800">
+                  Ballpark
                 </Badge>
                 <Button 
                   variant="ghost" 
@@ -271,22 +270,18 @@ export default function DealPipeline({ deals, dealsByStatus }: DealPipelineProps
           </Badge>
         </div>
 
-        {/* Ballpark Filter Badges */}
-        <div className="flex flex-nowrap gap-2 mb-6 overflow-x-auto">
-          <span className="text-sm font-medium text-gray-600 self-center mr-2">Ballpark:</span>
-          {ballparkOptions.map((bp) => (
-            <Badge 
-              key={bp}
-              className={`cursor-pointer transition-all hover:shadow-md text-xs ${
-                selectedBallpark === bp 
-                  ? `${getBallparkColor(bp).replace('100', '200')} shadow-md border` 
-                  : `${getBallparkColor(bp)} hover:opacity-80`
-              }`}
-              onClick={() => handleBallparkFilter(bp)}
-            >
-              {bp} ({ballparkCounts[bp] || 0})
-            </Badge>
-          ))}
+        {/* Ballpark Filter Tab */}
+        <div className="mb-6">
+          <Badge 
+            className={`cursor-pointer transition-all hover:shadow-md ${
+              selectedBallpark === "has_ballpark" 
+                ? "bg-pink-200 text-pink-900 border-pink-300 shadow-md" 
+                : "bg-pink-100 text-pink-800 border-pink-200 hover:bg-pink-150"
+            }`}
+            onClick={() => handleBallparkFilter("has_ballpark")}
+          >
+            Ballpark ({deals.filter(d => d.ballpark).length})
+          </Badge>
         </div>
 
         {/* Deals Table */}
@@ -297,7 +292,6 @@ export default function DealPipeline({ deals, dealsByStatus }: DealPipelineProps
                 <th className="text-left py-3 px-4 font-medium text-gray-600">Project</th>
                 <th className="text-left py-3 px-4 font-medium text-gray-600">Song</th>
                 <th className="text-left py-3 px-4 font-medium text-gray-600">Status</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-600">Ballpark</th>
                 <th className="text-left py-3 px-4 font-medium text-gray-600">Value</th>
                 <th className="text-left py-3 px-4 font-medium text-gray-600">Updated</th>
               </tr>
@@ -305,7 +299,7 @@ export default function DealPipeline({ deals, dealsByStatus }: DealPipelineProps
             <tbody className="divide-y divide-gray-200">
               {filteredDeals.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-8 text-center text-gray-500">
+                  <td colSpan={5} className="py-8 text-center text-gray-500">
                     {selectedStatus || selectedBallpark
                       ? `No deals found with the selected filters. Click a filter badge again to clear it.`
                       : "No deals found. Create your first deal to get started."
@@ -335,15 +329,6 @@ export default function DealPipeline({ deals, dealsByStatus }: DealPipelineProps
                       <Badge className={getStatusColor(deal.status)}>
                         {getStatusLabel(deal.status)}
                       </Badge>
-                    </td>
-                    <td className="py-3 px-4">
-                      {deal.ballpark ? (
-                        <Badge className={getBallparkColor(deal.ballpark)}>
-                          {deal.ballpark}
-                        </Badge>
-                      ) : (
-                        <span className="text-gray-400 text-sm">-</span>
-                      )}
                     </td>
                     <td className="py-3 px-4 font-medium text-gray-900">
                       {deal.ourFee && deal.ourRecordingFee 
