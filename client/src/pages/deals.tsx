@@ -92,7 +92,12 @@ export default function Deals() {
   };
 
   const filteredDeals = useMemo(() => {
-    let filtered = activeTab === "all" ? deals : deals.filter(deal => deal.status === activeTab);
+    let filtered = deals;
+    if (activeTab === "ballpark") {
+      filtered = deals.filter(deal => deal.ballpark);
+    } else if (activeTab !== "all") {
+      filtered = deals.filter(deal => deal.status === activeTab);
+    }
     
     // Apply search filter
     if (searchQuery.trim()) {
@@ -161,6 +166,12 @@ export default function Deals() {
         }} className="mb-6">
           <TabsList>
             <TabsTrigger value="all" className="data-[state=active]:bg-gray-100">All Deals</TabsTrigger>
+            <TabsTrigger value="ballpark" className="data-[state=active]:bg-pink-100">
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-pink-500 rounded-full"></div>
+                <span>Ballpark</span>
+              </div>
+            </TabsTrigger>
             <TabsTrigger value="new request" className="data-[state=active]:bg-red-100">
               <div className="flex items-center space-x-2">
                 <div className="w-2 h-2 bg-red-300 rounded-full"></div>
