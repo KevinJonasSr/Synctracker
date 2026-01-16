@@ -1647,14 +1647,14 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
           </Card>
 
           {/* Section 4: Additional Information */}
-          <Card className="bg-green-50 border-green-200">
-            <CardHeader className="bg-green-100 border-b border-green-200 py-0.5 px-2">
-              <CardTitle className="flex items-center space-x-1 text-green-800 text-sm">
+          <Card className="bg-red-50 border-red-200">
+            <CardHeader className="bg-red-100 border-b border-red-200 py-0.5 px-2">
+              <CardTitle className="flex items-center space-x-1 text-red-800 text-sm">
                 <FileText className="h-4 w-4" />
                 <span>Additional Information</span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-1 bg-green-50 p-1.5">
+            <CardContent className="space-y-1 bg-red-50 p-1.5">
               <div>
                 <Label htmlFor="notes">Notes</Label>
                 <Textarea
