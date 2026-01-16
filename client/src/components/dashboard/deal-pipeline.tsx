@@ -14,11 +14,50 @@ export default function DealPipeline({ deals, dealsByStatus }: DealPipelineProps
   const [selectedDeal, setSelectedDeal] = useState<DealWithRelations | null>(null);
   const [showDealDetails, setShowDealDetails] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
+  const [selectedBallpark, setSelectedBallpark] = useState<string | null>(null);
 
   const handleDealClick = (deal: DealWithRelations) => {
     setSelectedDeal(deal);
     setShowDealDetails(true);
   };
+
+  const handleBallparkFilter = (ballpark: string) => {
+    if (selectedBallpark === ballpark) {
+      setSelectedBallpark(null);
+    } else {
+      setSelectedBallpark(ballpark);
+    }
+  };
+
+  const getBallparkColor = (ballpark: string | null | undefined) => {
+    if (!ballpark) return "bg-gray-100 text-gray-600";
+    switch (ballpark) {
+      case "$500-$1,000":
+        return "bg-pink-100 text-pink-800";
+      case "$1,000-$2,500":
+        return "bg-rose-100 text-rose-800";
+      case "$2,500-$5,000":
+        return "bg-fuchsia-100 text-fuchsia-800";
+      case "$5,000-$10,000":
+        return "bg-violet-100 text-violet-800";
+      case "$10,000-$25,000":
+        return "bg-indigo-100 text-indigo-800";
+      case "$25,000-$50,000":
+        return "bg-cyan-100 text-cyan-800";
+      case "$50,000+":
+        return "bg-teal-100 text-teal-800";
+      default:
+        return "bg-gray-100 text-gray-600";
+    }
+  };
+
+  const ballparkCounts = deals.reduce((acc, deal) => {
+    const bp = deal.ballpark || "Not Set";
+    acc[bp] = (acc[bp] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const ballparkOptions = ["$500-$1,000", "$1,000-$2,500", "$2,500-$5,000", "$5,000-$10,000", "$10,000-$25,000", "$25,000-$50,000", "$50,000+"];
   const getStatusColor = (status: string) => {
     // Normalize status to handle both underscore and space formats
     const normalizedStatus = status.replace(/_/g, ' ').toLowerCase();
@@ -85,19 +124,23 @@ export default function DealPipeline({ deals, dealsByStatus }: DealPipelineProps
     }
   };
 
-  const filteredDeals = selectedStatus 
-    ? deals.filter(deal => deal.status === selectedStatus)
-    : deals;
+  let filteredDeals = deals;
+  if (selectedStatus) {
+    filteredDeals = filteredDeals.filter(deal => deal.status === selectedStatus);
+  }
+  if (selectedBallpark) {
+    filteredDeals = filteredDeals.filter(deal => deal.ballpark === selectedBallpark);
+  }
 
   return (
     <Card className="lg:col-span-2">
       <CardHeader className="border-b border-gray-200">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 flex-wrap">
             <h3 className="text-lg font-semibold text-gray-900">Deal Pipeline</h3>
             {selectedStatus && (
               <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-500">Filtered by:</span>
+                <span className="text-sm text-gray-500">Status:</span>
                 <Badge className={getStatusColor(selectedStatus)}>
                   {getStatusLabel(selectedStatus)}
                 </Badge>
@@ -105,6 +148,22 @@ export default function DealPipeline({ deals, dealsByStatus }: DealPipelineProps
                   variant="ghost" 
                   size="sm" 
                   onClick={() => setSelectedStatus(null)}
+                  className="text-gray-500 hover:text-gray-700 h-6 w-6 p-0"
+                >
+                  ×
+                </Button>
+              </div>
+            )}
+            {selectedBallpark && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-500">Ballpark:</span>
+                <Badge className={getBallparkColor(selectedBallpark)}>
+                  {selectedBallpark}
+                </Badge>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => setSelectedBallpark(null)}
                   className="text-gray-500 hover:text-gray-700 h-6 w-6 p-0"
                 >
                   ×
@@ -212,6 +271,24 @@ export default function DealPipeline({ deals, dealsByStatus }: DealPipelineProps
           </Badge>
         </div>
 
+        {/* Ballpark Filter Badges */}
+        <div className="flex flex-nowrap gap-2 mb-6 overflow-x-auto">
+          <span className="text-sm font-medium text-gray-600 self-center mr-2">Ballpark:</span>
+          {ballparkOptions.map((bp) => (
+            <Badge 
+              key={bp}
+              className={`cursor-pointer transition-all hover:shadow-md text-xs ${
+                selectedBallpark === bp 
+                  ? `${getBallparkColor(bp).replace('100', '200')} shadow-md border` 
+                  : `${getBallparkColor(bp)} hover:opacity-80`
+              }`}
+              onClick={() => handleBallparkFilter(bp)}
+            >
+              {bp} ({ballparkCounts[bp] || 0})
+            </Badge>
+          ))}
+        </div>
+
         {/* Deals Table */}
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -220,6 +297,7 @@ export default function DealPipeline({ deals, dealsByStatus }: DealPipelineProps
                 <th className="text-left py-3 px-4 font-medium text-gray-600">Project</th>
                 <th className="text-left py-3 px-4 font-medium text-gray-600">Song</th>
                 <th className="text-left py-3 px-4 font-medium text-gray-600">Status</th>
+                <th className="text-left py-3 px-4 font-medium text-gray-600">Ballpark</th>
                 <th className="text-left py-3 px-4 font-medium text-gray-600">Value</th>
                 <th className="text-left py-3 px-4 font-medium text-gray-600">Updated</th>
               </tr>
@@ -227,9 +305,9 @@ export default function DealPipeline({ deals, dealsByStatus }: DealPipelineProps
             <tbody className="divide-y divide-gray-200">
               {filteredDeals.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="py-8 text-center text-gray-500">
-                    {selectedStatus 
-                      ? `No deals found with status "${getStatusLabel(selectedStatus)}". Click the status badge again to clear the filter.`
+                  <td colSpan={6} className="py-8 text-center text-gray-500">
+                    {selectedStatus || selectedBallpark
+                      ? `No deals found with the selected filters. Click a filter badge again to clear it.`
                       : "No deals found. Create your first deal to get started."
                     }
                   </td>
@@ -257,6 +335,15 @@ export default function DealPipeline({ deals, dealsByStatus }: DealPipelineProps
                       <Badge className={getStatusColor(deal.status)}>
                         {getStatusLabel(deal.status)}
                       </Badge>
+                    </td>
+                    <td className="py-3 px-4">
+                      {deal.ballpark ? (
+                        <Badge className={getBallparkColor(deal.ballpark)}>
+                          {deal.ballpark}
+                        </Badge>
+                      ) : (
+                        <span className="text-gray-400 text-sm">-</span>
+                      )}
                     </td>
                     <td className="py-3 px-4 font-medium text-gray-900">
                       {deal.ourFee && deal.ourRecordingFee 
