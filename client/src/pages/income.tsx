@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Header from "@/components/layout/header";
+import IncomeReportModal from "@/components/reports/income-report-modal";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -33,6 +34,7 @@ interface ProjectGroup {
 export default function Income() {
   const [activeTab, setActiveTab] = useState("jonas");
   const [searchQuery, setSearchQuery] = useState("");
+  const [showReportModal, setShowReportModal] = useState(false);
 
   const { data: payments = [], isLoading: paymentsLoading, isError: paymentsError, refetch: refetchPayments } = useQuery<Payment[]>({
     queryKey: ["/api/payments"],
@@ -225,7 +227,13 @@ export default function Income() {
         searchPlaceholder="Search projects, songs, writers..."
         onSearch={setSearchQuery}
         newItemLabel="Report"
-        onNewItem={() => {}}
+        onNewItem={() => setShowReportModal(true)}
+      />
+      
+      <IncomeReportModal
+        open={showReportModal}
+        onClose={() => setShowReportModal(false)}
+        projectGroups={projectGroups}
       />
       
       <div className="p-6">
