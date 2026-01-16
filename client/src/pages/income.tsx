@@ -291,7 +291,7 @@ export default function Income() {
                         
                         {/* Song Title */}
                         {project.songTitle && (
-                          <p className="text-sm text-gray-600 mb-3">Song: {project.songTitle}</p>
+                          <p className="text-sm text-gray-600 mb-3">Song: <span className="font-bold">{project.songTitle}</span></p>
                         )}
                         
                         {/* Publishing Info */}
@@ -439,7 +439,7 @@ export default function Income() {
         
         {/* Song Title */}
         {project.songTitle && (
-          <p className="text-sm text-gray-600 mb-3">Song: {project.songTitle}</p>
+          <p className="text-sm text-gray-600 mb-3">Song: <span className="font-bold">{project.songTitle}</span></p>
         )}
         
         {/* Publishing Info */}
