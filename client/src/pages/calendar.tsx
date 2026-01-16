@@ -102,8 +102,6 @@ export default function Calendar() {
       month: 'short',
       day: 'numeric',
       year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
     });
   };
 
@@ -111,36 +109,9 @@ export default function Calendar() {
     return type.charAt(0).toUpperCase() + type.slice(1);
   };
 
-  // Combine calendar events with air dates from deals
-  const airDateEvents = deals
-    .filter((deal: any) => deal.airDate)
-    .map((deal: any) => {
-      // Parse date as local timezone to avoid timezone conversion issues
-      const airDateStr = deal.airDate.split('T')[0]; // Get YYYY-MM-DD
-      const [year, month, day] = airDateStr.split('-').map(Number);
-      const localDate = new Date(year, month - 1, day, 12, 0, 0); // Use noon to avoid timezone issues
-      
-      // Find the song title for this deal
-      const song = songs.find((s: any) => s.id === deal.songId);
-      const songTitle = song?.title || 'Unknown Song';
-      
-      return {
-        id: parseInt(`${deal.id}000`), // Convert to number with suffix to avoid conflicts
-        title: `Air Date: ${deal.projectName}`,
-        description: `Song: ${songTitle}`,
-        startDate: localDate,
-        endDate: localDate,
-        allDay: true,
-        entityType: 'deal',
-        entityId: deal.id,
-        status: 'scheduled',
-        reminderMinutes: 1440,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      };
-    });
-
-  const allEvents = [...events, ...airDateEvents];
+  // Air dates from deals are already stored in calendar_events table
+  // No need to generate dynamic events - use the database events directly
+  const allEvents = events;
 
   const filteredEvents = allEvents.filter(event =>
     event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
