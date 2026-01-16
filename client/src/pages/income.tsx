@@ -256,8 +256,8 @@ export default function Income() {
                   <p className="text-sm font-medium text-gray-600">Recording Income</p>
                   <p className="text-2xl font-bold text-blue-600">{formatCurrency(totalJonasRecording)}</p>
                 </div>
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                  <Users className="h-6 w-6 text-blue-600" />
+                <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                  <VanIcon className="h-6 w-6 text-red-600" />
                 </div>
               </div>
             </CardContent>
