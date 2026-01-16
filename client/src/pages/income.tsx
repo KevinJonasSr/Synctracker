@@ -51,7 +51,19 @@ export default function Income() {
   const projectGroups = useMemo(() => {
     const groups: ProjectGroup[] = [];
     
-    deals.forEach(deal => {
+    const incomeStatuses = [
+      "Use Confirmed",
+      "Being Drafted",
+      "Out for Signature",
+      "Payment Received",
+      "Completed"
+    ];
+    
+    const filteredDeals = deals.filter(deal => 
+      incomeStatuses.includes(deal.status)
+    );
+    
+    filteredDeals.forEach(deal => {
       const publishingEntries: JonasEntry[] = [];
       const recordingEntries: JonasEntry[] = [];
       
