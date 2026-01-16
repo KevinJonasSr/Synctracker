@@ -634,6 +634,7 @@ export default function ComprehensiveAddDealForm({ open, onClose, deal }: Compre
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="ballpark">Ballpark</SelectItem>
                       <SelectItem value="new request">New Request</SelectItem>
                       <SelectItem value="pending approval">Pending Approval</SelectItem>
                       <SelectItem value="quoted">Quoted</SelectItem>

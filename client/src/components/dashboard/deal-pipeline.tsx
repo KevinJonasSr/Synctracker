@@ -65,6 +65,8 @@ export default function DealPipeline({ deals, dealsByStatus }: DealPipelineProps
     switch (normalizedStatus) {
       case "new request":
         return "bg-red-100 text-red-800";
+      case "ballpark":
+        return "bg-pink-100 text-pink-800";
       case "pending approval":
         return "bg-yellow-100 text-yellow-800";
       case "quoted":
@@ -90,6 +92,8 @@ export default function DealPipeline({ deals, dealsByStatus }: DealPipelineProps
     switch (status) {
       case "new request":
         return "New Request";
+      case "ballpark":
+        return "Ballpark";
       case "pending approval":
         return "Pending Approval";
       case "quoted":
