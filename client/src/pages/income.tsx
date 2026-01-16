@@ -34,6 +34,7 @@ interface ProjectGroup {
 export default function Income() {
   const [showAddPayment, setShowAddPayment] = useState(false);
   const [activeTab, setActiveTab] = useState("jonas");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const { data: payments = [], isLoading: paymentsLoading, isError: paymentsError, refetch: refetchPayments } = useQuery<Payment[]>({
     queryKey: ["/api/payments"],
@@ -108,8 +109,20 @@ export default function Income() {
     return pubHasPayment || recHasPayment;
   };
 
-  const pendingProjects = projectGroups.filter(g => !hasAnyPayment(g));
-  const paidProjects = projectGroups.filter(g => hasAnyPayment(g));
+  const filterBySearch = (groups: ProjectGroup[]) => {
+    if (!searchQuery.trim()) return groups;
+    const query = searchQuery.toLowerCase();
+    return groups.filter(g => 
+      g.projectName.toLowerCase().includes(query) ||
+      g.songTitle.toLowerCase().includes(query) ||
+      g.publishingEntries.some(e => e.name.toLowerCase().includes(query) || e.company.toLowerCase().includes(query)) ||
+      g.recordingEntries.some(e => e.name.toLowerCase().includes(query) || e.company.toLowerCase().includes(query))
+    );
+  };
+
+  const filteredProjectGroups = filterBySearch(projectGroups);
+  const pendingProjects = filterBySearch(projectGroups.filter(g => !hasAnyPayment(g)));
+  const paidProjects = filterBySearch(projectGroups.filter(g => hasAnyPayment(g)));
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -199,9 +212,10 @@ export default function Income() {
       <Header
         title="Income Tracking"
         description="Track payments and revenue from your sync licensing deals"
-        searchPlaceholder="Search payments, deals..."
+        searchPlaceholder="Search projects, songs, writers..."
         newItemLabel="Add Payment"
         onNewItem={() => setShowAddPayment(true)}
+        onSearch={setSearchQuery}
       />
       
       <div className="p-6">
@@ -278,13 +292,13 @@ export default function Income() {
                 <CardTitle className="text-lg text-emerald-800">Deal Income Pipeline</CardTitle>
               </CardHeader>
               <CardContent className="p-0">
-                {projectGroups.length === 0 ? (
+                {filteredProjectGroups.length === 0 ? (
                   <div className="p-6 text-center text-gray-500">
-                    No Jonas income entries found
+                    {searchQuery ? "No matching projects found" : "No Jonas income entries found"}
                   </div>
                 ) : (
                   <div className="divide-y">
-                    {projectGroups.map((project) => (
+                    {filteredProjectGroups.map((project) => (
                       <div key={project.dealId} className="p-4">
                         {/* Project Title */}
                         <h3 className="text-lg font-bold text-gray-900 mb-3">{project.projectName}</h3>
@@ -373,7 +387,7 @@ export default function Income() {
             </Card>
             
             {/* Totals Footer */}
-            {projectGroups.length > 0 && (
+            {filteredProjectGroups.length > 0 && (
               <Card className="mt-4 bg-gray-50">
                 <CardContent className="p-4">
                   <div className="flex justify-between items-center">
