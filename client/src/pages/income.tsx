@@ -52,15 +52,15 @@ export default function Income() {
     const groups: ProjectGroup[] = [];
     
     const incomeStatuses = [
-      "Use Confirmed",
-      "Being Drafted",
-      "Out for Signature",
-      "Payment Received",
-      "Completed"
+      "use confirmed",
+      "being drafted",
+      "out for signature",
+      "payment received",
+      "completed"
     ];
     
     const filteredDeals = deals.filter(deal => 
-      incomeStatuses.includes(deal.status)
+      incomeStatuses.includes(deal.status.toLowerCase())
     );
     
     filteredDeals.forEach(deal => {
