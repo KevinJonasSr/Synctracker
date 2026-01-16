@@ -180,6 +180,16 @@ export default function DealPipeline({ deals, dealsByStatus }: DealPipelineProps
         <div className="flex flex-nowrap gap-3 mb-3 overflow-x-auto">
           <Badge 
             className={`cursor-pointer transition-all hover:shadow-md ${
+              selectedBallpark === "has_ballpark" 
+                ? "bg-pink-200 text-pink-900 border-pink-300 shadow-md" 
+                : "bg-pink-100 text-pink-800 border-pink-200 hover:bg-pink-150"
+            }`}
+            onClick={() => handleBallparkFilter("has_ballpark")}
+          >
+            Ballpark ({deals.filter(d => d.ballpark).length})
+          </Badge>
+          <Badge 
+            className={`cursor-pointer transition-all hover:shadow-md ${
               selectedStatus === "new request" 
                 ? "bg-red-200 text-red-900 border-red-300 shadow-md" 
                 : "bg-red-100 text-red-800 border-red-200 hover:bg-red-150"
@@ -218,6 +228,10 @@ export default function DealPipeline({ deals, dealsByStatus }: DealPipelineProps
           >
             Use Confirmed ({dealsByStatus["use confirmed"] || 0})
           </Badge>
+        </div>
+
+        {/* Pipeline Stages - Row 2 */}
+        <div className="flex flex-nowrap gap-3 mb-6 overflow-x-auto">
           <Badge 
             className={`cursor-pointer transition-all hover:shadow-md ${
               selectedStatus === "being drafted" 
@@ -228,10 +242,6 @@ export default function DealPipeline({ deals, dealsByStatus }: DealPipelineProps
           >
             Being Drafted ({dealsByStatus["being drafted"] || 0})
           </Badge>
-        </div>
-
-        {/* Pipeline Stages - Row 2 */}
-        <div className="flex flex-nowrap gap-3 mb-6 overflow-x-auto">
           <Badge 
             className={`cursor-pointer transition-all hover:shadow-md ${
               selectedStatus === "out for signature" 
@@ -271,16 +281,6 @@ export default function DealPipeline({ deals, dealsByStatus }: DealPipelineProps
             onClick={() => handleStatusFilter("not used")}
           >
             Not Used ({dealsByStatus["not used"] || 0})
-          </Badge>
-          <Badge 
-            className={`cursor-pointer transition-all hover:shadow-md ${
-              selectedBallpark === "has_ballpark" 
-                ? "bg-pink-200 text-pink-900 border-pink-300 shadow-md" 
-                : "bg-pink-100 text-pink-800 border-pink-200 hover:bg-pink-150"
-            }`}
-            onClick={() => handleBallparkFilter("has_ballpark")}
-          >
-            Ballpark ({deals.filter(d => d.ballpark).length})
           </Badge>
         </div>
 
