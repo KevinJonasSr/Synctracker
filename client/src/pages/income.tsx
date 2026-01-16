@@ -261,8 +261,8 @@ export default function Income() {
           {/* Jonas Income Tab - Merged Report */}
           <TabsContent value="jonas" className="mt-6">
             <Card>
-              <CardHeader className="bg-gray-100 border-b">
-                <CardTitle className="text-lg">Deal Pipeline</CardTitle>
+              <CardHeader className="bg-emerald-100 border-b border-emerald-200">
+                <CardTitle className="text-lg text-emerald-800">Deal Income Pipeline</CardTitle>
               </CardHeader>
               <CardContent className="p-0">
                 {projectGroups.length === 0 ? (
