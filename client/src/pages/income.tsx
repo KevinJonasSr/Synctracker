@@ -96,6 +96,15 @@ export default function Income() {
     sum + group.recordingEntries.reduce((s, e) => s + (parseFloat(e.jonasIncome) || 0), 0), 0);
   const totalJonasIncome = totalJonasPublishing + totalJonasRecording;
 
+  const hasAnyPayment = (group: ProjectGroup) => {
+    const pubHasPayment = group.publishingEntries.some(e => e.jonasIncome && e.paymentDate);
+    const recHasPayment = group.recordingEntries.some(e => e.jonasIncome && e.paymentDate);
+    return pubHasPayment || recHasPayment;
+  };
+
+  const pendingProjects = projectGroups.filter(g => !hasAnyPayment(g));
+  const paidProjects = projectGroups.filter(g => hasAnyPayment(g));
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "pending":
@@ -251,11 +260,9 @@ export default function Income() {
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
           <TabsList>
-            <TabsTrigger value="jonas">Jonas Income</TabsTrigger>
-            <TabsTrigger value="all">All Payments</TabsTrigger>
-            <TabsTrigger value="pending">Pending</TabsTrigger>
-            <TabsTrigger value="paid">Paid</TabsTrigger>
-            <TabsTrigger value="overdue">Overdue</TabsTrigger>
+            <TabsTrigger value="jonas">All Jonas Income</TabsTrigger>
+            <TabsTrigger value="pending">Pending ({pendingProjects.length})</TabsTrigger>
+            <TabsTrigger value="paid">Paid ({paidProjects.length})</TabsTrigger>
           </TabsList>
           
           {/* Jonas Income Tab - Merged Report */}
@@ -372,21 +379,44 @@ export default function Income() {
             )}
           </TabsContent>
           
-          {/* All Payments Tab */}
-          <TabsContent value="all" className="mt-6">
-            {renderPaymentsList(payments)}
-          </TabsContent>
-
+          {/* Pending Tab - Projects without payment */}
           <TabsContent value="pending" className="mt-6">
-            {renderPaymentsList(filteredPayments)}
+            <Card>
+              <CardHeader className="bg-yellow-100 border-b border-yellow-200">
+                <CardTitle className="text-lg text-yellow-800">Pending Payments</CardTitle>
+              </CardHeader>
+              <CardContent className="p-0">
+                {pendingProjects.length === 0 ? (
+                  <div className="p-6 text-center text-gray-500">
+                    No pending payments
+                  </div>
+                ) : (
+                  <div className="divide-y">
+                    {pendingProjects.map((project) => renderProjectCard(project))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </TabsContent>
 
+          {/* Paid Tab - Projects with payment received */}
           <TabsContent value="paid" className="mt-6">
-            {renderPaymentsList(filteredPayments)}
-          </TabsContent>
-
-          <TabsContent value="overdue" className="mt-6">
-            {renderPaymentsList(filteredPayments)}
+            <Card>
+              <CardHeader className="bg-green-100 border-b border-green-200">
+                <CardTitle className="text-lg text-green-800">Payments Received</CardTitle>
+              </CardHeader>
+              <CardContent className="p-0">
+                {paidProjects.length === 0 ? (
+                  <div className="p-6 text-center text-gray-500">
+                    No payments received yet
+                  </div>
+                ) : (
+                  <div className="divide-y">
+                    {paidProjects.map((project) => renderProjectCard(project))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>
@@ -394,6 +424,92 @@ export default function Income() {
       <AddPaymentForm open={showAddPayment} onClose={() => setShowAddPayment(false)} />
     </div>
   );
+
+  function renderProjectCard(project: ProjectGroup) {
+    return (
+      <div key={project.dealId} className="p-4">
+        {/* Project Title */}
+        <h3 className="text-lg font-bold text-gray-900 mb-3">{project.projectName}</h3>
+        
+        {/* Song Title */}
+        {project.songTitle && (
+          <p className="text-sm text-gray-600 mb-3">Song: {project.songTitle}</p>
+        )}
+        
+        {/* Publishing Info */}
+        {project.publishingEntries.length > 0 && (
+          <div className="mb-4">
+            <h4 className="text-sm font-semibold text-purple-700 mb-2 flex items-center gap-1">
+              <Music className="h-4 w-4" />
+              Publishing Info
+            </h4>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-purple-50">
+                  <tr>
+                    <th className="text-left py-2 px-3 font-medium text-purple-700">Jonas Writer</th>
+                    <th className="text-left py-2 px-3 font-medium text-purple-700">Publisher</th>
+                    <th className="text-right py-2 px-3 font-medium text-purple-700">Jonas Income</th>
+                    <th className="text-left py-2 px-3 font-medium text-purple-700">Payment Date</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-purple-100">
+                  {project.publishingEntries.map((entry, idx) => (
+                    <tr key={`pub-${idx}`} className="hover:bg-purple-50">
+                      <td className="py-2 px-3">{entry.name}</td>
+                      <td className="py-2 px-3">{entry.company}</td>
+                      <td className="py-2 px-3 text-right font-medium text-purple-700">
+                        {entry.jonasIncome ? formatCurrency(entry.jonasIncome) : '-'}
+                      </td>
+                      <td className="py-2 px-3">
+                        {formatDate(entry.paymentDate)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+        
+        {/* Label Info */}
+        {project.recordingEntries.length > 0 && (
+          <div>
+            <h4 className="text-sm font-semibold text-blue-700 mb-2 flex items-center gap-1">
+              <Users className="h-4 w-4" />
+              Label Info
+            </h4>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-blue-50">
+                  <tr>
+                    <th className="text-left py-2 px-3 font-medium text-blue-700">Jonas Artist</th>
+                    <th className="text-left py-2 px-3 font-medium text-blue-700">Label</th>
+                    <th className="text-right py-2 px-3 font-medium text-blue-700">Jonas Income</th>
+                    <th className="text-left py-2 px-3 font-medium text-blue-700">Payment Date</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-blue-100">
+                  {project.recordingEntries.map((entry, idx) => (
+                    <tr key={`rec-${idx}`} className="hover:bg-blue-50">
+                      <td className="py-2 px-3">{entry.name}</td>
+                      <td className="py-2 px-3">{entry.company}</td>
+                      <td className="py-2 px-3 text-right font-medium text-blue-700">
+                        {entry.jonasIncome ? formatCurrency(entry.jonasIncome) : '-'}
+                      </td>
+                      <td className="py-2 px-3">
+                        {formatDate(entry.paymentDate)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   function renderPaymentsList(paymentsList: Payment[]) {
     if (paymentsList.length === 0) {
