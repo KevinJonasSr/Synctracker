@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { DollarSign, Calendar, AlertTriangle, CheckCircle, Clock, Edit, Trash2, Music, Users, Disc } from "lucide-react";
+import { DollarSign, Calendar, AlertTriangle, CheckCircle, Clock, Edit, Trash2, Music, Users, Truck } from "lucide-react";
 import type { Payment, DealWithRelations } from "@shared/schema";
 
 interface JonasEntry {
@@ -328,7 +328,7 @@ export default function Income() {
                         {project.recordingEntries.length > 0 && (
                           <div>
                             <h4 className="text-sm font-semibold text-blue-700 mb-2 flex items-center gap-1">
-                              <Disc className="h-4 w-4" />
+                              <Truck className="h-4 w-4 text-red-600" />
                               Label Info
                             </h4>
                             <div className="overflow-x-auto">
@@ -476,7 +476,7 @@ export default function Income() {
         {project.recordingEntries.length > 0 && (
           <div>
             <h4 className="text-sm font-semibold text-blue-700 mb-2 flex items-center gap-1">
-              <Disc className="h-4 w-4" />
+              <Truck className="h-4 w-4 text-red-600" />
               Label Info
             </h4>
             <div className="overflow-x-auto">
