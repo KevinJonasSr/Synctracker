@@ -6,7 +6,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { DollarSign, Calendar, AlertTriangle, CheckCircle, Clock, Edit, Trash2, Music, Users, Truck } from "lucide-react";
+import { DollarSign, Calendar, AlertTriangle, CheckCircle, Clock, Edit, Trash2, Music, Users } from "lucide-react";
+
+const VanIcon = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
+    <path d="M3 17h1a2 2 0 1 0 4 0h8a2 2 0 1 0 4 0h1v-6l-3-5H3v11zm3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm14 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM4 7h10v4H4V7zm11 0h2.5l2 3.5V11H15V7z"/>
+  </svg>
+);
 import type { Payment, DealWithRelations } from "@shared/schema";
 
 interface JonasEntry {
@@ -328,7 +334,7 @@ export default function Income() {
                         {project.recordingEntries.length > 0 && (
                           <div>
                             <h4 className="text-sm font-semibold text-blue-700 mb-2 flex items-center gap-1">
-                              <Truck className="h-4 w-4 text-red-600" />
+                              <VanIcon className="h-4 w-4 text-red-600" />
                               Label Info
                             </h4>
                             <div className="overflow-x-auto">
@@ -476,7 +482,7 @@ export default function Income() {
         {project.recordingEntries.length > 0 && (
           <div>
             <h4 className="text-sm font-semibold text-blue-700 mb-2 flex items-center gap-1">
-              <Truck className="h-4 w-4 text-red-600" />
+              <VanIcon className="h-4 w-4 text-red-600" />
               Label Info
             </h4>
             <div className="overflow-x-auto">
