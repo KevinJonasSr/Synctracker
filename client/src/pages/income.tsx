@@ -9,16 +9,20 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DollarSign, Calendar, AlertTriangle, CheckCircle, Clock, Edit, Trash2, Music, Users } from "lucide-react";
 import type { Payment, DealWithRelations } from "@shared/schema";
 
-interface JonasPaymentEntry {
-  dealId: number;
-  projectName: string;
+interface JonasEntry {
   name: string;
   company: string;
-  ownership: string;
-  fee: number;
-  jonasShare: string;
+  jonasIncome: string;
   paymentDate: string;
   type: 'publishing' | 'recording';
+}
+
+interface ProjectGroup {
+  dealId: number;
+  projectName: string;
+  songTitle: string;
+  publishingEntries: JonasEntry[];
+  recordingEntries: JonasEntry[];
 }
 
 export default function Income() {
@@ -37,26 +41,20 @@ export default function Income() {
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 
-  const jonasPayments = useMemo(() => {
-    const entries: JonasPaymentEntry[] = [];
+  const projectGroups = useMemo(() => {
+    const groups: ProjectGroup[] = [];
     
     deals.forEach(deal => {
-      const fullSongValue = Number(deal.fullSongValue) || 0;
-      const fullRecordingFee = Number(deal.fullRecordingFee) || 0;
+      const publishingEntries: JonasEntry[] = [];
+      const recordingEntries: JonasEntry[] = [];
       
       if (deal.composerPublishers && Array.isArray(deal.composerPublishers)) {
         deal.composerPublishers.forEach((cp: any) => {
           if (cp.isMine) {
-            const ownership = parseFloat(cp.publishingOwnership) || 0;
-            const fee = (fullSongValue * ownership) / 100;
-            entries.push({
-              dealId: deal.id,
-              projectName: deal.projectName,
+            publishingEntries.push({
               name: cp.composer || '',
               company: cp.publisher || '',
-              ownership: cp.publishingOwnership || '',
-              fee: fee,
-              jonasShare: cp.jonasShare || '',
+              jonasIncome: cp.jonasShare || '',
               paymentDate: cp.paymentDate || '',
               type: 'publishing'
             });
@@ -67,32 +65,36 @@ export default function Income() {
       if (deal.artistLabels && Array.isArray(deal.artistLabels)) {
         deal.artistLabels.forEach((al: any) => {
           if (al.isMine) {
-            const ownership = parseFloat(al.labelOwnership) || 0;
-            const fee = (fullRecordingFee * ownership) / 100;
-            entries.push({
-              dealId: deal.id,
-              projectName: deal.projectName,
+            recordingEntries.push({
               name: al.artist || '',
               company: al.label || '',
-              ownership: al.labelOwnership || '',
-              fee: fee,
-              jonasShare: al.jonasShare || '',
+              jonasIncome: al.jonasShare || '',
               paymentDate: al.paymentDate || '',
               type: 'recording'
             });
           }
         });
       }
+      
+      if (publishingEntries.length > 0 || recordingEntries.length > 0) {
+        groups.push({
+          dealId: deal.id,
+          projectName: deal.projectName,
+          songTitle: deal.song?.title || '',
+          publishingEntries,
+          recordingEntries
+        });
+      }
     });
     
-    return entries;
+    return groups;
   }, [deals]);
 
-  const jonasPublishingPayments = jonasPayments.filter(p => p.type === 'publishing');
-  const jonasRecordingPayments = jonasPayments.filter(p => p.type === 'recording');
-
-  const totalJonasPublishing = jonasPublishingPayments.reduce((sum, p) => sum + (parseFloat(p.jonasShare) || 0), 0);
-  const totalJonasRecording = jonasRecordingPayments.reduce((sum, p) => sum + (parseFloat(p.jonasShare) || 0), 0);
+  const totalJonasPublishing = projectGroups.reduce((sum, group) => 
+    sum + group.publishingEntries.reduce((s, e) => s + (parseFloat(e.jonasIncome) || 0), 0), 0);
+  const totalJonasRecording = projectGroups.reduce((sum, group) => 
+    sum + group.recordingEntries.reduce((s, e) => s + (parseFloat(e.jonasIncome) || 0), 0), 0);
+  const totalJonasIncome = totalJonasPublishing + totalJonasRecording;
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -121,7 +123,7 @@ export default function Income() {
   };
 
   const formatDate = (date: Date | string | null) => {
-    if (!date) return "";
+    if (!date) return "-";
     return new Date(date).toLocaleDateString();
   };
 
@@ -194,7 +196,21 @@ export default function Income() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Jonas Publishing</p>
+                  <p className="text-sm font-medium text-gray-600">Total Jonas Income</p>
+                  <p className="text-2xl font-bold text-green-600">{formatCurrency(totalJonasIncome)}</p>
+                </div>
+                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                  <DollarSign className="h-6 w-6 text-green-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Publishing Income</p>
                   <p className="text-2xl font-bold text-purple-600">{formatCurrency(totalJonasPublishing)}</p>
                 </div>
                 <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
@@ -208,7 +224,7 @@ export default function Income() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Jonas Recording</p>
+                  <p className="text-sm font-medium text-gray-600">Recording Income</p>
                   <p className="text-2xl font-bold text-blue-600">{formatCurrency(totalJonasRecording)}</p>
                 </div>
                 <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
@@ -222,25 +238,11 @@ export default function Income() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Payments Received</p>
-                  <p className="text-2xl font-bold text-green-600">{formatCurrency(totalPaid)}</p>
+                  <p className="text-sm font-medium text-gray-600">Total Projects</p>
+                  <p className="text-2xl font-bold text-gray-800">{projectGroups.length}</p>
                 </div>
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                  <CheckCircle className="h-6 w-6 text-green-600" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Pending/Overdue</p>
-                  <p className="text-2xl font-bold text-yellow-600">{formatCurrency(totalPending + totalOverdue)}</p>
-                </div>
-                <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
-                  <Clock className="h-6 w-6 text-yellow-600" />
+                <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
+                  <Calendar className="h-6 w-6 text-gray-600" />
                 </div>
               </div>
             </CardContent>
@@ -256,119 +258,118 @@ export default function Income() {
             <TabsTrigger value="overdue">Overdue</TabsTrigger>
           </TabsList>
           
-          {/* Jonas Income Tab */}
+          {/* Jonas Income Tab - Merged Report */}
           <TabsContent value="jonas" className="mt-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Jonas Publishing Income */}
-              <Card className="border-purple-200">
-                <CardHeader className="bg-purple-50 border-b border-purple-200">
-                  <CardTitle className="flex items-center gap-2 text-purple-800">
-                    <Music className="h-5 w-5" />
-                    Jonas Publishing Income
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-0">
-                  {jonasPublishingPayments.length === 0 ? (
-                    <div className="p-6 text-center text-gray-500">
-                      No Jonas publishing entries found
-                    </div>
-                  ) : (
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-sm">
-                        <thead className="bg-purple-50">
-                          <tr className="border-b border-purple-200">
-                            <th className="text-left py-2 px-3 font-medium text-purple-700">Project</th>
-                            <th className="text-left py-2 px-3 font-medium text-purple-700">Writer</th>
-                            <th className="text-left py-2 px-3 font-medium text-purple-700">Publisher</th>
-                            <th className="text-right py-2 px-3 font-medium text-purple-700">Jonas Share</th>
-                            <th className="text-left py-2 px-3 font-medium text-purple-700">Payment Date</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-purple-100">
-                          {jonasPublishingPayments.map((entry, idx) => (
-                            <tr key={`pub-${entry.dealId}-${idx}`} className="hover:bg-purple-50">
-                              <td className="py-2 px-3 font-medium">{entry.projectName}</td>
-                              <td className="py-2 px-3">{entry.name}</td>
-                              <td className="py-2 px-3">{entry.company}</td>
-                              <td className="py-2 px-3 text-right font-medium text-purple-700">
-                                {entry.jonasShare ? formatCurrency(entry.jonasShare) : '-'}
-                              </td>
-                              <td className="py-2 px-3">
-                                {entry.paymentDate ? formatDate(entry.paymentDate) : '-'}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                        <tfoot className="bg-purple-100">
-                          <tr>
-                            <td colSpan={3} className="py-2 px-3 font-bold text-purple-800">Total</td>
-                            <td className="py-2 px-3 text-right font-bold text-purple-800">
-                              {formatCurrency(totalJonasPublishing)}
-                            </td>
-                            <td></td>
-                          </tr>
-                        </tfoot>
-                      </table>
-                    </div>
-                  )}
+            <Card>
+              <CardHeader className="bg-gray-100 border-b">
+                <CardTitle className="text-lg">Deal Pipeline</CardTitle>
+              </CardHeader>
+              <CardContent className="p-0">
+                {projectGroups.length === 0 ? (
+                  <div className="p-6 text-center text-gray-500">
+                    No Jonas income entries found
+                  </div>
+                ) : (
+                  <div className="divide-y">
+                    {projectGroups.map((project) => (
+                      <div key={project.dealId} className="p-4">
+                        {/* Project Title */}
+                        <h3 className="text-lg font-bold text-gray-900 mb-3">{project.projectName}</h3>
+                        
+                        {/* Song Title */}
+                        {project.songTitle && (
+                          <p className="text-sm text-gray-600 mb-3">Song: {project.songTitle}</p>
+                        )}
+                        
+                        {/* Publishing Info */}
+                        {project.publishingEntries.length > 0 && (
+                          <div className="mb-4">
+                            <h4 className="text-sm font-semibold text-purple-700 mb-2 flex items-center gap-1">
+                              <Music className="h-4 w-4" />
+                              Publishing Info
+                            </h4>
+                            <div className="overflow-x-auto">
+                              <table className="w-full text-sm">
+                                <thead className="bg-purple-50">
+                                  <tr>
+                                    <th className="text-left py-2 px-3 font-medium text-purple-700">Jonas Writer</th>
+                                    <th className="text-left py-2 px-3 font-medium text-purple-700">Publisher</th>
+                                    <th className="text-right py-2 px-3 font-medium text-purple-700">Jonas Income</th>
+                                    <th className="text-left py-2 px-3 font-medium text-purple-700">Payment Date</th>
+                                  </tr>
+                                </thead>
+                                <tbody className="divide-y divide-purple-100">
+                                  {project.publishingEntries.map((entry, idx) => (
+                                    <tr key={`pub-${idx}`} className="hover:bg-purple-50">
+                                      <td className="py-2 px-3">{entry.name}</td>
+                                      <td className="py-2 px-3">{entry.company}</td>
+                                      <td className="py-2 px-3 text-right font-medium text-purple-700">
+                                        {entry.jonasIncome ? formatCurrency(entry.jonasIncome) : '-'}
+                                      </td>
+                                      <td className="py-2 px-3">
+                                        {formatDate(entry.paymentDate)}
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {/* Label Info */}
+                        {project.recordingEntries.length > 0 && (
+                          <div>
+                            <h4 className="text-sm font-semibold text-blue-700 mb-2 flex items-center gap-1">
+                              <Users className="h-4 w-4" />
+                              Label Info
+                            </h4>
+                            <div className="overflow-x-auto">
+                              <table className="w-full text-sm">
+                                <thead className="bg-blue-50">
+                                  <tr>
+                                    <th className="text-left py-2 px-3 font-medium text-blue-700">Jonas Artist</th>
+                                    <th className="text-left py-2 px-3 font-medium text-blue-700">Label</th>
+                                    <th className="text-right py-2 px-3 font-medium text-blue-700">Jonas Income</th>
+                                    <th className="text-left py-2 px-3 font-medium text-blue-700">Payment Date</th>
+                                  </tr>
+                                </thead>
+                                <tbody className="divide-y divide-blue-100">
+                                  {project.recordingEntries.map((entry, idx) => (
+                                    <tr key={`rec-${idx}`} className="hover:bg-blue-50">
+                                      <td className="py-2 px-3">{entry.name}</td>
+                                      <td className="py-2 px-3">{entry.company}</td>
+                                      <td className="py-2 px-3 text-right font-medium text-blue-700">
+                                        {entry.jonasIncome ? formatCurrency(entry.jonasIncome) : '-'}
+                                      </td>
+                                      <td className="py-2 px-3">
+                                        {formatDate(entry.paymentDate)}
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+            
+            {/* Totals Footer */}
+            {projectGroups.length > 0 && (
+              <Card className="mt-4 bg-gray-50">
+                <CardContent className="p-4">
+                  <div className="flex justify-between items-center">
+                    <span className="font-bold text-gray-800">Total Jonas Income</span>
+                    <span className="text-xl font-bold text-green-600">{formatCurrency(totalJonasIncome)}</span>
+                  </div>
                 </CardContent>
               </Card>
-
-              {/* Jonas Recording Income */}
-              <Card className="border-blue-200">
-                <CardHeader className="bg-blue-50 border-b border-blue-200">
-                  <CardTitle className="flex items-center gap-2 text-blue-800">
-                    <Users className="h-5 w-5" />
-                    Jonas Recording Income
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-0">
-                  {jonasRecordingPayments.length === 0 ? (
-                    <div className="p-6 text-center text-gray-500">
-                      No Jonas recording entries found
-                    </div>
-                  ) : (
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-sm">
-                        <thead className="bg-blue-50">
-                          <tr className="border-b border-blue-200">
-                            <th className="text-left py-2 px-3 font-medium text-blue-700">Project</th>
-                            <th className="text-left py-2 px-3 font-medium text-blue-700">Artist</th>
-                            <th className="text-left py-2 px-3 font-medium text-blue-700">Label</th>
-                            <th className="text-right py-2 px-3 font-medium text-blue-700">Jonas Share</th>
-                            <th className="text-left py-2 px-3 font-medium text-blue-700">Payment Date</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-blue-100">
-                          {jonasRecordingPayments.map((entry, idx) => (
-                            <tr key={`rec-${entry.dealId}-${idx}`} className="hover:bg-blue-50">
-                              <td className="py-2 px-3 font-medium">{entry.projectName}</td>
-                              <td className="py-2 px-3">{entry.name}</td>
-                              <td className="py-2 px-3">{entry.company}</td>
-                              <td className="py-2 px-3 text-right font-medium text-blue-700">
-                                {entry.jonasShare ? formatCurrency(entry.jonasShare) : '-'}
-                              </td>
-                              <td className="py-2 px-3">
-                                {entry.paymentDate ? formatDate(entry.paymentDate) : '-'}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                        <tfoot className="bg-blue-100">
-                          <tr>
-                            <td colSpan={3} className="py-2 px-3 font-bold text-blue-800">Total</td>
-                            <td className="py-2 px-3 text-right font-bold text-blue-800">
-                              {formatCurrency(totalJonasRecording)}
-                            </td>
-                            <td></td>
-                          </tr>
-                        </tfoot>
-                      </table>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
+            )}
           </TabsContent>
           
           {/* All Payments Tab */}
