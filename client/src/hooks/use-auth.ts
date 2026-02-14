@@ -1,20 +1,18 @@
-import { useUser, useClerk } from "@clerk/clerk-react";
+// Temporarily bypass auth for deployment testing
+// Returns a mock authenticated user
 
 export function useAuth() {
-  const { user, isLoaded } = useUser();
-  const { signOut } = useClerk();
-
   return {
-    user: user ? {
-      id: user.id,
-      email: user.primaryEmailAddress?.emailAddress,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      imageUrl: user.imageUrl,
-    } : null,
-    isLoading: !isLoaded,
-    isAuthenticated: !!user,
-    logout: () => signOut(),
+    user: {
+      id: "temp-user",
+      email: "user@example.com",
+      firstName: "Demo",
+      lastName: "User",
+      imageUrl: null,
+    },
+    isLoading: false,
+    isAuthenticated: true,
+    logout: () => {},
     isLoggingOut: false,
   };
 }
