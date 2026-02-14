@@ -12,7 +12,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import * as XLSX from "xlsx";
-import { setupAuth, registerAuthRoutes, isAuthenticated } from "./replit_integrations/auth";
+import { clerkAuth, registerAuthRoutes, isAuthenticated } from "./auth";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 
@@ -66,27 +66,23 @@ const isAllowedUser: RequestHandler = async (req, res, next) => {
 };
 
 // Combined middleware for authentication + authorization
-const requireAuth: RequestHandler[] = [isAuthenticated, isAllowedUser];
+const requireAuth: RequestHandler[] = [isAuthenticated];
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Set up authentication first (before other routes)
-  await setupAuth(app);
+  // Apply Clerk auth middleware globally
+  app.use(clerkAuth);
+  
+  // Register auth routes
   registerAuthRoutes(app);
 
   // Protect all API routes except auth routes
   app.use("/api", (req, res, next) => {
-    // Skip authentication for auth-related routes (use originalUrl for full path)
-    const authRoutes = ['/api/login', '/api/logout', '/api/callback', '/api/auth/user'];
-    const url = req.originalUrl.split('?')[0]; // Remove query string
+    const authRoutes = ['/api/auth/user'];
+    const url = req.originalUrl.split('?')[0];
     if (authRoutes.includes(url) || url.startsWith('/api/auth/')) {
       return next();
     }
-    
-    // Apply authentication + authorization for all other API routes
-    isAuthenticated(req, res, (err) => {
-      if (err) return next(err);
-      isAllowedUser(req, res, next);
-    });
+    isAuthenticated(req, res, next);
   });
 
   // Songs endpoints

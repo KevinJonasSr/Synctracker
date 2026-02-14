@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sync Licensing Manager - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                fontFamily: {
+                    'inter': ['Inter', 'sans-serif'],
+                },
+                colors: {
+                    'brand-primary': '#2563EB',
+                    'brand-secondary': '#059669',
+                    'brand-accent': '#7C3AED',
+                    'status-overdue': '#EF4444',
+                    'status-pending': '#F59E0B',
+                    'status-completed': '#10B981',
+                }
+            }
+        }
+    };
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 font-inter">
+    
+    <!-- @COMPONENT: Layout Container -->
+    <div class="flex h-screen bg-gray-50">
+        
+        <!-- @COMPONENT: Sidebar Navigation -->
+        <aside class="w-64 bg-white shadow-sm border-r border-gray-200 flex flex-col">
+            <div class="p-6 border-b border-gray-200">
+                <h1 class="text-xl font-bold text-gray-900">
+                    <i class="fas fa-music text-brand-primary mr-2"></i>
+                    Sync Licensing
+                </h1>
+                <p class="text-sm text-gray-600 mt-1">Music Rights Management</p>
+            </div>
+            
+            <nav class="flex-1 p-4 space-y-2">
+                <a href="#" class="flex items-center px-3 py-2 text-sm font-medium text-white bg-brand-primary rounded-lg" data-nav="dashboard">
+                    <i class="fas fa-tachometer-alt mr-3"></i>
+                    Dashboard
+                </a>
+                <a href="#" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg" data-nav="songs">
+                    <i class="fas fa-music mr-3"></i>
+                    Song Database
+                </a>
+                <a href="#" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg" data-nav="deals">
+                    <i class="fas fa-handshake mr-3"></i>
+                    Deal Pipeline
+                </a>
+                <a href="#" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg" data-nav="pitches">
+                    <i class="fas fa-paper-plane mr-3"></i>
+                    Sync Pitches
+                </a>
+                <a href="#" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg" data-nav="contacts">
+                    <i class="fas fa-address-book mr-3"></i>
+                    Contacts
+                </a>
+                <a href="#" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg" data-nav="income">
+                    <i class="fas fa-dollar-sign mr-3"></i>
+                    Income Tracking
+                </a>
+                <a href="#" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg" data-nav="templates">
+                    <i class="fas fa-file-alt mr-3"></i>
+                    Templates
+                </a>
+                <a href="#" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg" data-nav="reports">
+                    <i class="fas fa-chart-bar mr-3"></i>
+                    Reports
+                </a>
+            </nav>
+            
+            <div class="p-4 border-t border-gray-200">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-brand-primary rounded-full flex items-center justify-center">
+                        <i class="fas fa-user text-white text-sm"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-900" data-mock="true">John Music</p>
+                        <p class="text-xs text-gray-500" data-mock="true">Music Supervisor</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+        <!-- @END_COMPONENT: Sidebar Navigation -->
+        
+        <!-- @COMPONENT: Main Content Area -->
+        <main class="flex-1 overflow-y-auto">
+            <!-- @COMPONENT: Header -->
+            <header class="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900">Dashboard</h2>
+                        <p class="text-sm text-gray-600 mt-1">Track your sync licensing deals and revenue</p>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="relative">
+                            <input type="text" placeholder="Search songs, deals, contacts..." class="w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
+                            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                        </div>
+                        <button class="bg-brand-primary text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center space-x-2">
+                            <i class="fas fa-plus"></i>
+                            <span>New Deal</span>
+                        </button>
+                    </div>
+                </div>
+            </header>
+            <!-- @END_COMPONENT: Header -->
+            
+            <!-- @COMPONENT: Dashboard Content -->
+            <div class="p-6">
+                
+                <!-- @COMPONENT: Key Metrics Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">Active Deals</p>
+                                <p class="text-2xl font-bold text-gray-900" data-mock="true">47</p>
+                            </div>
+                            <div class="w-12 h-12 bg-brand-primary/10 rounded-full flex items-center justify-center">
+                                <i class="fas fa-handshake text-brand-primary"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex items-center text-sm">
+                            <i class="fas fa-arrow-up text-green-500 mr-1"></i>
+                            <span class="text-green-500 font-medium" data-mock="true">+12%</span>
+                            <span class="text-gray-600 ml-1">from last month</span>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">Total Revenue</p>
+                                <p class="text-2xl font-bold text-gray-900" data-mock="true">$284,750</p>
+                            </div>
+                            <div class="w-12 h-12 bg-brand-secondary/10 rounded-full flex items-center justify-center">
+                                <i class="fas fa-dollar-sign text-brand-secondary"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex items-center text-sm">
+                            <i class="fas fa-arrow-up text-green-500 mr-1"></i>
+                            <span class="text-green-500 font-medium" data-mock="true">+8%</span>
+                            <span class="text-gray-600 ml-1">from last month</span>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">Pending Payments</p>
+                                <p class="text-2xl font-bold text-gray-900" data-mock="true">$52,400</p>
+                            </div>
+                            <div class="w-12 h-12 bg-status-pending/10 rounded-full flex items-center justify-center">
+                                <i class="fas fa-clock text-status-pending"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex items-center text-sm">
+                            <span class="text-status-overdue font-medium" data-mock="true">3 overdue</span>
+                            <span class="text-gray-600 ml-1">payments</span>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600">Songs in Database</p>
+                                <p class="text-2xl font-bold text-gray-900" data-mock="true">1,247</p>
+                            </div>
+                            <div class="w-12 h-12 bg-brand-accent/10 rounded-full flex items-center justify-center">
+                                <i class="fas fa-music text-brand-accent"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex items-center text-sm">
+                            <i class="fas fa-arrow-up text-green-500 mr-1"></i>
+                            <span class="text-green-500 font-medium" data-mock="true">+15</span>
+                            <span class="text-gray-600 ml-1">this week</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- @END_COMPONENT: Key Metrics Cards -->
+                
+                <!-- @COMPONENT: Main Dashboard Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    
+                    <!-- @COMPONENT: Deal Pipeline Overview -->
+                    <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200">
+                        <div class="p-6 border-b border-gray-200">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-lg font-semibold text-gray-900">Deal Pipeline</h3>
+                                <button class="text-sm text-brand-primary hover:text-blue-700">View All</button>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <!-- Pipeline Stages -->
+                            <div class="flex items-center justify-between mb-6">
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-3 h-3 bg-gray-300 rounded-full"></div>
+                                    <span class="text-sm font-medium text-gray-600">Pitched</span>
+                                    <span class="text-sm text-gray-500" data-mock="true">(18)</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-3 h-3 bg-status-pending rounded-full"></div>
+                                    <span class="text-sm font-medium text-gray-600">Under Review</span>
+                                    <span class="text-sm text-gray-500" data-mock="true">(12)</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-3 h-3 bg-brand-primary rounded-full"></div>
+                                    <span class="text-sm font-medium text-gray-600">Confirmed</span>
+                                    <span class="text-sm text-gray-500" data-mock="true">(8)</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-3 h-3 bg-status-completed rounded-full"></div>
+                                    <span class="text-sm font-medium text-gray-600">Completed</span>
+                                    <span class="text-sm text-gray-500" data-mock="true">(9)</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Recent Deals Table -->
+                            <div class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead>
+                                        <tr class="border-b border-gray-200">
+                                            <th class="text-left py-3 px-4 font-medium text-gray-600">Project</th>
+                                            <th class="text-left py-3 px-4 font-medium text-gray-600">Song</th>
+                                            <th class="text-left py-3 px-4 font-medium text-gray-600">Status</th>
+                                            <th class="text-left py-3 px-4 font-medium text-gray-600">Value</th>
+                                            <th class="text-left py-3 px-4 font-medium text-gray-600">Updated</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200">
+                                        <tr class="hover:bg-gray-50" data-mock="true">
+                                            <td class="py-3 px-4">
+                                                <div>
+                                                    <p class="font-medium text-gray-900">Netflix Series "Midnight"</p>
+                                                    <p class="text-sm text-gray-500">Episode 3 Opening</p>
+                                                </div>
+                                            </td>
+                                            <td class="py-3 px-4">
+                                                <div>
+                                                    <p class="font-medium text-gray-900">Electric Dreams</p>
+                                                    <p class="text-sm text-gray-500">by Aurora Rising</p>
+                                                </div>
+                                            </td>
+                                            <td class="py-3 px-4">
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-brand-primary/10 text-brand-primary">
+                                                    Confirmed
+                                                </span>
+                                            </td>
+                                            <td class="py-3 px-4 font-medium text-gray-900">$8,500</td>
+                                            <td class="py-3 px-4 text-sm text-gray-500">2 days ago</td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50" data-mock="true">
+                                            <td class="py-3 px-4">
+                                                <div>
+                                                    <p class="font-medium text-gray-900">BMW Commercial</p>
+                                                    <p class="text-sm text-gray-500">Background Track</p>
+                                                </div>
+                                            </td>
+                                            <td class="py-3 px-4">
+                                                <div>
+                                                    <p class="font-medium text-gray-900">City Lights</p>
+                                                    <p class="text-sm text-gray-500">by The Collective</p>
+                                                </div>
+                                            </td>
+                                            <td class="py-3 px-4">
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-status-pending/10 text-status-pending">
+                                                    Under Review
+                                                </span>
+                                            </td>
+                                            <td class="py-3 px-4 font-medium text-gray-900">$12,000</td>
+                                            <td class="py-3 px-4 text-sm text-gray-500">1 week ago</td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50" data-mock="true">
+                                            <td class="py-3 px-4">
+                                                <div>
+                                                    <p class="font-medium text-gray-900">Indie Film "Searching"</p>
+                                                    <p class="text-sm text-gray-500">End Credits</p>
+                                                </div>
+                                            </td>
+                                            <td class="py-3 px-4">
+                                                <div>
+                                                    <p class="font-medium text-gray-900">Memories Fade</p>
+                                                    <p class="text-sm text-gray-500">by Echo Chamber</p>
+                                                </div>
+                                            </td>
+                                            <td class="py-3 px-4">
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-status-completed/10 text-status-completed">
+                                                    Completed
+                                                </span>
+                                            </td>
+                                            <td class="py-3 px-4 font-medium text-gray-900">$3,200</td>
+                                            <td class="py-3 px-4 text-sm text-gray-500">3 days ago</td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50" data-mock="true">
+                                            <td class="py-3 px-4">
+                                                <div>
+                                                    <p class="font-medium text-gray-900">PlayStation Game Trailer</p>
+                                                    <p class="text-sm text-gray-500">Launch Campaign</p>
+                                                </div>
+                                            </td>
+                                            <td class="py-3 px-4">
+                                                <div>
+                                                    <p class="font-medium text-gray-900">Digital Warfare</p>
+                                                    <p class="text-sm text-gray-500">by Neon Pulse</p>
+                                                </div>
+                                            </td>
+                                            <td class="py-3 px-4">
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-300/10 text-gray-600">
+                                                    Pitched
+                                                </span>
+                                            </td>
+                                            <td class="py-3 px-4 font-medium text-gray-900">$25,000</td>
+                                            <td class="py-3 px-4 text-sm text-gray-500">1 day ago</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- @END_COMPONENT: Deal Pipeline Overview -->
+                    
+                    <!-- @COMPONENT: Recent Activity & Quick Actions -->
+                    <div class="space-y-6">
+                        
+                        <!-- @COMPONENT: Recent Activity -->
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+                            <div class="p-6 border-b border-gray-200">
+                                <h3 class="text-lg font-semibold text-gray-900">Recent Activity</h3>
+                            </div>
+                            <div class="p-6">
+                                <div class="space-y-4">
+                                    <div class="flex items-start space-x-3" data-mock="true">
+                                        <div class="w-8 h-8 bg-status-completed/10 rounded-full flex items-center justify-center flex-shrink-0">
+                                            <i class="fas fa-check text-status-completed text-sm"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <p class="text-sm font-medium text-gray-900">Payment received</p>
+                                            <p class="text-sm text-gray-500">$3,200 from Indie Film "Searching"</p>
+                                            <p class="text-xs text-gray-400 mt-1">2 hours ago</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-start space-x-3" data-mock="true">
+                                        <div class="w-8 h-8 bg-brand-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                                            <i class="fas fa-handshake text-brand-primary text-sm"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <p class="text-sm font-medium text-gray-900">Deal confirmed</p>
+                                            <p class="text-sm text-gray-500">Netflix Series "Midnight" - Electric Dreams</p>
+                                            <p class="text-xs text-gray-400 mt-1">1 day ago</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-start space-x-3" data-mock="true">
+                                        <div class="w-8 h-8 bg-status-pending/10 rounded-full flex items-center justify-center flex-shrink-0">
+                                            <i class="fas fa-paper-plane text-status-pending text-sm"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <p class="text-sm font-medium text-gray-900">Pitch submitted</p>
+                                            <p class="text-sm text-gray-500">PlayStation Game Trailer - Digital Warfare</p>
+                                            <p class="text-xs text-gray-400 mt-1">1 day ago</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-start space-x-3" data-mock="true">
+                                        <div class="w-8 h-8 bg-brand-accent/10 rounded-full flex items-center justify-center flex-shrink-0">
+                                            <i class="fas fa-music text-brand-accent text-sm"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <p class="text-sm font-medium text-gray-900">New song added</p>
+                                            <p class="text-sm text-gray-500">"Neon Nights" by Synthwave Collective</p>
+                                            <p class="text-xs text-gray-400 mt-1">2 days ago</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-start space-x-3" data-mock="true">
+                                        <div class="w-8 h-8 bg-status-overdue/10 rounded-full flex items-center justify-center flex-shrink-0">
+                                            <i class="fas fa-exclamation-triangle text-status-overdue text-sm"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <p class="text-sm font-medium text-gray-900">Payment overdue</p>
+                                            <p class="text-sm text-gray-500">$5,500 from Apple Commercial</p>
+                                            <p class="text-xs text-gray-400 mt-1">3 days ago</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- @END_COMPONENT: Recent Activity -->
+                        
+                        <!-- @COMPONENT: Quick Actions -->
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+                            <div class="p-6 border-b border-gray-200">
+                                <h3 class="text-lg font-semibold text-gray-900">Quick Actions</h3>
+                            </div>
+                            <div class="p-6 space-y-3">
+                                <button class="w-full flex items-center justify-center space-x-2 bg-brand-primary text-white px-4 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                                    <i class="fas fa-plus"></i>
+                                    <span>Add New Song</span>
+                                </button>
+                                <button class="w-full flex items-center justify-center space-x-2 bg-brand-secondary text-white px-4 py-3 rounded-lg hover:bg-emerald-700 transition-colors">
+                                    <i class="fas fa-paper-plane"></i>
+                                    <span>Create Pitch</span>
+                                </button>
+                                <button class="w-full flex items-center justify-center space-x-2 bg-brand-accent text-white px-4 py-3 rounded-lg hover:bg-purple-700 transition-colors">
+                                    <i class="fas fa-user-plus"></i>
+                                    <span>Add Contact</span>
+                                </button>
+                                <button class="w-full flex items-center justify-center space-x-2 bg-gray-600 text-white px-4 py-3 rounded-lg hover:bg-gray-700 transition-colors">
+                                    <i class="fas fa-file-export"></i>
+                                    <span>Export Report</span>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- @END_COMPONENT: Quick Actions -->
+                        
+                    </div>
+                    <!-- @END_COMPONENT: Recent Activity & Quick Actions -->
+                    
+                </div>
+                <!-- @END_COMPONENT: Main Dashboard Grid -->
+                
+                <!-- @COMPONENT: Urgent Actions Section -->
+                <div class="mt-8 bg-white rounded-xl shadow-sm border border-gray-200">
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-semibold text-gray-900">Urgent Actions Required</h3>
+                            <span class="bg-status-overdue/10 text-status-overdue text-sm px-3 py-1 rounded-full font-medium" data-mock="true">
+                                5 items
+                            </span>
+                        </div>
+                    </div>
+                    <div class="divide-y divide-gray-200">
+                        <div class="p-6 flex items-center justify-between" data-mock="true">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-10 h-10 bg-status-overdue/10 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-exclamation-triangle text-status-overdue"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-gray-900">Payment overdue from Apple Commercial</p>
+                                    <p class="text-sm text-gray-500">$5,500 • Due 5 days ago</p>
+                                </div>
+                            </div>
+                            <button class="bg-status-overdue text-white px-4 py-2 rounded-lg hover:bg-red-600 text-sm">
+                                Follow Up
+                            </button>
+                        </div>
+                        
+                        <div class="p-6 flex items-center justify-between" data-mock="true">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-10 h-10 bg-status-pending/10 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-clock text-status-pending"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-gray-900">Response needed for HBO Series pitch</p>
+                                    <p class="text-sm text-gray-500">Deadline: Tomorrow</p>
+                                </div>
+                            </div>
+                            <button class="bg-status-pending text-white px-4 py-2 rounded-lg hover:bg-yellow-600 text-sm">
+                                Respond
+                            </button>
+                        </div>
+                        
+                        <div class="p-6 flex items-center justify-between" data-mock="true">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-10 h-10 bg-brand-primary/10 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-file-signature text-brand-primary"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-gray-900">Contract approval needed</p>
+                                    <p class="text-sm text-gray-500">Spotify Playlist "Summer Vibes" • $2,800</p>
+                                </div>
+                            </div>
+                            <button class="bg-brand-primary text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm">
+                                Review
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <!-- @END_COMPONENT: Urgent Actions Section -->
+                
+            </div>
+            <!-- @END_COMPONENT: Dashboard Content -->
+            
+        </main>
+        <!-- @END_COMPONENT: Main Content Area -->
+        
+    </div>
+    <!-- @END_COMPONENT: Layout Container -->
+    
+    <!-- @COMPONENT: Add Deal Modal (Hidden by default) -->
+    <div id="addDealModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl p-6 w-full max-w-lg mx-4">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-semibold text-gray-900">Add New Deal</h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Project Name</label>
+                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent" placeholder="Enter project name">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Song</label>
+                    <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
+                        <option>Select a song</option>
+                        <option data-mock="true">Electric Dreams - Aurora Rising</option>
+                        <option data-mock="true">City Lights - The Collective</option>
+                        <option data-mock="true">Digital Warfare - Neon Pulse</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Deal Value</label>
+                    <input type="number" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent" placeholder="Enter deal value">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Contact</label>
+                    <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent">
+                        <option>Select a contact</option>
+                        <option data-mock="true">Sarah Johnson - Netflix</option>
+                        <option data-mock="true">Mike Chen - BMW</option>
+                        <option data-mock="true">Lisa Rodriguez - Sony</option>
+                    </select>
+                </div>
+                
+                <div class="flex space-x-4 pt-4">
+                    <button type="button" onclick="closeModal()" class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-blue-700">
+                        Add Deal
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: Add Deal Modal -->
+    
+    <script>
+    // Basic navigation functionality
+    (function() {
+        // Navigation handling
+        const navLinks = document.querySelectorAll('[data-nav]');
+        navLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Remove active class from all links
+                navLinks.forEach(l => l.classList.remove('bg-brand-primary', 'text-white'));
+                navLinks.forEach(l => l.classList.add('text-gray-700', 'hover:bg-gray-100'));
+                
+                // Add active class to clicked link
+                this.classList.remove('text-gray-700', 'hover:bg-gray-100');
+                this.classList.add('bg-brand-primary', 'text-white');
+                
+                // TODO: Implement navigation logic to show different sections
+            });
+        });
+        
+        // Modal functionality
+        const addDealButtons = document.querySelectorAll('button');
+        addDealButtons.forEach(button => {
+            if (button.textContent.includes('New Deal')) {
+                button.addEventListener('click', function() {
+                    document.getElementById('addDealModal').classList.remove('hidden');
+                });
+            }
+        });
+        
+        // Close modal function
+        window.closeModal = function() {
+            document.getElementById('addDealModal').classList.add('hidden');
+        };
+        
+        // Close modal when clicking outside
+        document.getElementById('addDealModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+        
+        // TODO: Implement form submission logic
+        // TODO: Implement search functionality
+        // TODO: Implement data filtering and sorting
+        // TODO: Implement real-time updates and notifications
+    })();
+    </script>
+    
+</body>
+</html>
