@@ -1,8 +1,20 @@
 import { Request, Response, NextFunction, RequestHandler } from "express";
-import { ClerkExpressWithAuth } from "@clerk/clerk-sdk-node";
 
-// Clerk middleware that adds auth to request
-export const clerkAuth = ClerkExpressWithAuth();
+// Check if Clerk keys are configured
+const hasClerkKeys = process.env.CLERK_PUBLISHABLE_KEY && process.env.CLERK_SECRET_KEY;
+
+// Clerk middleware that adds auth to request (only if keys are configured)
+export const clerkAuth: RequestHandler = (req, res, next) => {
+  if (!hasClerkKeys) {
+    // Skip Clerk auth if not configured
+    (req as any).auth = { userId: null };
+    return next();
+  }
+  
+  // Dynamically import and use Clerk
+  const { ClerkExpressWithAuth } = require("@clerk/clerk-sdk-node");
+  return ClerkExpressWithAuth()(req, res, next);
+};
 
 // Check if user is authenticated
 export const isAuthenticated: RequestHandler = (req: Request, res: Response, next: NextFunction) => {
